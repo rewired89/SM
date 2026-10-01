@@ -27,6 +27,7 @@ function Router() {
   const { parts } = useRoute();
   const [a, b] = parts;
   const dec = b && decodeURIComponent(b);
+  if (a?.startsWith('collab_')) return <CollabPage key={a} slug={decodeURIComponent(a.slice(7))} />;
   switch (a) {
     case undefined: return <Home />;
     case 'explore': return <Explore />;

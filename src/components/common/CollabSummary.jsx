@@ -8,9 +8,9 @@ export default function CollabSummary({ type, entity }) {
   const { s } = useStore();
   const st = sel.collabStats(s, type, entity);
   return (
-    <Link to={`/collab/${sel.collabSlug(entity)}`} className="collab-sum" aria-label={`Collaborators for ${entity.title}: ${st.collaborators} on the team, ${st.open} open roles, ${money(st.funded, 0)} of ${money(st.goal)} funded`}>
+    <Link to={sel.collabPath(entity)} className="collab-sum" aria-label={`Collaborators for ${entity.title}: ${st.collaborators} on the team, ${st.open} open roles, ${money(st.funded, 0)} of ${money(st.goal)} funded`}>
       <span>👥 {st.collaborators} {st.collaborators === 1 ? 'collaborator' : 'collaborators'}{st.open ? ` · ${st.open} open` : ''}</span>
-      <span>{money(st.funded, 0)} of {money(st.goal)}</span>
+      <span>{money(st.funded, 0)} of {money(st.goal)} · Join →</span>
     </Link>
   );
 }

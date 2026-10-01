@@ -23,7 +23,7 @@ export const communities = [
     { id: 'd15', title: 'Preprint feedback swap', authorId: 'u_priya', replies: 26 } ] },
 ];
 
-export const topTags = ['AI', 'Robotics', 'Cybersecurity', 'Biology', 'Research', 'OpenSource', 'Hardware', 'Space', 'Games', 'Privacy', 'Music'];
+export const topTags = ['Bioelectricity', 'AI', 'Robotics', 'Cybersecurity', 'Biology', 'Research', 'OpenSource', 'Hardware', 'Space', 'Games', 'Privacy', 'Music'];
 
 export const categoryTree = {
   Ideas: [], Projects: [],

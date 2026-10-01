@@ -51,7 +51,11 @@ export const initialState = () => ({
   conversations: conversationsSeed.map((c) => ({ ...c, messages: c.messages.map((m) => ({ ...m, ts: minsAgoToTs(m.m) })) })),
   createdPosts: [],
   created: { projects: [], ideas: [], tools: [], communities: [], milestones: [], challenges: [] },
-  collabRequests: [],
+  collabRequests: [
+    { id: 'cr_s1', targetType: 'project', targetId: 'p_acheron', fromId: 'u_maya', role: 'Collaborator', skill: 'Python developer', message: 'I work with Python and robotics. I would love to help with the simulation.', ts: minsAgoToTs(60), status: 'pending' },
+    { id: 'cr_s2', targetType: 'project', targetId: 'p_hsip', fromId: 'u_marcus', role: 'Co-founder', skill: 'Security researcher', message: 'I have been threat modeling HSIP for weeks. I would like to co-own it with you.', ts: minsAgoToTs(215), status: 'pending' },
+    { id: 'cr_s3', targetType: 'idea', targetId: 'i_bioelectric', fromId: 'u_ines', role: 'Advisor', skill: 'Biology researcher', message: 'I can run a pilot with cultured networks if you share a voltage protocol.', ts: minsAgoToTs(400), status: 'pending' },
+  ],
   toolUses: {},
   microSeen: {},
   viewed: [],

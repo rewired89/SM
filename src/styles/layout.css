@@ -77,3 +77,9 @@
 @keyframes wave-slide { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (max-width: 760px) { .backdrop__waves { height: 26vh; } }
 @media (prefers-reduced-motion: reduce) { .backdrop__cloud, .wave { animation: none !important; } .backdrop__cloud { transform: translateX(10vw); } }
+
+.suggest { position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 50; padding: 6px; display: grid; gap: 2px; max-height: 360px; overflow-y: auto; border-radius: 18px; background: rgba(255, 255, 255, 0.97); }
+.suggest li { display: flex; justify-content: space-between; gap: 10px; padding: 9px 12px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; }
+.suggest li:hover, .suggest li.is-on { background: rgba(var(--accent-rgb), 0.1); }
+.suggest .muted { font-size: 0.78rem; }
+.tagbanner { padding: 18px; }

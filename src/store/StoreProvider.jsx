@@ -29,6 +29,7 @@ function load() {
     const saved = JSON.parse(raw);
     if (saved.v !== 1) return initialState();
     const out = { ...initialState(), ...saved, created: { ...initialState().created, ...saved.created } };
+    out.collabRequests = (out.collabRequests || []).map((r) => ({ fromId: ME, role: 'Collaborator', status: 'pending', ...r }));
     if (out.profile?.collabTypes) out.profile = { ...out.profile, collabTypes: [...new Set(out.profile.collabTypes.map((t) => (t === 'Tech with AI collaborator' ? 'Tech with AI · Vibe Code' : t)))] };
     return out;
   } catch { return initialState(); }
@@ -141,21 +142,31 @@ export function StoreProvider({ children }) {
         return result;
       },
 
-      sendCollab({ targetType, targetId, skill, message }) {
+      sendCollab({ targetType, targetId, skill, message, role = 'Collaborator' }) {
         const s = ref.current;
         const e = sel.entityOf(s, { type: targetType, id: targetId });
         const ownerId = e.ownerId || e.authorId;
         const owner = sel.userById(ownerId);
         const cvId = `cv_${ownerId.replace('u_', '')}`;
-        dispatch({ type: 'COLLAB', request: { id: uid('cr'), targetType, targetId, skill, message, ts: Date.now() } });
-        dispatch({ type: 'MSG', cvId, userId: ownerId, from: 'me', text: `Collaboration request for ${sel.nameOf(e)} (${skill}): ${message || 'Happy to help where useful.'}` });
-        dispatch({ type: 'NOTE', noteType: 'collab', text: `Your collaboration request for ${sel.nameOf(e)} was sent to ${owner.name}.`, to: `/${targetType}/${targetId}` });
+        const id = uid('cr');
+        dispatch({ type: 'COLLAB', request: { id, targetType, targetId, fromId: ME, role, skill, message, ts: Date.now(), status: 'pending' } });
+        dispatch({ type: 'MSG', cvId, userId: ownerId, from: 'me', text: `Request to join ${sel.nameOf(e)} as ${role} (${skill}): ${message || 'Happy to help where useful.'}` });
+        dispatch({ type: 'NOTE', noteType: 'collab', text: `Your request to join ${sel.nameOf(e)} as ${role} was sent to ${owner.name}. They decide.`, to: sel.collabPath(e) });
         toast(`Request sent to ${owner.name}`, { tone: 'success' });
         setTimeout(() => {
-          dispatch({ type: 'MSG', cvId, userId: ownerId, from: 'them', text: REPLIES[Math.floor(Math.random() * REPLIES.length)] });
-          dispatch({ type: 'NOTE', noteType: 'collab', text: `${owner.name} replied to your collaboration request.`, to: `/messages/${cvId}` });
-          toast(`${owner.name} replied to your request`, { to: `/messages/${cvId}` });
+          const founder = role === 'Co-founder';
+          dispatch({ type: 'MSG', cvId, userId: ownerId, from: 'them', text: founder ? 'Thanks for the offer. Co-founding is a big step, so let us talk first. When are you free this week?' : REPLIES[Math.floor(Math.random() * REPLIES.length)] });
+          if (!founder) dispatch({ type: 'COLLAB_DECIDE', id, status: 'accepted' });
+          dispatch({ type: 'NOTE', noteType: 'collab', text: founder ? `${owner.name} wants to talk before deciding on your co-founder request for ${sel.nameOf(e)}.` : `${owner.name} accepted you as ${role} on ${sel.nameOf(e)}.`, to: founder ? `/messages/${cvId}` : sel.collabPath(e) });
+          toast(founder ? `${owner.name} wants to talk first` : `${owner.name} said yes! You joined ${sel.nameOf(e)}`, { tone: founder ? 'default' : 'success', to: sel.collabPath(e) });
         }, 5000);
+      },
+      decideCollab(id, status) {
+        const r = ref.current.collabRequests.find((x) => x.id === id);
+        const e = sel.entityOf(ref.current, { type: r.targetType, id: r.targetId });
+        const who = sel.userById(r.fromId);
+        dispatch({ type: 'COLLAB_DECIDE', id, status });
+        toast(status === 'accepted' ? `${who.name} joined ${sel.nameOf(e)} as ${r.role}` : `Request from ${who.name} declined`, { tone: status === 'accepted' ? 'success' : 'default' });
       },
 
       arcadeWin(p) {

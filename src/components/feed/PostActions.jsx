@@ -29,7 +29,7 @@ export default function PostActions({ post, onToggleComments, open }) {
       <IconButton icon="comment" pressed={open} label="Comments" count={sel.commentCount(s, sel.K('post', post.id), post.comments)} onClick={onToggleComments} aria-expanded={open} />
       <IconButton icon="share" label="Share" onClick={share}>Share</IconButton>
       <IconButton icon="bookmark" variant="save" pressed={saved} label={saved ? 'Remove bookmark' : 'Save'} onClick={() => a.save(post.id)} />
-      {post.ref && ['project', 'idea'].includes(post.ref.type) && sel.entityOf(s, post.ref) && <IconButton icon="users" label="Collaborators" onClick={() => navigate(`/collab/${sel.collabSlug(sel.entityOf(s, post.ref))}`)}>Collaborators</IconButton>}
+      {post.ref && ['project', 'idea'].includes(post.ref.type) && sel.entityOf(s, post.ref) && <IconButton icon="users" label="Collaborators" onClick={() => navigate(sel.collabPath(sel.entityOf(s, post.ref)))}>Collaborators</IconButton>}
       <span className="grow" />
       {target && <SupportBtn type={target.type} id={target.id} label="this" />}
     </div>

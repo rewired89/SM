@@ -44,7 +44,7 @@ export default function IdeaPage({ id }) {
           <div><span className="eyebrow">Status</span><strong>{STAGES[idea.stage]}</strong></div>
           <div><span className="eyebrow">Interest</span><strong>{sel.interestCount(s, idea).toLocaleString()} people interested</strong></div>
           <div><span className="eyebrow">Discussion</span><strong>{sel.commentCount(s, cKey, idea.comments)} comments</strong></div>
-          <div><span className="eyebrow">Collaborators</span><Link to={`/collab/${sel.collabSlug(idea)}`}><strong>{idea.looking} people looking</strong></Link></div>
+          <div><span className="eyebrow">Collaborators</span><Link to={sel.collabPath(idea)}><strong>{idea.looking} people looking</strong></Link></div>
         </div>
         <div className="stack stack--sm">
           <div className="row row--between"><span className="eyebrow">Funding</span><strong>{money(sel.fundedOf(s, 'idea', idea), 2)} <span className="muted">/ {money(idea.goal)} · {pctLabel(sel.ideaPct(s, idea))}</span></strong></div>
@@ -53,7 +53,7 @@ export default function IdeaPage({ id }) {
         <div className="row row--wrap">
           <TactileButton variant="primary" active={on} aria-pressed={on} onClick={() => a.interest(idea.id, idea.title)}>{on ? '✓ I am interested' : "I'm interested"}</TactileButton>
           <TactileButton icon="comment" onClick={() => document.getElementById('discuss')?.scrollIntoView({ behavior: 'smooth' })}>Discuss</TactileButton>
-          <TactileButton icon="users" to={`/collab/${sel.collabSlug(idea)}`}>Find collaborators</TactileButton>
+          <TactileButton icon="users" to={sel.collabPath(idea)}>Find collaborators</TactileButton>
           <FollowBtn type="idea" id={idea.id} name={idea.title} size="md" />
           <SupportBtn type="idea" id={idea.id} label={idea.title} className="btn btn--primary" />
         </div>

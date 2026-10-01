@@ -4,7 +4,7 @@ export const projects = [
   P({
     id: 'p_acheron', title: 'Acheron', tagline: 'Bioelectric data storage research', kind: 'Research project',
     status: 'Prototype / Simulation', category: 'Science', subs: ['Bioengineering', 'Computational Biology'],
-    tags: ['Biology', 'Research', 'AI'], ownerId: 'u_dayana', followers: 312, funded: 684,
+    tags: ['Bioelectricity', 'Biology', 'Research', 'AI'], ownerId: 'u_dayana', followers: 312, funded: 684,
     about: 'Can biological systems preserve rewritable information through bioelectric states? Acheron simulates stable voltage patterns across cell networks and tests error correction schemes before anything touches a wet lab.',
     progress: [{ label: 'Research', pct: 80 }, { label: 'Simulation', pct: 90 }, { label: 'Validation', pct: 30 }],
     team: [{ userId: 'u_dayana', role: 'Research Lead' }, { userId: 'u_priya', role: 'Computational advisor' }],
@@ -94,7 +94,7 @@ export const projects = [
   P({
     id: 'p_neuromap', title: 'NeuroMap', tagline: 'Open EEG dataset explorer for sleep research', kind: 'Research project',
     status: 'Active', category: 'Science', subs: ['Neuroscience', 'Computational Science'],
-    tags: ['Research', 'AI', 'OpenSource'], ownerId: 'u_priya', followers: 389, funded: 310,
+    tags: ['Bioelectricity', 'Research', 'AI', 'OpenSource'], ownerId: 'u_priya', followers: 389, funded: 310,
     about: 'NeuroMap lets anyone browse open sleep EEG recordings, run simple analyses in the browser and cite exactly which data they used.',
     progress: [{ label: 'Data ingestion', pct: 75 }, { label: 'Browser analysis', pct: 40 }, { label: 'Citations', pct: 15 }],
     team: [{ userId: 'u_priya', role: 'Principal investigator' }, { userId: 'u_oliver', role: 'Open science' }],

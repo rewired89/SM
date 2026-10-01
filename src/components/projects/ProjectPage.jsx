@@ -39,7 +39,7 @@ export default function ProjectPage({ id }) {
         <div className="chips chips--tags">{p.tags.map((t) => <Tag key={t} tag={t} />)}</div>
         <div className="row row--wrap">
           <SupportBtn type="project" id={p.id} label={p.title} className="btn btn--primary" />
-          <TactileButton icon="users" to={`/collab/${sel.collabSlug(p)}`}>Collaborators ({p.team.length})</TactileButton>
+          <TactileButton icon="users" to={sel.collabPath(p)}>Collaborators ({sel.collabTeam(s, 'project', p).length})</TactileButton>
           <TactileButton icon="send" onClick={() => openModal('collab', { targetType: 'project', targetId: p.id })} disabled={mine}>Collaborate</TactileButton>
           <FollowBtn type="project" id={p.id} name={p.title} size="md" />
           {mine && <TactileButton variant="primary" icon="edit" onClick={() => openModal('create', { start: 'update', projectId: p.id })}>Post an update</TactileButton>}
@@ -68,7 +68,7 @@ export default function ProjectPage({ id }) {
       <section className="stack" aria-label="Team and needs">
         <div className="grid grid--2">
           <div className="stack"><h2>Team</h2>
-            <StoneCard className="stack stack--sm">{p.team.map((t) => <PersonChip key={t.userId} user={sel.userById(t.userId)} size={36} sub={t.role} />)}</StoneCard></div>
+            <StoneCard className="stack stack--sm">{sel.collabTeam(s, 'project', p).map((t) => <PersonChip key={t.userId} user={sel.userById(t.userId)} size={36} sub={t.role} />)}</StoneCard></div>
           <div className="stack"><h2>Looking for</h2>
             <StoneCard className="stack stack--sm">
               <ul className="checklist">{p.looking.map((l) => <li key={l.skill} className={l.open ? 'is-open' : ''}><span aria-hidden="true">{l.open ? '☑' : '☐'}</span> {l.skill}</li>)}</ul>

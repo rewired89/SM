@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRoute, navigate } from '../lib/router.js';
-import { Icon, Tabs, Empty, StoneCard } from '../components/ui/index.jsx';
+import { Icon, Tabs, Empty, StoneCard, GlassPanel } from '../components/ui/index.jsx';
 import { PersonChip, FollowBtn } from '../components/common/bits.jsx';
 import IdeaCard from '../components/ideas/IdeaCard.jsx';
 import ProjectCard from '../components/projects/ProjectCard.jsx';
@@ -34,6 +34,8 @@ export default function SearchPage() {
   const [text, setText] = useState(qs);
   const r = sel.search(s, qs);
   const total = Object.values(r).reduce((a, l) => a + l.length, 0);
+  const tagName = qs.replace(/^#/, '');
+  const tagged = [...sel.allProjects(s), ...sel.allIdeas(s)].filter((e) => (e.tags || []).some((t) => t.toLowerCase() === tagName.toLowerCase()));
   const tabs = [{ id: 'all', label: `All ${total}` }, ...[['projects', 'Projects'], ['people', 'People'], ['ideas', 'Ideas'], ['tools', 'AI tools'], ['communities', 'Communities'], ['posts', 'Posts']].map(([id, l]) => ({ id, label: `${l} ${r[id].length}` }))];
   return (
     <div className="stack stack--lg">
@@ -45,6 +47,14 @@ export default function SearchPage() {
         <div className="stack"><h2>Try a topic</h2><div className="chips">{topTags.map((t) => <Link key={t} className="chip" to={`/search?q=${t}`}>{t}</Link>)}</div></div>
       ) : (
         <>
+          {tagged.length > 0 && (
+            <GlassPanel className="stack stack--sm tagbanner">
+              <span className="eyebrow">Hashtag</span>
+              <h2>#{(tagged[0].tags.find((t) => t.toLowerCase() === tagName.toLowerCase()))}</h2>
+              <p className="secondary">{r.projects.length} project{r.projects.length === 1 ? '' : 's'} and {r.ideas.length} idea{r.ideas.length === 1 ? '' : 's'} use this hashtag. Open one to see its collaborators and ask to join as a collaborator, advisor or co-founder. The founder decides.</p>
+              <div className="row row--wrap">{tagged.map((e) => <Link key={e.id} to={sel.collabPath(e)} className="btn btn--sm">👥 {e.title}</Link>)}</div>
+            </GlassPanel>
+          )}
           <Tabs label="Result types" tabs={tabs} value={tab} onChange={setTab} />
           {total ? <Results r={r} tab={tab} /> : <Empty title={`No results for "${qs}"`}>Try a broader word, or browse the tags above.</Empty>}
         </>

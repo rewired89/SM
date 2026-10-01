@@ -50,6 +50,7 @@ export function reducer(s, a) {
       const map = { project: 'projects', idea: 'ideas', tool: 'tools', community: 'communities', challenge: 'challenges' };
       return { ...s, created: { ...c, [map[a.kind]]: [a.entity, ...c[map[a.kind]]], milestones: a.milestone ? [...c.milestones, a.milestone] : c.milestones }, createdPosts: a.post ? [a.post, ...s.createdPosts] : s.createdPosts };
     }
+    case 'COLLAB_DECIDE': return { ...s, collabRequests: s.collabRequests.map((r) => (r.id === a.id ? { ...r, status: a.status } : r)) };
     case 'COLLAB': return { ...s, collabRequests: [a.request, ...s.collabRequests] };
     case 'MSG': {
       const exists = s.conversations.some((c) => c.id === a.cvId);

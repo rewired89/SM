@@ -20,8 +20,9 @@ export default function CollabPage({ slug }) {
   const mine = owner.id === ME;
   const roles = type === 'project' ? (e.looking || []).filter((l) => l.open).map((l) => l.skill) : e.needs;
   const people = sel.collabCandidates(s, type, e, role).slice(0, 8);
-  const sent = s.collabRequests.filter((r) => r.targetType === type && r.targetId === e.id);
-  const team = type === 'project' ? e.team : [{ userId: e.authorId, role: 'Idea author' }];
+  const sent = sel.myRequests(s, type, e);
+  const team = sel.collabTeam(s, type, e);
+  const incoming = sel.incomingRequests(s, type, e);
   const page = `/${type}/${e.id}`;
   return (
     <div className="stack stack--lg">
@@ -29,7 +30,7 @@ export default function CollabPage({ slug }) {
       <GlassPanel className="page-head">
         <span className="eyebrow">Collaborators · {type}</span>
         <h1>{e.title}</h1>
-        <p className="muted">nomi.app/collab/{sel.collabSlug(e)}</p>
+        <p className="muted">nomi.app{sel.collabPath(e)}</p>
         <div className="stats">
           <div className="stat"><span className="muted">Collaborators</span><strong>{st.collaborators}</strong></div>
           <div className="stat"><span className="muted">Open roles</span><strong>{st.open}</strong></div>
@@ -41,15 +42,26 @@ export default function CollabPage({ slug }) {
           <ProgressBar value={st.pct} label="Funding progress" />
         </div>
         <div className="row row--wrap">
-          <SupportBtn type={type} id={e.id} label={e.title} className="btn btn--primary" />
-          <TactileButton icon="users" disabled={mine} onClick={() => openModal('collab', { targetType: type, targetId: e.id })}>I'm interested</TactileButton>
+          <SupportBtn type={type} id={e.id} label={e.title} className="btn" />
+          <TactileButton icon="users" variant="primary" disabled={mine} onClick={() => openModal('collab', { targetType: type, targetId: e.id })}>Request to join</TactileButton>
         </div>
       </GlassPanel>
 
       <section className="stack" aria-label="Current collaborators"><h2>Collaborators ({team.length})</h2>
         <div className="grid grid--2">{team.map((m) => <StoneCard key={m.userId}><PersonChip user={sel.userById(m.userId)} size={44} sub={m.role} /></StoneCard>)}</div>
-        {sent.length > 0 && <p className="muted">You sent {sent.length} request{sent.length === 1 ? '' : 's'} here ({sent.map((r) => `${r.skill}, ${ago(r.ts)} ago`).join('; ')}).</p>}
+        {sent.length > 0 && <ul className="stack stack--sm" aria-label="Your requests">{sent.map((r) => <li key={r.id} className="muted">Your request to join as <strong>{r.role}</strong> ({r.skill}), {ago(r.ts)} ago: <Badge tone={r.status === 'accepted' ? 'success' : r.status === 'declined' ? 'warning' : undefined}>{r.status}</Badge></li>)}</ul>}
       </section>
+
+      {mine && (
+        <section className="stack" aria-label="Join requests"><h2>Join requests ({incoming.filter((r) => r.status === 'pending').length} waiting)</h2>
+          {incoming.length ? <ul className="stack stack--sm">{incoming.map((r) => { const u = sel.userById(r.fromId); return (
+            <li key={r.id}><StoneCard className="stack stack--sm">
+              <div className="row row--between row--wrap"><PersonChip user={u} size={40} sub={`wants to join as ${r.role}`} /><Badge tone={r.status === 'accepted' ? 'success' : r.status === 'declined' ? 'warning' : 'accent'}>{r.status}</Badge></div>
+              <p className="secondary">“{r.message}”</p><span className="muted">Offers: {r.skill} · {ago(r.ts)} ago</span>
+              {r.status === 'pending' && <div className="row row--wrap"><TactileButton size="sm" variant="primary" onClick={() => a.decideCollab(r.id, 'accepted')}>Say yes</TactileButton><TactileButton size="sm" onClick={() => a.decideCollab(r.id, 'declined')}>Not now</TactileButton><TactileButton size="sm" variant="ghost" to={`/u/${u.id}`}>View profile</TactileButton></div>}
+            </StoneCard></li>); })}</ul> : <p className="muted">No requests yet. When someone wants to join, you decide.</p>}
+        </section>
+      )}
 
       <section className="stack" aria-label="Open roles"><h2>Open roles</h2>
         {roles.length ? <div className="chips" role="group" aria-label="Filter people by role"><button type="button" className="chip" aria-pressed={!role} onClick={() => setRole(null)}>All</button>{roles.map((r) => <button key={r} type="button" className="chip" aria-pressed={role === r} onClick={() => setRole(role === r ? null : r)}>{r}</button>)}</div> : <p className="muted">No open roles right now.</p>}

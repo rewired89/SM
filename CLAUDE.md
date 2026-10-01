@@ -64,7 +64,9 @@ Inline one-button games live in the feed (`ArcadeCard`, positions 4, 9, 13 of Fo
 
 ## Collaboration pages
 
-`/collab/:slug` (slug = project or idea title, or id), page `pages/CollabPage.jsx`: collaborator count, open roles, funding needed, raised and remaining, current team, role filter, and open-to-collab people matched by `collabCandidates`. `CollabSummary` links to it from project and idea cards (also on profiles), the post actions Collaborators button, and the idea Find collaborators button.
+Canonical URL is `/collab_<project-name>` (also `/collab/:slug`), page `pages/CollabPage.jsx`: collaborator count, open roles, funding needed, raised and remaining, team, role filter, matched open-to-collab people. Anyone can request to join as Collaborator, Co-founder, Advisor or Contributor (`CollaborationModal`). The founder decides: pending requests show on their collab page with Say yes / Not now (`decideCollab`), accepted people join the team (`collabTeam`). Simulated founders accept non-co-founder requests after ~5s and ask to talk first for co-founder. Request shape lives in `state.collabRequests` (`fromId`, `role`, `status`).
+
+The top bar search (`SearchBox`) understands `/collab_name` (jumps to that page), `#hashtag` and plain words, with live suggestions. Hashtag searches show a banner listing every project and idea with that tag (for example #Bioelectricity: Acheron, NeuroMap, Bioelectric Memory) and each card links to its collab page via `CollabSummary`.
 
 ## State shape
 

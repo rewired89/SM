@@ -38,7 +38,7 @@ npm run build
 
 ## Design system
 
-Tokens in `src/styles/tokens.css` (stone, panel, accent, text, status). Hierarchy: stone (foundation) → glass (information) → accent (activity) → content (meaning). Primitives: `.glass`, `.tile`, `.btn` (rest/hover/press 150-250ms), respect `prefers-reduced-motion`.
+Light soft-UI theme from the reference images: pale stone base with grain, sky-blue and pink cloud gradients, white frosted panels, raised white pill for active states, blue accent for action, red badges for unread, blue/grey message bubbles, Inter 800 display type. Tokens in `src/styles/tokens.css` (stone, panel, accent, text, status). Hierarchy: stone (foundation) → glass (information) → accent (activity) → content (meaning). Primitives: `.glass`, `.tile`, `.btn` (rest/hover/press 150-250ms), respect `prefers-reduced-motion`.
 
 ## State shape
 

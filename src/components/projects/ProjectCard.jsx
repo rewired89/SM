@@ -2,6 +2,7 @@ import { StoneCard, ProgressBar, Badge } from '../ui/index.jsx';
 import { SupportBtn, FollowBtn, PersonChip } from '../common/bits.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import * as sel from '../../store/selectors.js';
+import CollabSummary from '../common/CollabSummary.jsx';
 import { money, pctLabel } from '../../lib/format.js';
 
 export default function ProjectCard({ project, compact }) {
@@ -23,6 +24,7 @@ export default function ProjectCard({ project, compact }) {
           <ProgressBar thin value={ms.funded / ms.needed * 100} done={ms.done} label={`${ms.title} funding`} />
         </div>
       )}
+      <CollabSummary type="project" entity={project} />
       {!compact && <div className="chips">{project.needs.slice(0, 3).map((n) => <span key={n} className="badge badge--plain">Needs: {n}</span>)}</div>}
       <div className="row row--between">
         <span className="muted">{sel.followerCount(s, 'project', project).toLocaleString()} following</span>

@@ -67,7 +67,7 @@ function Body({ post }) {
         <div className="looking">
           <span className="eyebrow">Looking for</span>
           <ul>{(x.needs || []).map((n) => <li key={n}>☑ {n}</li>)}</ul>
-          {entity && <TactileButton size="sm" variant="primary" onClick={() => openModal('collab', { targetType: post.ref.type, targetId: post.ref.id })}>I'm interested</TactileButton>}
+          {entity && <div className="row row--wrap"><TactileButton size="sm" variant="primary" onClick={() => openModal('collab', { targetType: post.ref.type, targetId: post.ref.id })}>I'm interested</TactileButton><TactileButton size="sm" to={`/collab/${sel.collabSlug(entity)}`}>See collaborators</TactileButton></div>}
         </div>
       </>
     );

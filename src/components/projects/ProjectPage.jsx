@@ -39,7 +39,8 @@ export default function ProjectPage({ id }) {
         <div className="chips chips--tags">{p.tags.map((t) => <Tag key={t} tag={t} />)}</div>
         <div className="row row--wrap">
           <SupportBtn type="project" id={p.id} label={p.title} className="btn btn--primary" />
-          <TactileButton icon="users" onClick={() => openModal('collab', { targetType: 'project', targetId: p.id })} disabled={mine}>Collaborate</TactileButton>
+          <TactileButton icon="users" to={`/collab/${sel.collabSlug(p)}`}>Collaborators ({p.team.length})</TactileButton>
+          <TactileButton icon="send" onClick={() => openModal('collab', { targetType: 'project', targetId: p.id })} disabled={mine}>Collaborate</TactileButton>
           <FollowBtn type="project" id={p.id} name={p.title} size="md" />
           {mine && <TactileButton variant="primary" icon="edit" onClick={() => openModal('create', { start: 'update', projectId: p.id })}>Post an update</TactileButton>}
           {!mine && <TactileButton onClick={() => a.cheer(p.id, p.title)}>👏 Cheer · 5 ✦{s.rewards.cheers[p.id] ? ` (${s.rewards.cheers[p.id]})` : ''}</TactileButton>}

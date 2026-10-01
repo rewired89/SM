@@ -16,6 +16,7 @@ src/styles/                    tokens.css, base.css (stone + grain), ui.css (gla
 src/components/
   ui/                          Icon, GlassPanel, StoneCard, TactileButton, IconButton, Badge, Avatar, ProgressBar, Tabs, Modal, Empty, Tag
   layout/                      Backdrop (clouds + waves), AppShell, TopBar, Sidebar, MobileNav, RightRail, Logo
+  common/CollabSummary.jsx     collab one-liner linking to /collab/:slug
   common/bits.jsx              PersonChip, SupportBtn, FollowBtn, StageBadge, NeedsList
   feed/                        Feed, PostCard, PostActions, PostComposer, CommentThread
   ideas/                       IdeaCard, IdeaPage (+Stepper)
@@ -28,7 +29,7 @@ src/components/
   games/                       ArcadeCard, QuizGame, DodgeGame, RunnerGame, prompts, ResultScreen, GameCard, GameBreak, GameResultCard, BrainMap, BadgeShelf, LearningToday, OfflineBanner, useLoop
   common/ThemePicker.jsx       color pair picker
   modals/                      SupportModal, CollaborationModal, CreateModal (+Challenge), ThemeModal, PaymentModal, ModalHost
-src/pages/                     Settings, Rewards, ArcadePage, Play (hub), PlayGame, Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
+src/pages/                     CollabPage, Settings, Rewards, ArcadePage, Play (hub), PlayGame, Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
 ```
 
-Routes: `/settings`, `/rewards`, `/arcade/:id[?offline=1]`, `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.
+Routes: `/collab/:slug`, `/settings`, `/rewards`, `/arcade/:id[?offline=1]`, `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.

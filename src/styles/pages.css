@@ -201,3 +201,6 @@
 .switch { display: flex; gap: 12px; align-items: flex-start; }
 .switch input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--accent); }
 @media (max-width: 760px) { .settings-panel { padding: 16px; } .media__grid--2 { grid-template-columns: 1fr; } }
+
+.collab-sum { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 12px; border-radius: 12px; background: rgba(var(--accent-rgb), 0.07); border: 1px solid rgba(var(--accent-rgb), 0.16); font-size: 0.84rem; font-weight: 650; color: var(--text-secondary); transition: background var(--dur) var(--ease); }
+.collab-sum:hover { background: rgba(var(--accent-rgb), 0.14); color: var(--accent-strong); }

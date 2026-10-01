@@ -137,3 +137,32 @@ export function search(s, query) {
 import { seededChallenges } from '../data/games.js';
 export const allChallenges = (s) => [...s.created.challenges, ...seededChallenges];
 export const challengeById = (s, id) => allChallenges(s).find((c) => c.id === id);
+
+/* ---------- collaboration pages: /collab/:slug ---------- */
+import { slugify } from '../lib/format.js';
+export const collabSlug = (e) => slugify(e.title);
+export function collabTarget(s, key) {
+  const k = slugify(key);
+  const p = allProjects(s).find((x) => x.id === key || collabSlug(x) === k);
+  if (p) return { type: 'project', entity: p };
+  const i = allIdeas(s).find((x) => x.id === key || collabSlug(x) === k);
+  return i ? { type: 'idea', entity: i } : null;
+}
+export function collabStats(s, type, e) {
+  if (type === 'project') {
+    const goal = projectGoal(s, e), funded = fundedOf(s, 'project', e);
+    return { collaborators: e.team.length, open: (e.looking || []).filter((l) => l.open).length, goal, funded, remaining: Math.max(0, goal - funded), pct: projectPct(s, e) };
+  }
+  const funded = fundedOf(s, 'idea', e);
+  return { collaborators: 1, open: e.looking, goal: e.goal, funded, remaining: Math.max(0, e.goal - funded), pct: ideaPct(s, e) };
+}
+const words = (t) => t.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !['collaborator', 'developer', 'researcher', 'engineer'].includes(w) || ['python', 'rust'].includes(w));
+export function collabCandidates(s, type, e, role) {
+  const wants = role ? words(role) : [...(Array.isArray(e.looking) ? e.looking : []).filter((l) => l.open !== false).map((l) => l.skill), ...(e.needs || []), ...(e.tags || [])].flatMap(words);
+  const inTeam = new Set(type === 'project' ? e.team.map((t) => t.userId) : [e.authorId]);
+  return allUsers().filter((u) => !inTeam.has(u.id) && u.openToCollab).map((u) => {
+    const have = [...u.skills, ...u.collabTypes, ...(u.interests || [])];
+    const hit = have.filter((h) => words(h).some((w) => wants.includes(w)));
+    return { user: u, score: hit.length, reason: [...new Set(hit)].slice(0, 2).join(', ') };
+  }).filter((x) => x.score > 0 || !role).sort((a, b) => b.score - a.score);
+}

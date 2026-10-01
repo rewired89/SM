@@ -62,6 +62,10 @@ Inline one-button games live in the feed (`ArcadeCard`, positions 4, 9, 13 of Fo
 - Profile editing at `/settings` (photo, name, @username, bio, skills, hashtags, career incl. "Still in progress", social links, Open to collaborations plus collaborator types, payments, colors). The signed-in user's edits are merged into the shared user record in `StoreProvider` (`applyProfile`). Options live in `src/lib/profile.js`.
 - Payments are SIMULATED. No card number is ever requested or stored, adding a method creates a sandbox method (credit card or Cash App recommended, debit allowed with a warning). A method is required only to contribute. Monthly limit (`monthlyLimit`, `wallet` = remaining). A real build must use the processor's hosted fields.
 
+## Collaboration pages
+
+`/collab/:slug` (slug = project or idea title, or id), page `pages/CollabPage.jsx`: collaborator count, open roles, funding needed, raised and remaining, current team, role filter, and open-to-collab people matched by `collabCandidates`. `CollabSummary` links to it from project and idea cards (also on profiles), the post actions Collaborators button, and the idea Find collaborators button.
+
 ## State shape
 
 `profile`, `payments`, `monthlyLimit`, `theme`, `ambient`, `rewards`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.

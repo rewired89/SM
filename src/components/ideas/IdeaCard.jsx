@@ -3,6 +3,7 @@ import { StageBadge, SupportBtn, PersonChip } from '../common/bits.jsx';
 import { Link } from '../../lib/router.js';
 import { useStore } from '../../store/StoreProvider.jsx';
 import * as sel from '../../store/selectors.js';
+import CollabSummary from '../common/CollabSummary.jsx';
 import { money } from '../../lib/format.js';
 
 export default function IdeaCard({ idea, embedded }) {
@@ -19,6 +20,7 @@ export default function IdeaCard({ idea, embedded }) {
       <p className="secondary">{idea.pitch}</p>
       {!embedded && <PersonChip user={author} size={28} />}
       <ProgressBar thin value={sel.ideaPct(s, idea)} label="Idea funding" />
+      <CollabSummary type="idea" entity={idea} />
       <div className="row row--between row--wrap">
         <span className="muted">{sel.interestCount(s, idea).toLocaleString()} interested · {money(sel.fundedOf(s, 'idea', idea), 0)} of {money(idea.goal)}</span>
         <div className="row">

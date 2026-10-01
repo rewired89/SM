@@ -26,3 +26,5 @@ export function ago(ts) {
 export const initials = (name) => name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
 export const uid = (p) => `${p}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 export const plural = (n, one, many) => `${n.toLocaleString('en-US')} ${n === 1 ? one : many ?? one + 's'}`;
+
+export const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

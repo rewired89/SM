@@ -112,6 +112,7 @@ export function rankFeed(s, tab = 'foryou') {
     return { post: p, score, reason: reasons[0]?.[1] || (hours < 3 ? 'New today' : 'Popular right now') };
   });
   if (tab === 'following') list = list.filter((x) => x.reason.startsWith('You follow') || x.reason.startsWith('From a community') || x.post.authorId === ME || has(s, 'following', K('user', x.post.authorId)));
+  if (tab === 'watch') list = list.filter((x) => x.post.media?.some((m) => m.kind === 'video'));
   if (tab === 'updates') list = list.filter((x) => ['update', 'milestone'].includes(x.post.type));
   if (tab === 'collab') list = list.filter((x) => x.post.type === 'collab' || x.post.type === 'idea');
   return list.sort((a, b) => b.score - a.score);

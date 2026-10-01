@@ -3,6 +3,7 @@ import * as sel from '../store/selectors.js';
 import { GlassPanel, StoneCard, ProgressBar, Badge } from '../components/ui/index.jsx';
 import ContributionHistory from '../components/profile/ContributionHistory.jsx';
 import FundingMilestone from '../components/projects/FundingMilestone.jsx';
+import PaymentsPanel from '../components/settings/PaymentsPanel.jsx';
 import { Link } from '../lib/router.js';
 import { cents, pct } from '../lib/format.js';
 import { ME } from '../data/users.js';
@@ -15,6 +16,7 @@ export default function Fund() {
   return (
     <div className="stack stack--lg">
       <div><h1>Fund</h1><p className="secondary">Small contributions, tied to things you actually used or care about. Prototype only: all money here is simulated.</p></div>
+      <section aria-label="Payment methods" className="stack"><h2>Payment methods</h2><PaymentsPanel /></section>
       <section aria-label="Your impact" className="stack">
         <span className="eyebrow">Your impact</span>
         <div className="stats">

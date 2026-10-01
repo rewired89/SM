@@ -4,7 +4,7 @@
 index.html                     entry, fonts, favicon
 src/main.jsx                   providers (UI → Store) + styles
 src/App.jsx                    route switch (hash router)
-src/lib/                       themes.js (color pairs, 2 locked), arcade.js (Cloud Hop, Star Catch, Perfect Stop), rewards.js (sparks, shop, achievements), learn.js (adaptive pick, badges, applyLearn), router.js (useRoute/Link/navigate), format.js, analyzers.js (simulated AI outputs)
+src/lib/                       media.js (IndexedDB files, link parsing), profile.js (careers, collab types, socials, validation), themes.js (color pairs, 2 locked), arcade.js (Cloud Hop, Star Catch, Perfect Stop), rewards.js (sparks, shop, achievements), learn.js (adaptive pick, badges, applyLearn), router.js (useRoute/Link/navigate), format.js, analyzers.js (simulated AI outputs)
 src/data/                      games.js (game defs, hub chips, seeded challenges), questions.js (all banks + metadata), users, projects(+milestones), ideas(+STAGES), tools(+agents), communities, posts, social (notifications, conversations, seed comments)
 src/store/
   initialState.js              defaults + 25 seeded $0.50 contributions
@@ -23,10 +23,12 @@ src/components/
   ai/                          AIToolCard, AIToolPage, AIToolDemo, MicroContribution
   communities/                 CommunityCard (+JoinBtn), CommunityPage
   profile/                     ProfileProjects, ProfileActivity, ContributionHistory
+  media/                       MediaPicker, MediaGrid, LinkChips, Attachments
+  settings/                    SettingsPanels (profile, interests, links, collab), PaymentSetup, PaymentsPanel
   games/                       ArcadeCard, QuizGame, DodgeGame, RunnerGame, prompts, ResultScreen, GameCard, GameBreak, GameResultCard, BrainMap, BadgeShelf, LearningToday, OfflineBanner, useLoop
   common/ThemePicker.jsx       color pair picker
-  modals/                      SupportModal, CollaborationModal, CreateModal (+Challenge), ThemeModal, ModalHost
-src/pages/                     Rewards, ArcadePage, Play (hub), PlayGame, Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
+  modals/                      SupportModal, CollaborationModal, CreateModal (+Challenge), ThemeModal, PaymentModal, ModalHost
+src/pages/                     Settings, Rewards, ArcadePage, Play (hub), PlayGame, Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
 ```
 
-Routes: `/rewards`, `/arcade/:id[?offline=1]`, `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.
+Routes: `/settings`, `/rewards`, `/arcade/:id[?offline=1]`, `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.

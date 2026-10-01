@@ -7,9 +7,18 @@ import { ME } from '../data/users.js';
 import { applyTheme } from '../lib/themes.js';
 import { applyLearn, BADGES } from '../lib/learn.js';
 import { applyWin, ACHIEVEMENTS, SHOP, CHEER_COST } from '../lib/rewards.js';
+import { saveAttachments } from '../lib/media.js';
+import { users } from '../data/users.js';
 import { uid, cents, pctLabel } from '../lib/format.js';
 
 const KEY = 'nomi_state_v1';
+
+/* the signed-in profile is merged into the shared user record so every component sees edits */
+const meUser = users.find((u) => u.id === ME);
+function applyProfile(p) {
+  if (!p) return;
+  Object.assign(meUser, { name: p.name, handle: p.handle, bio: p.bio, location: p.location, avatar: p.avatar, skills: p.skills, interests: p.interests, career: p.career, socials: p.socials, openToCollab: p.openToCollab, collabTypes: p.collabTypes, headline: p.interests.slice(0, 3) });
+}
 const Ctx = createContext(null);
 export const useStore = () => useContext(Ctx);
 
@@ -31,9 +40,10 @@ const REPLIES = [
 
 export function StoreProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, undefined, load);
-  const { toast } = useUI();
+  const { toast, openModal } = useUI();
   const ref = useRef(state);
   ref.current = state;
+  applyProfile(state.profile);
 
   useLayoutEffect(() => { applyTheme(state.theme); }, [state.theme]);
   useEffect(() => {
@@ -75,7 +85,9 @@ export function StoreProvider({ children }) {
 
       contribute({ targetType, targetId, amount, micro = false }) {
         const s = ref.current;
-        if (s.wallet < amount) { toast('Prototype wallet is empty. Reset the demo from your profile.', { tone: 'danger' }); return null; }
+        if (!s.payments.methods.length) { toast('Add a payment method first. It only takes a moment.', { tone: 'danger' }); openModal('payment'); return null; }
+        if (s.wallet < amount) { toast('Monthly limit reached. Raise it in Settings → Payments.', { tone: 'danger', to: '/settings' }); return null; }
+        const pm = s.payments.methods.find((m) => m.id === s.payments.defaultId) || s.payments.methods[0];
         const e = sel.entityOf(s, { type: targetType, id: targetId });
         const r2 = (n) => +n.toFixed(2);
         let allocations;
@@ -89,7 +101,7 @@ export function StoreProvider({ children }) {
         } else {
           allocations = [{ type: targetType, id: targetId, label: sel.nameOf(e), amount, note: 'Direct support' }];
         }
-        const entry = { id: uid('ct'), ts: Date.now(), kind: micro ? 'micro' : 'direct', targetType, targetId, label: sel.nameOf(e), amount, allocations };
+        const entry = { id: uid('ct'), method: pm.label, ts: Date.now(), kind: micro ? 'micro' : 'direct', targetType, targetId, label: sel.nameOf(e), amount, allocations };
         const next = applyContribution(s, entry);
         const pid = allocations.find((a) => a.type === 'project')?.id;
         const proj = pid ? sel.projectById(s, pid) : null;
@@ -162,6 +174,15 @@ export function StoreProvider({ children }) {
         dispatch({ type: 'CHEER', projectId, cost: CHEER_COST });
         toast(`You cheered ${name} with ${CHEER_COST} sparks`, { tone: 'success' });
       },
+      saveProfile(patch) { dispatch({ type: 'PROFILE', patch }); toast('Profile saved', { tone: 'success' }); },
+      addPayment(m) { dispatch({ type: 'PAY_ADD', method: { id: uid('pm'), createdAt: Date.now(), ...m } }); toast(`${m.label} added (simulated)`, { tone: 'success' }); },
+      removePayment(id) { dispatch({ type: 'PAY_REMOVE', id }); toast('Payment method removed'); },
+      setDefaultPayment: (id) => dispatch({ type: 'PAY_DEFAULT', id }),
+      setLimit(n) { dispatch({ type: 'LIMIT', n }); toast(`Monthly limit: $${n}`); },
+      async publishPost({ type = 'post', text, tags = [], items = [], links = [], ref: r, extra }) {
+        const media = await saveAttachments(items);
+        return mk.createPost({ type, text, tags, ref: r, extra, media, links });
+      },
       setAmbient: (on) => dispatch({ type: 'AMBIENT', on }),
       learn(payload) {
         const { earned } = applyLearn(ref.current.learn, payload);
@@ -179,13 +200,14 @@ export function StoreProvider({ children }) {
         toast('Challenge published', { tone: 'success' });
         return id;
       },
-      createPost({ type = 'post', text, tags = [], ref: r, extra }) {
-        const post = { id: uid('s'), type, authorId: ME, ts: Date.now(), text, tags, likes: 0, comments: 0, ref: r, extra, createdByMe: true };
+      createPost({ type = 'post', text, tags = [], ref: r, extra, media = [], links = [] }) {
+        const post = { id: uid('s'), type, authorId: ME, ts: Date.now(), text, tags, likes: 0, comments: 0, ref: r, extra, media, links, createdByMe: true };
         dispatch({ type: 'POST', post });
         toast('Posted', { tone: 'success' });
         return post;
       },
-      createEntity(kind, data) {
+      async createEntity(kind, rawData) {
+        const data = { ...rawData, media: await saveAttachments(rawData.items || []) };
         const id = `${{ project: 'p', idea: 'i', tool: 't', community: 'c' }[kind]}_${uid('n')}`;
         const common = { id, tags: data.tags || [], followers: 0 };
         let entity, milestone, text, ntype = 'post';
@@ -203,7 +225,8 @@ export function StoreProvider({ children }) {
           entity = { id, name: data.title, members: 1, about: data.pitch, projects: 0, people: 1, events: 0, tags: data.tags || [], hue: 30, ownerId: ME, discussions: [] };
           text = `Started a new community: ${data.title}. ${data.pitch}`; ntype = 'community';
         }
-        const post = { id: uid('s'), type: ntype, authorId: ME, ts: Date.now(), text, tags: entity.tags || [], likes: 0, comments: 0, ref: { type: kind, id }, createdByMe: true };
+        Object.assign(entity, { media: data.media, links: data.links || [] });
+        const post = { id: uid('s'), type: ntype, authorId: ME, ts: Date.now(), text, tags: entity.tags || [], likes: 0, comments: 0, ref: { type: kind, id }, media: data.media, links: data.links || [], createdByMe: true };
         dispatch({ type: 'CREATE', kind, entity, milestone, post });
         if (kind === 'community') dispatch({ type: 'TOGGLE', list: 'joined', key: id });
         toast(`${kind[0].toUpperCase() + kind.slice(1)} created`, { tone: 'success' });

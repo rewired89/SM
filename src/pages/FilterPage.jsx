@@ -8,12 +8,15 @@ import * as sel from '../store/selectors.js';
 import { categoryTree } from '../data/communities.js';
 import { Link } from '../lib/router.js';
 import { ME } from '../data/users.js';
+import { COLLAB_TYPES } from '../lib/profile.js';
 
 export default function FilterPage({ kind, value }) {
   const { s } = useStore();
   const [tab, setTab] = useState('all');
+  const [collab, setCollab] = useState(null);
   if (kind === 'category' && value === 'People') {
-    return <div className="stack stack--lg"><h1>People</h1><div className="grid grid--2">{sel.allUsers().filter((u) => u.id !== ME).map((u) => <StoneCard key={u.id} to={`/u/${u.id}`} className="row row--between"><PersonChip user={u} size={40} sub={u.headline.slice(0, 2).join(' • ')} /><FollowBtn type="user" id={u.id} name={u.name} /></StoneCard>)}</div></div>;
+    const list = sel.allUsers().filter((u) => u.id !== ME && (!collab || (collab === 'open' ? u.openToCollab : u.collabTypes.includes(collab))));
+    return <div className="stack stack--lg"><h1>People</h1><div className="chips" role="group" aria-label="Filter people"><button type="button" className="chip" aria-pressed={!collab} onClick={() => setCollab(null)}>Everyone</button><button type="button" className="chip" aria-pressed={collab === 'open'} onClick={() => setCollab('open')}>🤝 Open to collaborations</button>{COLLAB_TYPES.map((t) => <button key={t} type="button" className="chip" aria-pressed={collab === t} onClick={() => setCollab(t)}>{t}</button>)}</div><div className="grid grid--2">{list.map((u) => <StoneCard key={u.id} to={`/u/${u.id}`} className="row row--between"><PersonChip user={u} size={40} sub={u.headline.slice(0, 2).join(' • ')} /><FollowBtn type="user" id={u.id} name={u.name} /></StoneCard>)}</div></div>;
   }
   const tag = kind === 'tag' ? value.toLowerCase() : null;
   const r = sel.search(s, '');

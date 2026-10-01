@@ -8,6 +8,8 @@ import ProjectUpdate from '../projects/ProjectUpdate.jsx';
 import FundingMilestone from '../projects/FundingMilestone.jsx';
 import IdeaCard from '../ideas/IdeaCard.jsx';
 import AIToolCard from '../ai/AIToolCard.jsx';
+import MediaGrid from '../media/MediaGrid.jsx';
+import LinkChips from '../media/LinkChips.jsx';
 import GameResultCard from '../games/GameResultCard.jsx';
 import { JoinBtn } from '../communities/CommunityCard.jsx';
 import { Link } from '../../lib/router.js';
@@ -85,6 +87,8 @@ export default function PostCard({ post, reason }) {
       </header>
       {reason && <div className="why" title="Why you are seeing this (simulated recommendation)">✦ {reason}</div>}
       <Body post={post} />
+      <MediaGrid media={post.media} />
+      <LinkChips links={post.links} />
       {post.tags?.length > 0 && <div className="chips chips--tags">{post.tags.map((t) => <Tag key={t} tag={t} />)}</div>}
       <PostActions post={post} open={open} onToggleComments={() => setOpen((o) => !o)} />
       {open && <CommentThread cKey={sel.K('post', post.id)} />}

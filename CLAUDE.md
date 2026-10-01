@@ -56,9 +56,15 @@ Inline one-button games live in the feed (`ArcadeCard`, positions 4, 9, 13 of Fo
 
 `components/layout/Backdrop.jsx`: drifting clouds and three layered waves filled from `--accent` and `--accent2`, so waves follow the chosen palette. Toggle in the color picker (`state.ambient`). Respects reduced motion.
 
+## Media, profile and payments
+
+- Posts take photos (8 MB), videos (50 MB), PDF and PowerPoint (25 MB) and links (`MediaPicker`, `MediaGrid`, `LinkChips`). Files live in IndexedDB (`src/lib/media.js`), post metadata in state. Seeded media is static under `public/media`. PDFs preview inline, PPTX is download-only. Only http(s) links, GitHub repos get a repo chip. Feed tab Watch shows video posts.
+- Profile editing at `/settings` (photo, name, @username, bio, skills, hashtags, career incl. "Still in progress", social links, Open to collaborations plus collaborator types, payments, colors). The signed-in user's edits are merged into the shared user record in `StoreProvider` (`applyProfile`). Options live in `src/lib/profile.js`.
+- Payments are SIMULATED. No card number is ever requested or stored, adding a method creates a sandbox method (credit card or Cash App recommended, debit allowed with a warning). A method is required only to contribute. Monthly limit (`monthlyLimit`, `wallet` = remaining). A real build must use the processor's hosted fields.
+
 ## State shape
 
-`theme`, `ambient`, `rewards`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
+`profile`, `payments`, `monthlyLimit`, `theme`, `ambient`, `rewards`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
 
 ## Demo path
 

@@ -4,6 +4,7 @@ import { useStore } from '../../store/StoreProvider.jsx';
 import { useUI } from '../../store/UIProvider.jsx';
 import * as sel from '../../store/selectors.js';
 import { navigate } from '../../lib/router.js';
+import PaymentSetup from '../settings/PaymentSetup.jsx';
 import { money, cents, pctLabel } from '../../lib/format.js';
 
 const AMOUNTS = [0.5, 1, 2, 5];
@@ -41,7 +42,7 @@ export default function SupportModal({ targetType, targetId }) {
             </div>
           )}
           <ul className="alloc">{r.allocations.map((al) => <li key={al.label + al.type}><span>{al.note || al.label}</span><strong>{cents(al.amount)}</strong></li>)}</ul>
-          <p className="muted">You helped move the project forward. Prototype only: no real money moved.</p>
+          <p className="muted">You helped move the project forward. Paid with {r.entry.method} (simulated). Prototype only: no real money moved.</p>
           <div className="row row--wrap">
             <TactileButton variant="primary" onClick={() => { closeModal(); navigate('/fund'); }}>View funding</TactileButton>
             <TactileButton variant="ghost" onClick={closeModal}>Done</TactileButton>
@@ -51,9 +52,12 @@ export default function SupportModal({ targetType, targetId }) {
     );
   }
 
+  const hasMethod = s.payments.methods.length > 0;
+  const pm = s.payments.methods.find((m) => m.id === s.payments.defaultId) || s.payments.methods[0];
   const submit = () => { const r = a.contribute({ targetType, targetId, amount }); if (r) setResult(r); };
   return (
     <Modal title={`Support ${name}`} onClose={closeModal} label="Support">
+      {!hasMethod ? (<div className="stack"><p className="secondary">To contribute, add a payment method first. It takes a moment and you can remove it any time.</p><PaymentSetup /></div>) : (
       <div className="stack">
         <div className="banner">
           <Badge tone="accent">Optional contribution</Badge>
@@ -74,9 +78,9 @@ export default function SupportModal({ targetType, targetId }) {
             ))}
           </div>
         </fieldset>
-        <div className="row row--between"><span className="muted">Prototype wallet {cents(s.wallet)}</span></div>
+        <div className="row row--between row--wrap"><span className="muted">Paying with {pm.label} · {cents(s.wallet)} left of your monthly limit</span><a className="muted" href="#/settings" onClick={closeModal}>Change</a></div>
         <TactileButton variant="primary" size="lg" className="btn--block" onClick={submit}>Contribute {cents(amount)}</TactileButton>
-      </div>
+      </div>)}
     </Modal>
   );
 }

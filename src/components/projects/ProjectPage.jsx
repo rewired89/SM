@@ -5,6 +5,7 @@ import { PersonChip, FollowBtn, SupportBtn } from '../common/bits.jsx';
 import FundingMilestone from './FundingMilestone.jsx';
 import PostCard from '../feed/PostCard.jsx';
 import CommentThread from '../feed/CommentThread.jsx';
+import Attachments from '../media/Attachments.jsx';
 import GameBreak from '../games/GameBreak.jsx';
 import AIToolCard from '../ai/AIToolCard.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
@@ -40,11 +41,14 @@ export default function ProjectPage({ id }) {
           <SupportBtn type="project" id={p.id} label={p.title} className="btn btn--primary" />
           <TactileButton icon="users" onClick={() => openModal('collab', { targetType: 'project', targetId: p.id })} disabled={mine}>Collaborate</TactileButton>
           <FollowBtn type="project" id={p.id} name={p.title} size="md" />
+          {mine && <TactileButton variant="primary" icon="edit" onClick={() => openModal('create', { start: 'update', projectId: p.id })}>Post an update</TactileButton>}
           {!mine && <TactileButton onClick={() => a.cheer(p.id, p.title)}>👏 Cheer · 5 ✦{s.rewards.cheers[p.id] ? ` (${s.rewards.cheers[p.id]})` : ''}</TactileButton>}
         </div>
       </GlassPanel>
 
       <section className="stack stack--sm"><h2>About</h2><p className="secondary prose">{p.about}</p></section>
+
+      <Attachments entity={p} />
 
       <section className="stack" aria-label="Progress">
         <h2>Progress</h2>

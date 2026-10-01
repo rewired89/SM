@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link } from '../../lib/router.js';
 import { GlassPanel, TactileButton, ProgressBar, Badge, Empty } from '../ui/index.jsx';
 import { PersonChip, FollowBtn, SupportBtn } from '../common/bits.jsx';
+import Attachments from '../media/Attachments.jsx';
 import GameBreak from '../games/GameBreak.jsx';
 import CommentThread from '../feed/CommentThread.jsx';
 import { STAGES } from '../../data/ideas.js';
@@ -68,6 +69,7 @@ export default function IdeaPage({ id }) {
         <div className="chips">{idea.needs.map((n) => <span key={n} className="badge badge--plain">{n}</span>)}</div>
         {project && <p className="secondary">This idea became <Link to={`/project/${project.id}`} className="accent"><strong>{project.title}</strong></Link>.</p>}
       </section>
+      <Attachments entity={idea} />
       <GameBreak variant="knowledge" tags={idea.tags} />
       <section id="discuss" className="stack" aria-label="Discussion"><h2>Discussion</h2><CommentThread cKey={cKey} placeholder="Add to the discussion..." /></section>
     </article>

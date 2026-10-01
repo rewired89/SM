@@ -27,7 +27,7 @@ export default function TopBar() {
         <Link to="/play" className="iconbtn" aria-label="Play and learn" title="Play & Learn"><Icon name="gamepad" /></Link>
         <button type="button" className="iconbtn" aria-label="Change colors" title="Colors" onClick={() => openModal('theme')}><Icon name="palette" /></button>
         <Link to="/rewards" className="wallet wallet--sparks" aria-label={`${s.rewards.sparks} sparks. Open rewards`}><span aria-hidden="true">✦</span><span>{s.rewards.sparks}</span></Link>
-        <Link to="/fund" className="wallet" aria-label={`Prototype wallet ${cents(s.wallet)}. Open funding`}><Icon name="coin" size={15} /><span>{cents(s.wallet)}</span></Link>
+        <Link to="/fund" className="wallet" aria-label={`${cents(s.wallet)} left of your monthly contribution limit. Open funding`}><Icon name="coin" size={15} /><span>{cents(s.wallet)}</span></Link>
         <Link to="/notifications" className="iconbtn bell" aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}>
           <Icon name="bell" />{unread > 0 && <span className="dot">{unread > 9 ? '9+' : unread}</span>}
         </Link>

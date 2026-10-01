@@ -11,7 +11,7 @@ import { useRoute } from '../../lib/router.js';
 export default function AppShell({ children }) {
   const { path } = useRoute();
   useEffect(() => { window.scrollTo({ top: 0 }); document.getElementById('main')?.focus({ preventScroll: true }); }, [path]);
-  const wide = ['/explore', '/ideas', '/projects', '/ai', '/communities', '/fund', '/play', '/rewards'].some((p) => path === p);
+  const wide = ['/explore', '/ideas', '/projects', '/ai', '/communities', '/fund', '/play', '/rewards', '/settings'].some((p) => path === p);
   return (
     <>
       <Backdrop />

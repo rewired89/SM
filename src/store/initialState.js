@@ -24,10 +24,18 @@ const seedContributions = () => {
   })).reverse();
 };
 
+import { users, ME } from '../data/users.js';
+
+const meU = users.find((u) => u.id === ME);
+const seedProfile = () => ({ name: meU.name, handle: meU.handle, bio: meU.bio, location: meU.location, avatar: null, skills: [...meU.skills], interests: [...meU.interests], career: { ...meU.career, studying: '' }, socials: { ...meU.socials }, openToCollab: meU.openToCollab, collabTypes: [...meU.collabTypes] });
+
 export const initialState = () => ({
   v: 1,
   wallet: 20,
   theme: 'sky',
+  profile: seedProfile(),
+  payments: { methods: [], defaultId: null },
+  monthlyLimit: 20,
   learn: seedLearn(),
   rewards: seedRewards(),
   ambient: true,

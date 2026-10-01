@@ -140,3 +140,8 @@ export const milestones = [
   { id: 'm14', projectId: 'p_petripal', title: 'Beta units for ten student labs', needed: 1500 },
   { id: 'm15', projectId: 'p_carbonscout', title: 'Sensor calibration run', needed: 1100 },
 ];
+
+const proj = (id) => projects.find((p) => p.id === id);
+proj('p_aurora').media = [{ id: 'seed_deck', kind: 'pdf', src: 'media/deck-aurora.pdf', name: 'aurora-pitch-deck.pdf', size: 2769, pitch: true }];
+proj('p_aurora').links = [{ url: 'https://example.com/aurora-docs', host: 'example.com', kind: 'link' }];
+proj('p_robotlab').media = [{ id: 'seed_vid_robot', kind: 'video', src: 'media/vid-robot.mp4', name: 'robot-demo.mp4' }];

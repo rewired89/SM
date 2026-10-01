@@ -19,3 +19,22 @@ export const users = [
   U('u_amara', 'Amara Nwosu', 'amaran', ['Chemistry', 'Climate'], ['Chemistry', 'Sensors', 'Data Analysis', 'Field Work'], 'Soil chemist. Measuring carbon one cheap sensor at a time.', 120, 'Abuja, NG'),
   U('u_felix', 'Felix Romano', 'felixr', ['Film', 'Creative Tech'], ['Film Restoration', 'Video', 'Web Dev'], 'Film archivist teaching crowds to save old reels.', 25, 'Turin, IT'),
 ];
+
+const EXTRA = {
+  u_maya: { interests: ['Robotics', 'AI', 'Hardware'], career: { field: 'Engineering / Hardware', status: 'working' }, openToCollab: true, collabTypes: ['Tech collaborator'], socials: { website: 'https://example.com/maya' } },
+  u_alex: { interests: ['AI', 'OpenSource', 'Research'], career: { field: 'AI & Machine Learning', status: 'working' }, openToCollab: true, collabTypes: ['Tech with AI · Vibe Code', 'Tech with AI collaborator'], socials: {} },
+  u_priya: { interests: ['Research', 'Biology', 'AI'], career: { field: 'Science & Research', status: 'working' }, openToCollab: true, collabTypes: ['Scientist collaborator', 'Researcher / Academic'], socials: {} },
+  u_tomas: { interests: ['Games', 'Music', 'OpenSource'], career: { field: 'Design & Creative', status: 'working' }, openToCollab: true, collabTypes: ['Creative collaborator'], socials: { website: 'https://example.com/tomas' } },
+  u_lena: { interests: ['Space', 'Hardware', 'OpenSource'], career: { field: 'Engineering / Hardware', status: 'studying' }, openToCollab: true, collabTypes: ['Tech collaborator', 'Scientist collaborator'], socials: {} },
+  u_kofi: { interests: ['Hardware', 'OpenSource', 'Biology'], career: { field: 'Engineering / Hardware', status: 'working' }, openToCollab: true, collabTypes: ['Hardware / Maker', 'Tech collaborator'], socials: {} },
+  u_sora: { interests: ['Music', 'Research'], career: { field: 'Design & Creative', status: 'working' }, openToCollab: false, collabTypes: [], socials: {} },
+  u_ines: { interests: ['Biology', 'Research', 'Hardware'], career: { field: 'Healthcare & Biology', status: 'progress' }, openToCollab: true, collabTypes: ['Scientist collaborator'], socials: {} },
+  u_marcus: { interests: ['Cybersecurity', 'Privacy'], career: { field: 'Cybersecurity', status: 'working' }, openToCollab: true, collabTypes: ['Tech collaborator'], socials: {} },
+  u_nadia: { interests: ['AI', 'Privacy'], career: { field: 'Design & Creative', status: 'working' }, openToCollab: true, collabTypes: ['Designer collaborator', 'Tech with AI collaborator'], socials: {} },
+  u_oliver: { interests: ['Research', 'OpenSource'], career: { field: 'Writing & Media', status: 'working' }, openToCollab: true, collabTypes: ['Writer / Storyteller', 'Scientist collaborator'], socials: {} },
+  u_jun: { interests: ['Hardware', 'OpenSource', 'Privacy'], career: { field: 'Technology / Software', status: 'working' }, openToCollab: false, collabTypes: [], socials: {} },
+  u_amara: { interests: ['Research', 'Biology', 'Hardware'], career: { field: 'Science & Research', status: 'working' }, openToCollab: true, collabTypes: ['Scientist collaborator'], socials: {} },
+  u_felix: { interests: ['OpenSource', 'Research'], career: { field: 'Design & Creative', status: 'working' }, openToCollab: true, collabTypes: ['Creative collaborator'], socials: {} },
+  u_dayana: { interests: ['Cybersecurity', 'Biology', 'AI', 'Research'], career: { field: 'Cybersecurity', status: 'working' }, openToCollab: true, collabTypes: ['Tech with AI collaborator', 'Scientist collaborator'], socials: { github: 'https://github.com/rewired89' } },
+};
+users.forEach((u) => Object.assign(u, { avatar: null, interests: [], career: null, socials: {}, openToCollab: false, collabTypes: [] }, EXTRA[u.id]));

@@ -84,6 +84,14 @@ export function reducer(s, a) {
       return { ...s, rewards: { ...s.rewards, sparks: s.rewards.sparks - a.cost, cheers: { ...s.rewards.cheers, [a.projectId]: (s.rewards.cheers[a.projectId] || 0) + 1 } } };
     }
     case 'AMBIENT': return { ...s, ambient: a.on };
+    case 'PROFILE': return { ...s, profile: { ...s.profile, ...a.patch } };
+    case 'PAY_ADD': return { ...s, payments: { methods: [...s.payments.methods, a.method], defaultId: s.payments.defaultId || a.method.id } };
+    case 'PAY_REMOVE': {
+      const methods = s.payments.methods.filter((m) => m.id !== a.id);
+      return { ...s, payments: { methods, defaultId: s.payments.defaultId === a.id ? methods[0]?.id || null : s.payments.defaultId } };
+    }
+    case 'PAY_DEFAULT': return { ...s, payments: { ...s.payments, defaultId: a.id } };
+    case 'LIMIT': return { ...s, monthlyLimit: a.n, wallet: +(s.wallet + (a.n - s.monthlyLimit)).toFixed(2) };
     case 'THEME': return { ...s, theme: a.id };
     case 'RESET': return initialState();
     default: return s;

@@ -16,6 +16,7 @@ import * as sel from '../store/selectors.js';
 import { navigate, Link } from '../lib/router.js';
 import { ME } from '../data/users.js';
 import { SHOP } from '../lib/rewards.js';
+import { careerLabel, SOCIALS } from '../lib/profile.js';
 import { cents } from '../lib/format.js';
 
 export default function Profile({ userId }) {
@@ -47,9 +48,16 @@ export default function Profile({ userId }) {
             {mine && s.rewards.equipped.title && <div><span className="badge badge--accent">{SHOP.find((x) => x.id === s.rewards.equipped.title)?.text}</span></div>}
             <div className="secondary">{user.headline.join(' • ')}</div>
           </div>
-          {mine ? <TactileButton onClick={() => { if (confirm('Reset all demo data?')) a.reset(); }} icon="refresh">Reset demo</TactileButton> : <div className="row"><FollowBtn type="user" id={id} name={user.name} size="md" /><TactileButton icon="mail" onClick={message}>Message</TactileButton></div>}
+          {mine ? <TactileButton to="/settings" icon="settings">Edit profile</TactileButton> : <div className="row"><FollowBtn type="user" id={id} name={user.name} size="md" /><TactileButton icon="mail" onClick={message}>Message</TactileButton></div>}
         </div>
         <div className="stack stack--sm"><span className="eyebrow">About</span><p className="secondary">{user.bio}</p></div>
+        <div className="chips">
+          {user.career && <span className="badge badge--accent">💼 {careerLabel(user.career)}</span>}
+          {user.openToCollab && <span className="badge badge--success">🤝 Open to collaborations</span>}
+          {user.openToCollab && user.collabTypes.map((t) => <span key={t} className="badge badge--plain">{t}</span>)}
+        </div>
+        {user.interests?.length > 0 && <div className="chips chips--tags">{user.interests.map((t) => <Tag key={t} tag={t} />)}</div>}
+        {Object.keys(user.socials || {}).length > 0 && <div className="chips" aria-label="Links">{SOCIALS.filter((x) => user.socials[x.id]).map((x) => <a key={x.id} className="linkchip" href={user.socials[x.id]} target="_blank" rel="noopener noreferrer">{x.label}<span className="sr-only"> (opens in a new tab)</span></a>)}</div>}
         <div className="stack stack--sm"><span className="eyebrow">Skills</span><div className="chips">{user.skills.map((k) => <Link key={k} to={`/search?q=${k}`} className="chip">{k}</Link>)}</div></div>
       </GlassPanel>
       <Tabs label="Profile sections" tabs={tabs} value={tab} onChange={setTab} />

@@ -15,6 +15,7 @@ export const NAV = [
   { to: '/messages', icon: 'mail', label: 'Messages', match: (p) => p.startsWith('/messages'), badge: 'msg' },
   { to: '/notifications', icon: 'bell', label: 'Notifications', match: (p) => p.startsWith('/notifications'), badge: 'note' },
   { to: '/profile', icon: 'user', label: 'Profile', match: (p) => p === '/profile' || p.startsWith('/u/') },
+  { to: '/settings', icon: 'settings', label: 'Settings', match: (p) => p.startsWith('/settings') },
 ];
 
 export default function Sidebar() {

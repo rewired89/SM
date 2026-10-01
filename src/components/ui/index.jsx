@@ -47,8 +47,8 @@ export function Avatar({ user, size = 40 }) {
   const ctx = useStore();
   const ring = user.id === ME ? ctx?.s.rewards.equipped.ring : null;
   return (
-  <span className={`avatar ${ring ? `avatar--${ring}` : ''}`} style={{ width: size, height: size, fontSize: size * 0.38, background: `linear-gradient(145deg, hsl(${user.hue} 60% 72%), hsl(${(user.hue + 40) % 360} 45% 52%))` }} aria-hidden="true">
-    {initials(user.name)}
+  <span className={`avatar ${ring ? `avatar--${ring}` : ''}`} style={{ width: size, height: size, fontSize: size * 0.38, overflow: 'hidden', background: `linear-gradient(145deg, hsl(${user.hue} 60% 72%), hsl(${(user.hue + 40) % 360} 45% 52%))` }} aria-hidden="true">
+    {user.avatar ? <img src={user.avatar} alt="" className="avatar__img" /> : initials(user.name)}
   </span>
   );
 }

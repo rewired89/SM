@@ -49,6 +49,7 @@ export default function Explore() {
         {sel.allUsers().filter((u) => u.id !== ME).slice(0, 6).map((u) => (
           <StoneCard key={u.id} className="person-card" to={`/u/${u.id}`} label={`Open ${u.name}'s profile`}>
             <PersonChip user={u} size={44} sub={u.headline.slice(0, 2).join(' • ')} />
+            {u.openToCollab && <span className="badge badge--success" style={{ width: 'fit-content' }}>🤝 Open to collaborations</span>}
             <div className="chips">{u.skills.slice(0, 3).map((k) => <span key={k} className="badge badge--plain">{k}</span>)}</div>
             <FollowBtn type="user" id={u.id} name={u.name} />
           </StoneCard>

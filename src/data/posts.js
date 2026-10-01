@@ -35,3 +35,20 @@ export const posts = [
   P('s32', 'game', 'u_marcus', 20, 'Marcus Bell completed Phish or Fine?: 5/6.', { extra: { gameId: 'phish', title: 'Phish or Fine?', emoji: '🔐', label: 'Phishing recognition', score: 5, total: 6 }, likes: 18, comments: 3 }),
   P('s33', 'game', 'u_priya', 140, 'Priya Raman completed Two Seconds of Science: 6/6.', { extra: { gameId: 'science', title: 'Two Seconds of Science', emoji: '🔬', label: 'Core science intuition', score: 6, total: 6 }, likes: 22, comments: 2 }),
 ];
+
+const V = (n, name) => ({ id: `seed_${n}`, kind: 'video', src: `media/${n}.mp4`, name });
+const I = (n, name, alt) => ({ id: `seed_${n}`, kind: 'image', src: `media/${n}.jpg`, name, alt });
+const byId = (id) => posts.find((p) => p.id === id);
+byId('s1').media = [V('vid-robot', 'robot-demo.mp4')];
+byId('s11').media = [V('vid-tide', 'tide-canon-demo.mp4')];
+byId('s13').media = [I('img-petripal', 'petripal-bom.jpg', 'Title card: Petri-Pal under 40 dollars')];
+byId('s26').media = [I('img-hearthlight', 'hearthlight-puddles.jpg', 'Title card: puddle reflections in Hearthlight')];
+posts.push(
+  { ...P('s34', 'post', 'u_alex', 50, 'Pitch deck for Aurora is up. Four slides, no fluff. Tell me what is missing before I send it to compute donors.', { ref: { type: 'project', id: 'p_aurora' }, tags: ['AI', 'OpenSource'], likes: 61, comments: 9 }), media: [{ id: 'seed_deck', kind: 'pdf', src: 'media/deck-aurora.pdf', name: 'aurora-pitch-deck.pdf', size: 2769, pitch: true }], links: [{ url: 'https://example.com/aurora-docs', host: 'example.com', kind: 'link' }] },
+  { ...P('s35', 'post', 'u_dayana', 70, 'Nomi is open source. Come poke around the code, break things, open issues.', { tags: ['OpenSource'], likes: 33, comments: 5 }), links: [{ url: 'https://github.com/rewired89/SM', host: 'github.com', kind: 'repo', owner: 'rewired89', repo: 'SM' }] },
+  P('s36', 'post', 'u_tomas', 25, 'Hot take: the best game jam rule is "finish something small".', { tags: ['Games'], likes: 14, comments: 6 }),
+  P('s37', 'post', 'u_kofi', 45, 'Soldering at 2am again. No regrets, mild regrets about the coffee.', { tags: ['Hardware'], likes: 27, comments: 4 }),
+  P('s38', 'post', 'u_nadia', 65, 'Reminder: good design is mostly deleting things.', { tags: [], likes: 40, comments: 7 }),
+  P('s39', 'post', 'u_amara', 85, 'Field day. Mud everywhere. Data looks great.', { tags: ['Research'], likes: 19, comments: 2 }),
+  { ...P('s40', 'post', 'u_maya', 110, 'Quick test of the new dashboard layout. Still rough, but it runs on the robot.', { tags: ['Robotics'], likes: 35, comments: 5 }), media: [I('img-robotlab', 'dashboard-test.jpg', 'Title card: 3 objects, no cloud')] },
+);

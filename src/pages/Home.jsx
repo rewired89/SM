@@ -6,7 +6,7 @@ import { useStore } from '../store/StoreProvider.jsx';
 import * as sel from '../store/selectors.js';
 import { Link } from '../lib/router.js';
 
-const TABS = [{ id: 'foryou', label: 'For you' }, { id: 'following', label: 'Following' }, { id: 'updates', label: 'Updates' }, { id: 'collab', label: 'Collaborate' }];
+const TABS = [{ id: 'foryou', label: 'For you' }, { id: 'following', label: 'Following' }, { id: 'watch', label: 'Watch' }, { id: 'updates', label: 'Updates' }, { id: 'collab', label: 'Collaborate' }];
 
 export default function Home() {
   const { s } = useStore();

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, navigate } from '../lib/router.js';
 import { GlassPanel, TactileButton, StoneCard, Badge } from '../components/ui/index.jsx';
+import ArcadeCard from '../components/games/ArcadeCard.jsx';
 import GameCard from '../components/games/GameCard.jsx';
 import BrainMap from '../components/games/BrainMap.jsx';
 import BadgeShelf from '../components/games/BadgeShelf.jsx';
@@ -40,6 +41,11 @@ export default function Play() {
         </StoneCard>
         <StoneCard><LearningToday /></StoneCard>
       </div>
+
+      <section className="stack" aria-label="Quick arcade">
+        <div className="row row--between row--wrap"><h2>Quick arcade</h2><Link to="/rewards" className="btn btn--sm">✦ {s.rewards.sparks} sparks · Rewards</Link></div>
+        <div className="grid grid--2">{['cloudhop', 'orbpop', 'stopper'].map((id) => <ArcadeCard key={id} id={id} />)}</div>
+      </section>
 
       <section className="stack" aria-label="Games">
         <div className="chips" role="group" aria-label="Topics">{HUB_CHIPS.map((c) => <button key={c.id} type="button" className="chip" aria-pressed={cat === c.id} onClick={() => setCat(c.id)}>{c.icon} {c.label}</button>)}</div>

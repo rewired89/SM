@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import PostCard from './PostCard.jsx';
 import GameBreak from '../games/GameBreak.jsx';
+import ArcadeCard from '../games/ArcadeCard.jsx';
 import { Empty } from '../ui/index.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import * as sel from '../../store/selectors.js';
@@ -21,6 +22,7 @@ export default function Feed({ tab = 'foryou', filter, limit }) {
         <div key={x.post.id} className="stack">
           <PostCard post={x.post} reason={tab === 'foryou' ? x.reason : undefined} />
           {breaks && [2, 6, 10, 14].includes(i) && <GameBreak index={[2, 6, 10, 14].indexOf(i)} />}
+          {breaks && [4, 9, 13].includes(i) && <ArcadeCard id={['cloudhop', 'orbpop', 'stopper'][[4, 9, 13].indexOf(i)]} />}
         </div>
       ))}
     </div>

@@ -6,6 +6,7 @@ import { useUI } from './UIProvider.jsx';
 import { ME } from '../data/users.js';
 import { applyTheme } from '../lib/themes.js';
 import { applyLearn, BADGES } from '../lib/learn.js';
+import { applyWin, ACHIEVEMENTS, SHOP, CHEER_COST } from '../lib/rewards.js';
 import { uid, cents, pctLabel } from '../lib/format.js';
 
 const KEY = 'nomi_state_v1';
@@ -142,6 +143,26 @@ export function StoreProvider({ children }) {
         }, 5000);
       },
 
+      arcadeWin(p) {
+        const { gained, parts, capped, earned } = applyWin(ref.current.rewards, p);
+        dispatch({ type: 'ARCADE_WIN', payload: p });
+        earned.forEach((id) => { const x = ACHIEVEMENTS.find((q) => q.id === id); toast(`Achievement: ${x.emoji} ${x.name}`, { tone: 'success', to: '/rewards', ms: 5000 }); });
+        return { gained, parts, capped };
+      },
+      buy(id) {
+        const it = SHOP.find((x) => x.id === id);
+        if (ref.current.rewards.sparks < it.cost) { toast('Not enough sparks yet. Win a quick game!', { tone: 'danger' }); return; }
+        dispatch({ type: 'BUY', id });
+        if (it.kind !== 'theme') dispatch({ type: 'EQUIP', slot: it.kind, id });
+        toast(`Unlocked: ${it.name}`, { tone: 'success' });
+      },
+      equip(slot, id) { dispatch({ type: 'EQUIP', slot, id }); },
+      cheer(projectId, name) {
+        if (ref.current.rewards.sparks < CHEER_COST) { toast('Not enough sparks yet. Win a quick game!', { tone: 'danger' }); return; }
+        dispatch({ type: 'CHEER', projectId, cost: CHEER_COST });
+        toast(`You cheered ${name} with ${CHEER_COST} sparks`, { tone: 'success' });
+      },
+      setAmbient: (on) => dispatch({ type: 'AMBIENT', on }),
       learn(payload) {
         const { earned } = applyLearn(ref.current.learn, payload);
         dispatch({ type: 'LEARN', payload });

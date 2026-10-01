@@ -13,6 +13,8 @@ import Profile from './pages/Profile.jsx';
 import SearchPage from './pages/SearchPage.jsx';
 import FilterPage from './pages/FilterPage.jsx';
 import Play from './pages/Play.jsx';
+import Rewards from './pages/Rewards.jsx';
+import ArcadePage from './pages/ArcadePage.jsx';
 import PlayGame from './pages/PlayGame.jsx';
 import IdeaPage from './components/ideas/IdeaPage.jsx';
 import ProjectPage from './components/projects/ProjectPage.jsx';
@@ -31,6 +33,8 @@ function Router() {
     case 'projects': return <Projects />;
     case 'project': return <ProjectPage id={dec} />;
     case 'ai': return dec ? <AIToolPage id={dec} /> : <AIHub />;
+    case 'rewards': return <Rewards />;
+    case 'arcade': return <ArcadePage id={dec} />;
     case 'play': return dec ? <PlayGame key={dec} id={dec} /> : <Play />;
     case 'communities': return <Communities />;
     case 'community': return <CommunityPage id={dec} />;

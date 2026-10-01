@@ -48,9 +48,17 @@ Light soft-UI theme from the reference images: pale stone base with grain, sky-b
 
 Games are 20-90 second experiences, never quizzes-for-points. Every item has metadata (`category`, `topic`, `difficulty`, `skill`, `explanation`, `takeaway`, `source`, `sourceType`) in `src/data/questions.js`. Rules: no energy, no streak punishment, no loot, no IQ claims, no fabricated citations, sometimes "not enough information" is correct. Difficulty means more reasoning, not more trivia. Adaptive level in `lib/learn.js` (`pickNext`, `startLevel`). Learning state lives in `state.learn` (stats, topics, lessons, badges, xp, plays, daily). Games: Phish or Fine, Fallacy Fighter, Human Moment, Two Seconds of Science, AI or Human, Logic Lab, Knowledge Dodge (canvas lanes), Privacy Runner (canvas jump, also the offline game), Money Sense, Past & Culture, plus community challenges (creatable via Create → Challenge).
 
+## Arcade and Rewards
+
+Inline one-button games live in the feed (`ArcadeCard`, positions 4, 9, 13 of For you) and at `/arcade/:id` and `/play`. Defined in `src/lib/arcade.js` (Cloud Hop is the dino-style offline game, Star Catch, Perfect Stop). Win to earn sparks (`src/lib/rewards.js`): win +10, flawless +5, first win of day +5, daily cap 60. Sparks cannot be bought, never expire, no loss mechanics, no loot boxes. Spend on avatar rings, titles, locked palettes (Sunset, Mint & Lilac) or to cheer projects (5 sparks, non-monetary). State in `state.rewards`. Page: `/rewards`.
+
+## Ambient background
+
+`components/layout/Backdrop.jsx`: drifting clouds and three layered waves filled from `--accent` and `--accent2`, so waves follow the chosen palette. Toggle in the color picker (`state.ambient`). Respects reduced motion.
+
 ## State shape
 
-`theme`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
+`theme`, `ambient`, `rewards`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
 
 ## Demo path
 

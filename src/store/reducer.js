@@ -2,6 +2,7 @@ import { initialState } from './initialState.js';
 import { K, milestonesOf, projectById } from './selectors.js';
 import { uid } from '../lib/format.js';
 import { applyLearn, BADGES } from '../lib/learn.js';
+import { applyWin, ACHIEVEMENTS, SHOP } from '../lib/rewards.js';
 
 const LISTS = ['following', 'liked', 'saved', 'joined', 'interested'];
 export const note = (s, type, text, to) => ({
@@ -66,6 +67,23 @@ export function reducer(s, a) {
       earned.forEach((id) => { const b = BADGES.find((x) => x.id === id); out = note(out, 'badge', `Badge earned: ${b.emoji} ${b.name}. ${b.desc}`, '/play'); });
       return out;
     }
+    case 'ARCADE_WIN': {
+      const { next, earned } = applyWin(s.rewards, a.payload);
+      let out = { ...s, rewards: next };
+      earned.forEach((id) => { const x = ACHIEVEMENTS.find((q) => q.id === id); out = note(out, 'badge', `Achievement: ${x.emoji} ${x.name}. ${x.desc}`, '/rewards'); });
+      return out;
+    }
+    case 'BUY': {
+      const it = SHOP.find((x) => x.id === a.id);
+      if (!it || s.rewards.unlocked.includes(it.id) || s.rewards.sparks < it.cost) return s;
+      return { ...s, rewards: { ...s.rewards, sparks: s.rewards.sparks - it.cost, unlocked: [...s.rewards.unlocked, it.id] } };
+    }
+    case 'EQUIP': return { ...s, rewards: { ...s.rewards, equipped: { ...s.rewards.equipped, [a.slot]: a.id } } };
+    case 'CHEER': {
+      if (s.rewards.sparks < a.cost) return s;
+      return { ...s, rewards: { ...s.rewards, sparks: s.rewards.sparks - a.cost, cheers: { ...s.rewards.cheers, [a.projectId]: (s.rewards.cheers[a.projectId] || 0) + 1 } } };
+    }
+    case 'AMBIENT': return { ...s, ambient: a.on };
     case 'THEME': return { ...s, theme: a.id };
     case 'RESET': return initialState();
     default: return s;

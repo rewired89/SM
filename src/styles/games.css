@@ -89,3 +89,22 @@ ol.dots, .chain, .stepper { list-style: none; margin: 0; padding: 0; }
 .rail, .rail__card, .today { min-width: 0; }
 .today .btn { white-space: normal; height: auto; padding: 8px 14px; text-align: center; line-height: 1.25; }
 .badge-card .grow { min-width: 0; }
+
+/* ---- arcade ---- */
+.arcade { padding: 16px; display: grid; gap: 10px; }
+.arcade__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.arcade__hud { font-size: 1.1rem; color: var(--accent-strong); }
+.arcade__stage { position: relative; }
+.arcade .arena { cursor: pointer; }
+.arcade__overlay { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 4px; text-align: center; border: 0; border-radius: 20px; padding: 12px; background: rgba(255, 255, 255, 0.72); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); color: var(--text-primary); animation: fade 200ms var(--ease); }
+button.arcade__overlay { cursor: pointer; }
+.arcade__overlay strong { font-size: 1.3rem; letter-spacing: -0.02em; }
+.arcade__overlay span, .arcade__overlay small { color: var(--text-secondary); }
+.arcade__overlay--won { background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.22), rgba(var(--accent2-rgb), 0.3)), rgba(255, 255, 255, 0.8); }
+.arcade--large .arcade__head h3 { font-size: 1.4rem; }
+.wallet--sparks { background: linear-gradient(135deg, rgba(var(--accent2-rgb), 0.25), rgba(var(--accent-rgb), 0.15)); border-color: rgba(var(--accent2-rgb), 0.5); }
+.theme-opt.is-locked { opacity: 0.6; }
+.theme-opt.is-locked:hover { transform: none; }
+.avatar--ring_aurora { box-shadow: 0 0 0 2px #fff, 0 0 0 5px var(--accent), 0 0 0 7px var(--accent2); }
+.avatar--ring_cloud { box-shadow: 0 0 0 2px #fff, 0 0 14px 6px rgba(255, 255, 255, 0.95), 0 6px 14px rgba(30, 50, 100, 0.25); }
+.avatar--ring_gold { box-shadow: 0 0 0 2px #fff, 0 0 0 5px #f2b632, 0 0 12px 4px rgba(242, 182, 50, 0.55); }

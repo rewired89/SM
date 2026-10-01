@@ -40,6 +40,7 @@ export default function ProjectPage({ id }) {
           <SupportBtn type="project" id={p.id} label={p.title} className="btn btn--primary" />
           <TactileButton icon="users" onClick={() => openModal('collab', { targetType: 'project', targetId: p.id })} disabled={mine}>Collaborate</TactileButton>
           <FollowBtn type="project" id={p.id} name={p.title} size="md" />
+          {!mine && <TactileButton onClick={() => a.cheer(p.id, p.title)}>👏 Cheer · 5 ✦{s.rewards.cheers[p.id] ? ` (${s.rewards.cheers[p.id]})` : ''}</TactileButton>}
         </div>
       </GlassPanel>
 

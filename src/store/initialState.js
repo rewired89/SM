@@ -1,6 +1,7 @@
 import { notificationsSeed, conversationsSeed } from '../data/social.js';
 import { minsAgoToTs } from '../lib/format.js';
 import { seedLearn } from '../lib/learn.js';
+import { seedRewards } from '../lib/rewards.js';
 
 const seedContributions = () => {
   const direct = (type, id, label, n) => Array.from({ length: n }, () => ({ type, id, label }));
@@ -28,6 +29,8 @@ export const initialState = () => ({
   wallet: 20,
   theme: 'sky',
   learn: seedLearn(),
+  rewards: seedRewards(),
+  ambient: true,
   following: ['user:u_maya', 'user:u_alex', 'project:p_robotlab'],
   liked: ['s3'],
   saved: [],

@@ -15,6 +15,7 @@ import { useStore } from '../store/StoreProvider.jsx';
 import * as sel from '../store/selectors.js';
 import { navigate, Link } from '../lib/router.js';
 import { ME } from '../data/users.js';
+import { SHOP } from '../lib/rewards.js';
 import { cents } from '../lib/format.js';
 
 export default function Profile({ userId }) {
@@ -43,6 +44,7 @@ export default function Profile({ userId }) {
           <div className="grow">
             <h1>{user.name}</h1>
             <span className="muted">@{user.handle} · {user.location}</span>
+            {mine && s.rewards.equipped.title && <div><span className="badge badge--accent">{SHOP.find((x) => x.id === s.rewards.equipped.title)?.text}</span></div>}
             <div className="secondary">{user.headline.join(' • ')}</div>
           </div>
           {mine ? <TactileButton onClick={() => { if (confirm('Reset all demo data?')) a.reset(); }} icon="refresh">Reset demo</TactileButton> : <div className="row"><FollowBtn type="user" id={id} name={user.name} size="md" /><TactileButton icon="mail" onClick={message}>Message</TactileButton></div>}

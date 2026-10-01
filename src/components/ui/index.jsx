@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import Icon from './Icon.jsx';
 import { navigate, Link } from '../../lib/router.js';
 import { initials } from '../../lib/format.js';
+import { useStore } from '../../store/StoreProvider.jsx';
+import { ME } from '../../data/users.js';
 
 export { Icon };
 
@@ -41,11 +43,15 @@ export const IconButton = ({ icon, label, count, pressed, variant, className = '
 
 export const Badge = ({ tone, children, className = '' }) => <span className={`badge ${tone ? `badge--${tone}` : ''} ${className}`}>{children}</span>;
 
-export const Avatar = ({ user, size = 40 }) => (
-  <span className="avatar" style={{ width: size, height: size, fontSize: size * 0.38, background: `linear-gradient(145deg, hsl(${user.hue} 60% 72%), hsl(${(user.hue + 40) % 360} 45% 52%))` }} aria-hidden="true">
+export function Avatar({ user, size = 40 }) {
+  const ctx = useStore();
+  const ring = user.id === ME ? ctx?.s.rewards.equipped.ring : null;
+  return (
+  <span className={`avatar ${ring ? `avatar--${ring}` : ''}`} style={{ width: size, height: size, fontSize: size * 0.38, background: `linear-gradient(145deg, hsl(${user.hue} 60% 72%), hsl(${(user.hue + 40) % 360} 45% 52%))` }} aria-hidden="true">
     {initials(user.name)}
   </span>
-);
+  );
+}
 
 export const ProgressBar = ({ value, done, thin, label }) => (
   <div className={`bar ${done ? 'bar--done' : ''} ${thin ? 'bar--thin' : ''}`} role="progressbar" aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>

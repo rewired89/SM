@@ -19,6 +19,8 @@ export const THEMES = [
   T('pinkpurple', 'Pink & Purple', '#d6307c', '#9b6bff'),
   T('purpleteal', 'Purple & Teal', '#7c4dff', '#19c2ae'),
   T('violetgold', 'Violet & Gold', '#7c4dff', '#ffbf3f'),
+  { ...T('sunset', 'Sunset', '#d9480f', '#d6307c'), lock: 'theme_sunset' },
+  { ...T('minty', 'Mint & Lilac', '#0b8b7b', '#b79bff'), lock: 'theme_minty' },
 ];
 
 export const applyTheme = (id) => {

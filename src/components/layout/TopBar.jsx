@@ -1,0 +1,33 @@
+import { useState } from 'react';
+import { Link, navigate, useRoute } from '../../lib/router.js';
+import { Icon, Avatar } from '../ui/index.jsx';
+import Logo from './Logo.jsx';
+import { useStore } from '../../store/StoreProvider.jsx';
+import * as sel from '../../store/selectors.js';
+import { cents } from '../../lib/format.js';
+
+export default function TopBar() {
+  const { s } = useStore();
+  const { path, query } = useRoute();
+  const [text, setText] = useState('');
+  const unread = s.notifications.filter((n) => !n.read).length;
+  const submit = (e) => { e.preventDefault(); if (text.trim()) navigate(`/search?q=${encodeURIComponent(text.trim())}`); };
+  const value = path === '/search' && query.q && !text ? query.q : text;
+  return (
+    <header className="topbar glass">
+      <Link to="/" className="brand" aria-label="Cairn home"><Logo /><span className="brand__name">Cairn</span></Link>
+      <form className="topbar__search" role="search" onSubmit={submit}>
+        <Icon name="search" size={16} />
+        <input type="search" aria-label="Search people, projects, ideas, AI tools, communities and posts" placeholder="Search people, projects, ideas, tools..." value={value} onChange={(e) => setText(e.target.value)} />
+      </form>
+      <div className="topbar__right">
+        <Link to="/search" className="iconbtn topbar__searchicon" aria-label="Search"><Icon name="search" /></Link>
+        <Link to="/fund" className="wallet" aria-label={`Prototype wallet ${cents(s.wallet)}. Open funding`}><Icon name="coin" size={15} /><span>{cents(s.wallet)}</span></Link>
+        <Link to="/notifications" className="iconbtn bell" aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}>
+          <Icon name="bell" />{unread > 0 && <span className="dot">{unread > 9 ? '9+' : unread}</span>}
+        </Link>
+        <Link to="/profile" aria-label="Your profile"><Avatar user={sel.me()} size={34} /></Link>
+      </div>
+    </header>
+  );
+}

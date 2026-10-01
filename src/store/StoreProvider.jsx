@@ -1,0 +1,177 @@
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import { reducer, applyContribution } from './reducer.js';
+import { initialState } from './initialState.js';
+import * as sel from './selectors.js';
+import { useUI } from './UIProvider.jsx';
+import { ME } from '../data/users.js';
+import { uid, cents, pctLabel } from '../lib/format.js';
+
+const KEY = 'cairn_state_v1';
+const Ctx = createContext(null);
+export const useStore = () => useContext(Ctx);
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return initialState();
+    const saved = JSON.parse(raw);
+    return saved.v === 1 ? { ...initialState(), ...saved, created: { ...initialState().created, ...saved.created } } : initialState();
+  } catch { return initialState(); }
+}
+
+const SPLIT_MICRO = { creator: 0.4, pool: 0.4, infra: 0.2 };
+const REPLIES = [
+  'Thanks for reaching out, your intro is exactly what we needed. Can you share a bit about what you have built before?',
+  'Love this. Let us set up a quick call this week and map out where you can help first.',
+  'Welcome aboard! I will add you to the project channel. Start with the open issues on the board.',
+];
+
+export function StoreProvider({ children }) {
+  const [state, dispatch] = useReducer(reducer, undefined, load);
+  const { toast } = useUI();
+  const ref = useRef(state);
+  ref.current = state;
+
+  useEffect(() => {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage unavailable */ }
+  }, [state]);
+
+  const actions = useMemo(() => {
+    const toggle = (list, key, onMsg, offMsg) => {
+      const on = ref.current[list].includes(key);
+      dispatch({ type: 'TOGGLE', list, key });
+      toast(on ? offMsg : onMsg);
+    };
+    const mk = {
+      follow: (type, id, name) => toggle('following', sel.K(type, id), `Following ${name}`, `Unfollowed ${name}`),
+      like: (id) => dispatch({ type: 'TOGGLE', list: 'liked', key: id }),
+      save: (id) => toggle('saved', id, 'Saved to bookmarks', 'Removed from bookmarks'),
+      join: (id, name) => toggle('joined', id, `You joined ${name}`, `You left ${name}`),
+      interest: (id, title) => toggle('interested', id, `Marked interested in ${title}`, `No longer interested in ${title}`),
+      comment: (key, text) => text.trim() && dispatch({ type: 'COMMENT', key, text: text.trim(), userId: ME }),
+      view: (id) => dispatch({ type: 'VIEW', id }),
+      markRead: (id) => dispatch({ type: 'READ', id }),
+      markAllRead: () => dispatch({ type: 'READ_ALL' }),
+      readConversation: (id) => dispatch({ type: 'CV_READ', id }),
+      reset: () => { dispatch({ type: 'RESET' }); toast('Demo reset'); },
+
+      useTool: (id) => dispatch({ type: 'TOOL_USE', id }),
+      dismissMicro: (id) => dispatch({ type: 'MICRO_SEEN', id }),
+
+      sendMessage: (cvId, text, userId) => {
+        if (!text.trim()) return;
+        dispatch({ type: 'MSG', cvId, userId, from: 'me', text: text.trim() });
+      },
+      startConversation: (userId) => {
+        const id = `cv_${userId.replace('u_', '')}`;
+        if (!ref.current.conversations.some((c) => c.id === id)) dispatch({ type: 'MSG', cvId: id, userId, from: 'me', text: 'Hi! I found you on Cairn.' });
+        return id;
+      },
+
+      contribute({ targetType, targetId, amount, micro = false }) {
+        const s = ref.current;
+        if (s.wallet < amount) { toast('Prototype wallet is empty. Reset the demo from your profile.', { tone: 'danger' }); return null; }
+        const e = sel.entityOf(s, { type: targetType, id: targetId });
+        const r2 = (n) => +n.toFixed(2);
+        let allocations;
+        if (micro) {
+          const proj = sel.projectById(s, e.projectId);
+          allocations = [
+            { type: 'tool', id: e.id, label: e.name, amount: r2(amount * SPLIT_MICRO.creator), note: 'Tool creator' },
+            ...(proj ? [{ type: 'project', id: proj.id, label: proj.title, amount: r2(amount * SPLIT_MICRO.pool), note: 'Project funding pool' }] : []),
+            { type: 'platform', id: 'platform', label: 'Platform infrastructure', amount: r2(amount * SPLIT_MICRO.infra), note: 'Platform infrastructure' },
+          ];
+        } else {
+          allocations = [{ type: targetType, id: targetId, label: sel.nameOf(e), amount, note: 'Direct support' }];
+        }
+        const entry = { id: uid('ct'), ts: Date.now(), kind: micro ? 'micro' : 'direct', targetType, targetId, label: sel.nameOf(e), amount, allocations };
+        const next = applyContribution(s, entry);
+        const pid = allocations.find((a) => a.type === 'project')?.id;
+        const proj = pid ? sel.projectById(s, pid) : null;
+        const result = { entry, allocations };
+        if (proj) {
+          result.before = { funded: sel.fundedOf(s, 'project', proj), pct: sel.projectPct(s, proj) };
+          result.after = { funded: sel.fundedOf(next, 'project', proj), pct: sel.projectPct(next, proj) };
+          result.goal = sel.projectGoal(s, proj);
+          const was = sel.milestonesOf(s, pid), now = sel.milestonesOf(next, pid);
+          result.completed = now.find((m, i) => m.done && !was[i].done) || null;
+          result.project = proj;
+        } else if (targetType === 'idea') {
+          result.before = { funded: sel.fundedOf(s, 'idea', e), pct: sel.ideaPct(s, e) };
+          result.after = { funded: sel.fundedOf(next, 'idea', e), pct: sel.ideaPct(next, e) };
+          result.goal = e.goal;
+        }
+        dispatch({ type: 'CONTRIBUTE', entry });
+        toast(`${cents(amount)} contributed to ${entry.label}`, { tone: 'success' });
+        if (proj && !s.creatorUpdated.includes(proj.id) && proj.ownerId !== ME) {
+          setTimeout(() => {
+            const cur = ref.current;
+            if (cur.creatorUpdated.includes(proj.id)) return;
+            const owner = sel.userById(proj.ownerId);
+            const pc = sel.projectPct(cur, proj);
+            const post = {
+              id: uid('s'), type: 'update', authorId: proj.ownerId, ts: Date.now(), tags: proj.tags, likes: 0, comments: 0, ref: { type: 'project', id: proj.id },
+              text: `Thank you to everyone who supported ${proj.title} today. Your small contributions are moving us forward.`,
+              extra: { day: 60, prev: `Funding ${pctLabel(result.before.pct)}`, curr: `Funding ${pctLabel(pc)}`, changed: 'Supporters like you, every $0.50 counts' },
+            };
+            dispatch({ type: 'CREATOR_UPDATE', post, projectId: proj.id, text: `${owner.name} posted an update on ${proj.title}: "Thank you to everyone who supported today."` });
+            toast(`${owner.name} posted an update on ${proj.title}`, { to: `/project/${proj.id}` });
+          }, 7000);
+        }
+        return result;
+      },
+
+      sendCollab({ targetType, targetId, skill, message }) {
+        const s = ref.current;
+        const e = sel.entityOf(s, { type: targetType, id: targetId });
+        const ownerId = e.ownerId || e.authorId;
+        const owner = sel.userById(ownerId);
+        const cvId = `cv_${ownerId.replace('u_', '')}`;
+        dispatch({ type: 'COLLAB', request: { id: uid('cr'), targetType, targetId, skill, message, ts: Date.now() } });
+        dispatch({ type: 'MSG', cvId, userId: ownerId, from: 'me', text: `Collaboration request for ${sel.nameOf(e)} (${skill}): ${message || 'Happy to help where useful.'}` });
+        dispatch({ type: 'NOTE', noteType: 'collab', text: `Your collaboration request for ${sel.nameOf(e)} was sent to ${owner.name}.`, to: `/${targetType}/${targetId}` });
+        toast(`Request sent to ${owner.name}`, { tone: 'success' });
+        setTimeout(() => {
+          dispatch({ type: 'MSG', cvId, userId: ownerId, from: 'them', text: REPLIES[Math.floor(Math.random() * REPLIES.length)] });
+          dispatch({ type: 'NOTE', noteType: 'collab', text: `${owner.name} replied to your collaboration request.`, to: `/messages/${cvId}` });
+          toast(`${owner.name} replied to your request`, { to: `/messages/${cvId}` });
+        }, 5000);
+      },
+
+      createPost({ type = 'post', text, tags = [], ref: r, extra }) {
+        const post = { id: uid('s'), type, authorId: ME, ts: Date.now(), text, tags, likes: 0, comments: 0, ref: r, extra, createdByMe: true };
+        dispatch({ type: 'POST', post });
+        toast('Posted', { tone: 'success' });
+        return post;
+      },
+      createEntity(kind, data) {
+        const id = `${{ project: 'p', idea: 'i', tool: 't', community: 'c' }[kind]}_${uid('n')}`;
+        const common = { id, tags: data.tags || [], followers: 0 };
+        let entity, milestone, text, ntype = 'post';
+        if (kind === 'project') {
+          entity = { ...common, title: data.title, tagline: data.tagline, kind: 'Project', status: 'Just started', category: data.category, subs: [], about: data.about || data.tagline, progress: [{ label: 'Planning', pct: 5 }], team: [{ userId: ME, role: 'Creator' }], needs: data.needs, looking: data.needs.map((n) => ({ skill: n, open: true })), ownerId: ME, funded: 0 };
+          milestone = { id: uid('m'), projectId: id, title: 'First milestone', needed: 500 };
+          text = `Started a new project: ${data.title}. ${data.tagline}`;
+        } else if (kind === 'idea') {
+          entity = { ...common, title: data.title, pitch: data.pitch, body: data.pitch, authorId: ME, category: data.category, sub: data.sub || data.category, stage: 0, interested: 0, comments: 0, looking: data.needs.length, funded: 0, goal: 500, needs: data.needs };
+          text = `New idea: ${data.title}. ${data.pitch}`; ntype = 'idea';
+        } else if (kind === 'tool') {
+          entity = { id, kind: 'tool', name: data.title, description: data.pitch, creatorId: ME, category: data.category, subcategory: 'AI Tools', uses: 0, rating: 0, capabilities: ['New'], communityId: 'c_aibuilders', projectId: null, analyzer: 'keywords', placeholder: 'Paste something to analyze...', sample: '', fee: null, tags: data.tags || ['AI'] };
+          text = `Published a new AI tool: ${data.title}. ${data.pitch}`; ntype = 'tool';
+        } else {
+          entity = { id, name: data.title, members: 1, about: data.pitch, projects: 0, people: 1, events: 0, tags: data.tags || [], hue: 30, ownerId: ME, discussions: [] };
+          text = `Started a new community: ${data.title}. ${data.pitch}`; ntype = 'community';
+        }
+        const post = { id: uid('s'), type: ntype, authorId: ME, ts: Date.now(), text, tags: entity.tags || [], likes: 0, comments: 0, ref: { type: kind, id }, createdByMe: true };
+        dispatch({ type: 'CREATE', kind, entity, milestone, post });
+        if (kind === 'community') dispatch({ type: 'TOGGLE', list: 'joined', key: id });
+        toast(`${kind[0].toUpperCase() + kind.slice(1)} created`, { tone: 'success' });
+        return id;
+      },
+    };
+    return mk;
+  }, [toast]);
+
+  const value = useMemo(() => ({ s: state, a: actions }), [state, actions]);
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}

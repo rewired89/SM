@@ -27,7 +27,10 @@ function load() {
     const raw = localStorage.getItem(KEY);
     if (!raw) return initialState();
     const saved = JSON.parse(raw);
-    return saved.v === 1 ? { ...initialState(), ...saved, created: { ...initialState().created, ...saved.created } } : initialState();
+    if (saved.v !== 1) return initialState();
+    const out = { ...initialState(), ...saved, created: { ...initialState().created, ...saved.created } };
+    if (out.profile?.collabTypes) out.profile = { ...out.profile, collabTypes: [...new Set(out.profile.collabTypes.map((t) => (t === 'Tech with AI collaborator' ? 'Tech with AI · Vibe Code' : t)))] };
+    return out;
   } catch { return initialState(); }
 }
 

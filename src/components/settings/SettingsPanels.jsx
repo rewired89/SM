@@ -37,6 +37,7 @@ export function ProfilePanel() {
   const { toast } = useUI();
   const file = useRef(null);
   const [err, setErr] = useState('');
+  const [skillsText, setSkillsText] = useState(() => d.skills.join(', '));
   const pick = async (e) => {
     const f = e.target.files[0]; e.target.value = '';
     if (!f) return;
@@ -48,7 +49,7 @@ export function ProfilePanel() {
     if (!d.name.trim()) return setErr('Please add a display name.');
     if (!HANDLE.test(d.handle)) return setErr('Your @username needs 3 to 20 letters, numbers or underscores.');
     setErr('');
-    a.saveProfile({ ...d, name: d.name.trim(), handle: d.handle.trim(), skills: d.skills.filter(Boolean) });
+    a.saveProfile({ ...d, name: d.name.trim(), handle: d.handle.trim(), skills: skillsText.split(',').map((x) => x.trim()).filter(Boolean) });
   };
   const preview = { ...sel.me(), name: d.name || 'You', avatar: d.avatar };
   return (
@@ -61,7 +62,7 @@ export function ProfilePanel() {
         <div className="field"><label htmlFor="s-name">Display name or nickname</label><input id="s-name" className="input" value={d.name} onChange={set('name')} maxLength={40} /></div>
         <div className="field"><label htmlFor="s-handle">@username</label><input id="s-handle" className="input" value={d.handle} onChange={set('handle')} maxLength={20} autoCapitalize="off" /></div>
         <div className="field"><label htmlFor="s-loc">Location</label><input id="s-loc" className="input" value={d.location} onChange={set('location')} maxLength={50} /></div>
-        <div className="field"><label htmlFor="s-skills">Skills (comma separated)</label><input id="s-skills" className="input" value={d.skills.join(', ')} onChange={(e) => setD({ ...d, skills: e.target.value.split(',').map((x) => x.trim()) })} /></div>
+        <div className="field"><label htmlFor="s-skills">Skills (comma separated)</label><input id="s-skills" className="input" value={skillsText} onChange={(e) => setSkillsText(e.target.value)} /></div>
       </div>
       <div className="field"><label htmlFor="s-bio">Bio</label><textarea id="s-bio" className="textarea" value={d.bio} onChange={set('bio')} maxLength={280} /><span className="muted">{d.bio.length}/280</span></div>
       {err && <p className="danger" role="alert">{err}</p>}

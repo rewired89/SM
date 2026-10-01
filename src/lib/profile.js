@@ -5,7 +5,7 @@ export const CAREERS = [
 export const CAREER_STATUS = [['working', 'Working in this field'], ['studying', 'Studying'], ['progress', 'Still in progress']];
 
 export const COLLAB_TYPES = [
-  'Tech collaborator', 'Tech with AI collaborator', 'Tech with AI · Vibe Code', 'Scientist collaborator', 'Designer collaborator',
+  'Tech collaborator', 'Tech with AI · Vibe Code', 'Scientist collaborator', 'Designer collaborator',
   'Creative collaborator', 'Researcher / Academic', 'Writer / Storyteller', 'Hardware / Maker', 'Business / Funding advisor',
 ];
 

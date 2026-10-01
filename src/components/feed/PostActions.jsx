@@ -5,6 +5,7 @@ import { useUI } from '../../store/UIProvider.jsx';
 import * as sel from '../../store/selectors.js';
 
 export const supportTargetFor = (s, post) => {
+  if (post.type === 'game') return null;
   if (post.ref && ['project', 'idea', 'tool'].includes(post.ref.type)) return post.ref;
   const p = sel.allProjects(s).find((x) => x.ownerId === post.authorId);
   return p ? { type: 'project', id: p.id } : null;

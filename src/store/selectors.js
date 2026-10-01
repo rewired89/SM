@@ -131,3 +131,8 @@ export function search(s, query) {
     posts: allPosts(s).filter((p) => match(qs, p.text, p.tags, p.extra?.title)),
   };
 }
+
+/* ---------- games ---------- */
+import { seededChallenges } from '../data/games.js';
+export const allChallenges = (s) => [...s.created.challenges, ...seededChallenges];
+export const challengeById = (s, id) => allChallenges(s).find((c) => c.id === id);

@@ -4,6 +4,7 @@ import { PersonChip, FollowBtn } from '../common/bits.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import * as sel from '../../store/selectors.js';
 import { topTags } from '../../data/communities.js';
+import LearningToday from '../games/LearningToday.jsx';
 import { cents, pctLabel } from '../../lib/format.js';
 import { ME } from '../../data/users.js';
 
@@ -20,6 +21,7 @@ export default function RightRail() {
         <div className="impact-mini"><strong>{cents(stats.total)}</strong><span className="muted">across {stats.projects} projects and {stats.tools} tools</span></div>
         <Link to="/fund" className="btn btn--sm">Contribution history</Link>
       </GlassPanel>
+      <GlassPanel className="rail__card"><h2>Play & learn</h2><LearningToday compact /></GlassPanel>
       <GlassPanel className="rail__card">
         <h2>Trending</h2>
         <div className="chips chips--tags">{topTags.slice(0, 8).map((t) => <Tag key={t} tag={t} />)}</div>

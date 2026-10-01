@@ -32,4 +32,6 @@ export const posts = [
   P('s29', 'question', 'u_ines', 2600, 'What is the cheapest reliable way to log temperature inside a DIY incubator?', { tags: ['Biology', 'Hardware'], likes: 24, comments: 29 }),
   P('s30', 'update', 'u_dayana', 2700, 'Nyx builds are now byte-for-byte reproducible on two machines.', { ref: { type: 'project', id: 'p_nyx' }, extra: { day: 14, prev: 'Builds differ by 12 files', curr: 'Identical on 2 machines', changed: 'Pinned toolchain and sorted archive order' }, tags: ['Privacy', 'OpenSource'], likes: 82, comments: 13 }),
   P('s31', 'idea', 'u_tomas', 2800, 'Games that fit on one printed page. Could a tiny toolkit make zine games easy?', { ref: { type: 'idea', id: 'i_zine' }, tags: ['Games'], likes: 71, comments: 15 }),
+  P('s32', 'game', 'u_marcus', 20, 'Marcus Bell completed Phish or Fine?: 5/6.', { extra: { gameId: 'phish', title: 'Phish or Fine?', emoji: '🔐', label: 'Phishing recognition', score: 5, total: 6 }, likes: 18, comments: 3 }),
+  P('s33', 'game', 'u_priya', 140, 'Priya Raman completed Two Seconds of Science: 6/6.', { extra: { gameId: 'science', title: 'Two Seconds of Science', emoji: '🔬', label: 'Core science intuition', score: 6, total: 6 }, likes: 22, comments: 2 }),
 ];

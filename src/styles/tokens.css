@@ -10,13 +10,21 @@
   --panel-highlight: rgba(255, 255, 255, 1);
   --line: rgba(30, 50, 100, 0.09);
   --ink: 30, 50, 100;
+  /* theme (overridden at runtime by lib/themes.js) */
   --accent: #1f6fff;
+  --accent-light: #4a93ff;
   --accent-strong: #0a55d6;
-  --accent-soft: rgba(31, 111, 255, 0.11);
-  --accent-glow: rgba(31, 111, 255, 0.38);
-  --pink: #ff8fc1;
-  --pink-soft: rgba(255, 143, 193, 0.28);
-  --sky: #cfe6ff;
+  --accent-rgb: 31, 111, 255;
+  --accent2: #ff8fc1;
+  --accent2-rgb: 255, 143, 193;
+  --accent-soft: rgba(var(--accent-rgb), 0.11);
+  --accent-glow: rgba(var(--accent-rgb), 0.38);
+  --hero-top: #2f86e6;
+  --hero-mid: #8cc4ff;
+  --hero-low: #d7ebff;
+  --hero-blob: #ffc2de;
+  --bg-a: 191, 220, 255;
+  --bg-b: 255, 190, 220;
   --alert: #ff4b5c;
   --text-primary: #131c33;
   --text-secondary: #46526c;

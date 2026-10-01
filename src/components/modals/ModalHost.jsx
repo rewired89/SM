@@ -2,6 +2,7 @@ import { useUI } from '../../store/UIProvider.jsx';
 import SupportModal from './SupportModal.jsx';
 import CollaborationModal from './CollaborationModal.jsx';
 import CreateModal from './CreateModal.jsx';
+import ThemeModal from './ThemeModal.jsx';
 import { navigate } from '../../lib/router.js';
 
 export default function ModalHost() {
@@ -10,6 +11,7 @@ export default function ModalHost() {
     <>
       {modal?.type === 'support' && <SupportModal {...modal.props} />}
       {modal?.type === 'collab' && <CollaborationModal {...modal.props} />}
+      {modal?.type === 'theme' && <ThemeModal />}
       {modal?.type === 'create' && <CreateModal {...modal.props} />}
       <div className="toasts" aria-live="polite" aria-atomic="false">
         {toasts.map((t) => (

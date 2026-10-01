@@ -6,6 +6,7 @@ export const useUI = () => useContext(Ctx);
 export function UIProvider({ children }) {
   const [modal, setModal] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const [simOffline, setSimOffline] = useState(false);
   const openModal = useCallback((type, props = {}) => setModal({ type, props }), []);
   const closeModal = useCallback(() => setModal(null), []);
   const toast = useCallback((text, opts = {}) => {
@@ -13,6 +14,6 @@ export function UIProvider({ children }) {
     setToasts((t) => [...t.slice(-2), { id, text, tone: opts.tone || 'default', to: opts.to }]);
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), opts.ms || 3600);
   }, []);
-  const value = useMemo(() => ({ modal, toasts, openModal, closeModal, toast }), [modal, toasts, openModal, closeModal, toast]);
+  const value = useMemo(() => ({ modal, toasts, openModal, closeModal, toast, simOffline, setSimOffline }), [modal, toasts, openModal, closeModal, toast, simOffline]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

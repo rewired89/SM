@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import PostCard from './PostCard.jsx';
+import GameBreak from '../games/GameBreak.jsx';
 import { Empty } from '../ui/index.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import * as sel from '../../store/selectors.js';
@@ -13,5 +14,15 @@ export default function Feed({ tab = 'foryou', filter, limit }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.following, s.liked, s.joined, s.interested, s.viewed, s.createdPosts, s.created, tab, filter, limit, s.deltas]);
   if (!items.length) return <Empty title="Nothing here yet">Follow a few people or projects and this fills up.</Empty>;
-  return <div className="stack feed" role="feed" aria-label="Feed">{items.map((x) => <PostCard key={x.post.id} post={x.post} reason={tab === 'foryou' ? x.reason : undefined} />)}</div>;
+  const breaks = tab === 'foryou' && !filter && !limit;
+  return (
+    <div className="stack feed" role="feed" aria-label="Feed">
+      {items.map((x, i) => (
+        <div key={x.post.id} className="stack">
+          <PostCard post={x.post} reason={tab === 'foryou' ? x.reason : undefined} />
+          {breaks && [2, 6, 10, 14].includes(i) && <GameBreak index={[2, 6, 10, 14].indexOf(i)} />}
+        </div>
+      ))}
+    </div>
+  );
 }

@@ -5,6 +5,7 @@ import { PersonChip, FollowBtn, SupportBtn } from '../common/bits.jsx';
 import FundingMilestone from './FundingMilestone.jsx';
 import PostCard from '../feed/PostCard.jsx';
 import CommentThread from '../feed/CommentThread.jsx';
+import GameBreak from '../games/GameBreak.jsx';
 import AIToolCard from '../ai/AIToolCard.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import { useUI } from '../../store/UIProvider.jsx';
@@ -79,6 +80,7 @@ export default function ProjectPage({ id }) {
         {updates.length ? <div className="stack timeline">{updates.map((u) => <PostCard key={u.id} post={u} />)}</div> : <Empty title="No updates yet">Follow this project to hear when something ships.</Empty>}
       </section>
 
+      <GameBreak variant="knowledge" tags={p.tags} />
       <section className="stack" aria-label="Discussion"><h2>Discussion</h2><CommentThread cKey={cKey} placeholder="Ask the team something..." /></section>
     </article>
   );

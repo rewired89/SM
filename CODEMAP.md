@@ -4,8 +4,8 @@
 index.html                     entry, fonts, favicon
 src/main.jsx                   providers (UI → Store) + styles
 src/App.jsx                    route switch (hash router)
-src/lib/                       router.js (useRoute/Link/navigate), format.js, analyzers.js (simulated AI outputs)
-src/data/                      users, projects(+milestones), ideas(+STAGES), tools(+agents), communities, posts, social (notifications, conversations, seed comments)
+src/lib/                       themes.js (color pairs), learn.js (adaptive pick, badges, applyLearn), router.js (useRoute/Link/navigate), format.js, analyzers.js (simulated AI outputs)
+src/data/                      games.js (game defs, hub chips, seeded challenges), questions.js (all banks + metadata), users, projects(+milestones), ideas(+STAGES), tools(+agents), communities, posts, social (notifications, conversations, seed comments)
 src/store/
   initialState.js              defaults + 25 seeded $0.50 contributions
   reducer.js                   actions, applyContribution (funding deltas, milestone notification)
@@ -23,8 +23,10 @@ src/components/
   ai/                          AIToolCard, AIToolPage, AIToolDemo, MicroContribution
   communities/                 CommunityCard (+JoinBtn), CommunityPage
   profile/                     ProfileProjects, ProfileActivity, ContributionHistory
-  modals/                      SupportModal, CollaborationModal, CreateModal, ModalHost
-src/pages/                     Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
+  games/                       QuizGame, DodgeGame, RunnerGame, prompts, ResultScreen, GameCard, GameBreak, GameResultCard, BrainMap, BadgeShelf, LearningToday, OfflineBanner, useLoop
+  common/ThemePicker.jsx       color pair picker
+  modals/                      SupportModal, CollaborationModal, CreateModal (+Challenge), ThemeModal, ModalHost
+src/pages/                     Play (hub), PlayGame, Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
 ```
 
-Routes: `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.
+Routes: `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.

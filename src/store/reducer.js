@@ -1,6 +1,7 @@
 import { initialState } from './initialState.js';
 import { K, milestonesOf, projectById } from './selectors.js';
 import { uid } from '../lib/format.js';
+import { applyLearn, BADGES } from '../lib/learn.js';
 
 const LISTS = ['following', 'liked', 'saved', 'joined', 'interested'];
 export const note = (s, type, text, to) => ({
@@ -45,7 +46,7 @@ export function reducer(s, a) {
     case 'POST': return { ...s, createdPosts: [a.post, ...s.createdPosts] };
     case 'CREATE': {
       const c = s.created;
-      const map = { project: 'projects', idea: 'ideas', tool: 'tools', community: 'communities' };
+      const map = { project: 'projects', idea: 'ideas', tool: 'tools', community: 'communities', challenge: 'challenges' };
       return { ...s, created: { ...c, [map[a.kind]]: [a.entity, ...c[map[a.kind]]], milestones: a.milestone ? [...c.milestones, a.milestone] : c.milestones }, createdPosts: a.post ? [a.post, ...s.createdPosts] : s.createdPosts };
     }
     case 'COLLAB': return { ...s, collabRequests: [a.request, ...s.collabRequests] };
@@ -59,6 +60,13 @@ export function reducer(s, a) {
     }
     case 'CV_READ': return { ...s, conversations: s.conversations.map((c) => (c.id === a.id ? { ...c, unread: 0 } : c)) };
     case 'CREATOR_UPDATE': return { ...note({ ...s, createdPosts: [a.post, ...s.createdPosts], creatorUpdated: [...s.creatorUpdated, a.projectId] }, 'update', a.text, `/project/${a.projectId}`) };
+    case 'LEARN': {
+      const { next, earned } = applyLearn(s.learn, a.payload);
+      let out = { ...s, learn: next };
+      earned.forEach((id) => { const b = BADGES.find((x) => x.id === id); out = note(out, 'badge', `Badge earned: ${b.emoji} ${b.name}. ${b.desc}`, '/play'); });
+      return out;
+    }
+    case 'THEME': return { ...s, theme: a.id };
     case 'RESET': return initialState();
     default: return s;
   }

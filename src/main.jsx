@@ -8,6 +8,7 @@ import './styles/base.css';
 import './styles/ui.css';
 import './styles/layout.css';
 import './styles/pages.css';
+import './styles/games.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

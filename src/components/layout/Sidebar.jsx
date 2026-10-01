@@ -9,6 +9,7 @@ export const NAV = [
   { to: '/ideas', icon: 'bulb', label: 'Ideas', match: (p) => p.startsWith('/idea') },
   { to: '/projects', icon: 'tool', label: 'Projects', match: (p) => p.startsWith('/project') },
   { to: '/ai', icon: 'bot', label: 'AI', match: (p) => p.startsWith('/ai') },
+  { to: '/play', icon: 'gamepad', label: 'Play', match: (p) => p.startsWith('/play') },
   { to: '/communities', icon: 'users', label: 'Communities', match: (p) => p.startsWith('/communit') },
   { to: '/fund', icon: 'coin', label: 'Fund', match: (p) => p.startsWith('/fund') },
   { to: '/messages', icon: 'mail', label: 'Messages', match: (p) => p.startsWith('/messages'), badge: 'msg' },

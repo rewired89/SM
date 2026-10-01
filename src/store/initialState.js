@@ -1,5 +1,6 @@
 import { notificationsSeed, conversationsSeed } from '../data/social.js';
 import { minsAgoToTs } from '../lib/format.js';
+import { seedLearn } from '../lib/learn.js';
 
 const seedContributions = () => {
   const direct = (type, id, label, n) => Array.from({ length: n }, () => ({ type, id, label }));
@@ -25,6 +26,8 @@ const seedContributions = () => {
 export const initialState = () => ({
   v: 1,
   wallet: 20,
+  theme: 'sky',
+  learn: seedLearn(),
   following: ['user:u_maya', 'user:u_alex', 'project:p_robotlab'],
   liked: ['s3'],
   saved: [],
@@ -36,7 +39,7 @@ export const initialState = () => ({
   notifications: notificationsSeed.map((n) => ({ ...n, ts: minsAgoToTs(n.m) })),
   conversations: conversationsSeed.map((c) => ({ ...c, messages: c.messages.map((m) => ({ ...m, ts: minsAgoToTs(m.m) })) })),
   createdPosts: [],
-  created: { projects: [], ideas: [], tools: [], communities: [], milestones: [] },
+  created: { projects: [], ideas: [], tools: [], communities: [], milestones: [], challenges: [] },
   collabRequests: [],
   toolUses: {},
   microSeen: {},

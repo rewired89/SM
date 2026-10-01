@@ -5,6 +5,7 @@ import { PersonChip } from '../common/bits.jsx';
 import { JoinBtn } from './CommunityCard.jsx';
 import PostCard from '../feed/PostCard.jsx';
 import CommentThread from '../feed/CommentThread.jsx';
+import { StoneCard as CCard } from '../ui/index.jsx';
 import ProjectCard from '../projects/ProjectCard.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import * as sel from '../../store/selectors.js';
@@ -32,6 +33,7 @@ export default function CommunityPage({ id }) {
   const [text, setText] = useState('');
   if (!c) return <Empty title="Community not found"><Link to="/communities" className="btn">Browse communities</Link></Empty>;
   const joined = sel.has(s, 'joined', c.id);
+  const challenge = sel.allChallenges(s).find((x) => x.communityId === c.id);
   const posts = sel.allPosts(s).filter((p) => p.ref?.type === 'community' && p.ref.id === c.id || p.communityId === c.id);
   const projs = sel.allProjects(s).filter((p) => p.tags.some((t) => c.tags.includes(t))).slice(0, 2);
   const submit = (e) => { e.preventDefault(); if (!text.trim()) return; const post = a.createPost({ text: text.trim(), tags: c.tags.slice(0, 1), ref: { type: 'community', id: c.id } }); setText(''); };
@@ -54,6 +56,13 @@ export default function CommunityPage({ id }) {
           <form className="row" onSubmit={submit}><input className="input" aria-label={`Post in ${c.name}`} placeholder={`Share something with ${c.name}...`} value={text} onChange={(e) => setText(e.target.value)} /><button className="btn btn--primary" type="submit" disabled={!text.trim()}>Post</button></form>
         ) : <p className="tile tile--flat muted">Join this community to post, reply and share projects.</p>}
       </section>
+      {challenge && (
+        <CCard to={`/play/${challenge.id}`} className="stack stack--sm" label={`Play ${challenge.title}`}>
+          <span className="eyebrow">{challenge.emoji} {challenge.title}</span>
+          <h3 className="card-title">{challenge.question}</h3>
+          <div><Link to={`/play/${challenge.id}`} className="btn btn--sm btn--primary">Play</Link></div>
+        </CCard>
+      )}
       <section className="stack" aria-label="Discussions"><h2>Discussions</h2><div className="stack stack--sm">{c.discussions.map((d) => <Discussion key={d.id} d={d} community={c} />)}{!c.discussions.length && <Empty title="No discussions yet">Post to start the first one.</Empty>}</div></section>
       {posts.length > 0 && <section className="stack" aria-label="Recent posts"><h2>Recent posts</h2><div className="stack">{posts.map((p) => <PostCard key={p.id} post={p} />)}</div></section>}
       {projs.length > 0 && <section className="stack" aria-label="Projects"><h2>Projects to share and join</h2><div className="grid grid--2">{projs.map((p) => <ProjectCard key={p.id} project={p} compact />)}</div></section>}

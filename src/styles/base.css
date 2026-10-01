@@ -8,10 +8,10 @@ body {
   color: var(--text-primary);
   background-color: var(--stone-base);
   background-image:
-    radial-gradient(1200px 520px at 20% -8%, #bfdcff, transparent 70%),
-    radial-gradient(900px 500px at 95% 0%, rgba(207, 230, 255, 0.9), transparent 65%),
-    radial-gradient(1100px 620px at 85% 115%, rgba(255, 190, 220, 0.7), transparent 65%),
-    radial-gradient(900px 520px at 0% 105%, rgba(255, 214, 234, 0.55), transparent 65%);
+    radial-gradient(1200px 520px at 20% -8%, rgb(var(--bg-a)), transparent 70%),
+    radial-gradient(900px 500px at 95% 0%, rgba(var(--bg-a), 0.6), transparent 65%),
+    radial-gradient(1100px 620px at 85% 115%, rgba(var(--bg-b), 0.7), transparent 65%),
+    radial-gradient(900px 520px at 0% 105%, rgba(var(--bg-b), 0.5), transparent 65%);
   background-attachment: fixed;
   min-height: 100vh;
 }

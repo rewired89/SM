@@ -39,7 +39,7 @@ export default function Fund() {
       <section aria-label="How it works" className="stack">
         <h2>How contributions work</h2>
         <div className="pricing">
-          <div><Badge tone="success">Free</Badge><span>Everything on Cairn is free to use and join.</span></div>
+          <div><Badge tone="success">Free</Badge><span>Everything on Nomi is free to use and join.</span></div>
           <div><Badge tone="accent">Optional</Badge><span>A contribution is a thank-you you choose. $0.50 is the default. Direct support goes 100% to what you back.</span></div>
           <div><Badge tone="warning">Fee</Badge><span>Only a creator's own paid services carry fees, and they are always labeled separately.</span></div>
         </div>

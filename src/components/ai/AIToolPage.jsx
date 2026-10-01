@@ -3,6 +3,7 @@ import { GlassPanel, Badge, Empty, Icon, StoneCard } from '../ui/index.jsx';
 import { PersonChip, SupportBtn } from '../common/bits.jsx';
 import AIToolDemo from './AIToolDemo.jsx';
 import MicroContribution from './MicroContribution.jsx';
+import GameBreak from '../games/GameBreak.jsx';
 import ProjectCard from '../projects/ProjectCard.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import * as sel from '../../store/selectors.js';
@@ -40,6 +41,7 @@ export default function AIToolPage({ id }) {
 
       <section className="stack" aria-label="Try it"><h2>Try it</h2><StoneCard><AIToolDemo key={tool.id} tool={tool} /></StoneCard></section>
       <MicroContribution tool={tool} />
+      <GameBreak variant="knowledge" tags={['AI']} topic="AI tools" />
       {project && <section className="stack" aria-label="Related project"><h2>Funds this project</h2><ProjectCard project={project} compact /></section>}
     </article>
   );

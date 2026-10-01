@@ -1,4 +1,4 @@
-# Cairn
+# Nomi
 
 Social platform prototype: people discover ideas, projects, AI tools and communities, then help them exist (collaborate, support with $0.50 simulated contributions). Participation over popularity.
 
@@ -18,7 +18,7 @@ Social platform prototype: people discover ideas, projects, AI tools and communi
 
 ## Stack
 
-React 18 + Vite, plain CSS (no UI libs), hash router, client-side state with `useReducer`, persisted to `localStorage` (`cairn_state_v1`). All data is mock, all money is simulated.
+React 18 + Vite, plain CSS (no UI libs), hash router, client-side state with `useReducer`, persisted to `localStorage` (`nomi_state_v1`). All data is mock, all money is simulated.
 
 ## Commands (PowerShell)
 
@@ -40,9 +40,17 @@ npm run build
 
 Light soft-UI theme from the reference images: pale stone base with grain, sky-blue and pink cloud gradients, white frosted panels, raised white pill for active states, blue accent for action, red badges for unread, blue/grey message bubbles, Inter 800 display type. Tokens in `src/styles/tokens.css` (stone, panel, accent, text, status). Hierarchy: stone (foundation) → glass (information) → accent (activity) → content (meaning). Primitives: `.glass`, `.tile`, `.btn` (rest/hover/press 150-250ms), respect `prefers-reduced-motion`.
 
+## Themes
+
+`src/lib/themes.js`: six two-color pairs (Sky & Blush, Pink & Teal, Teal & Pink, Pink & Purple, Purple & Teal, Violet & Gold). `applyTheme` sets CSS variables (`--accent`, `--accent2`, `--hero-*`, `--bg-a/b`) on `<html>`. Picker in the top bar palette button and Profile → Appearance. Never hardcode blue or pink in CSS, use the variables.
+
+## Play & Learn
+
+Games are 20-90 second experiences, never quizzes-for-points. Every item has metadata (`category`, `topic`, `difficulty`, `skill`, `explanation`, `takeaway`, `source`, `sourceType`) in `src/data/questions.js`. Rules: no energy, no streak punishment, no loot, no IQ claims, no fabricated citations, sometimes "not enough information" is correct. Difficulty means more reasoning, not more trivia. Adaptive level in `lib/learn.js` (`pickNext`, `startLevel`). Learning state lives in `state.learn` (stats, topics, lessons, badges, xp, plays, daily). Games: Phish or Fine, Fallacy Fighter, Human Moment, Two Seconds of Science, AI or Human, Logic Lab, Knowledge Dodge (canvas lanes), Privacy Runner (canvas jump, also the offline game), Money Sense, Past & Culture, plus community challenges (creatable via Create → Challenge).
+
 ## State shape
 
-`following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
+`theme`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
 
 ## Demo path
 

@@ -8,6 +8,7 @@ import ProjectUpdate from '../projects/ProjectUpdate.jsx';
 import FundingMilestone from '../projects/FundingMilestone.jsx';
 import IdeaCard from '../ideas/IdeaCard.jsx';
 import AIToolCard from '../ai/AIToolCard.jsx';
+import GameResultCard from '../games/GameResultCard.jsx';
 import { JoinBtn } from '../communities/CommunityCard.jsx';
 import { Link } from '../../lib/router.js';
 import { useStore } from '../../store/StoreProvider.jsx';
@@ -15,7 +16,7 @@ import { useUI } from '../../store/UIProvider.jsx';
 import * as sel from '../../store/selectors.js';
 import { ago } from '../../lib/format.js';
 
-const LABEL = { post: 'Post', update: 'Project update', idea: 'New idea', tool: 'AI tool', research: 'Research', question: 'Question', milestone: 'Funding milestone', community: 'Community discussion', collab: 'Collaboration request' };
+const LABEL = { post: 'Post', update: 'Project update', idea: 'New idea', tool: 'AI tool', research: 'Research', question: 'Question', milestone: 'Funding milestone', community: 'Community discussion', collab: 'Collaboration request', game: 'Challenge result' };
 
 function RefChip({ r, entity }) {
   if (!entity || r.type === 'community') return null;
@@ -28,6 +29,7 @@ function Body({ post }) {
   const entity = sel.entityOf(s, post.ref);
   const x = post.extra || {};
   switch (post.type) {
+    case 'game': return <GameResultCard post={post} />;
     case 'update': return <ProjectUpdate post={post} project={entity} />;
     case 'idea': return (<><p className="post__text">{post.text}</p>{entity && <IdeaCard idea={entity} embedded />}</>);
     case 'tool': return (<><p className="post__text">{post.text}</p>{entity && <AIToolCard tool={entity} />}</>);

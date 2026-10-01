@@ -4,10 +4,12 @@ import { Icon, Avatar } from '../ui/index.jsx';
 import Logo from './Logo.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import * as sel from '../../store/selectors.js';
+import { useUI } from '../../store/UIProvider.jsx';
 import { cents } from '../../lib/format.js';
 
 export default function TopBar() {
   const { s } = useStore();
+  const { openModal } = useUI();
   const { path, query } = useRoute();
   const [text, setText] = useState('');
   const unread = s.notifications.filter((n) => !n.read).length;
@@ -15,13 +17,15 @@ export default function TopBar() {
   const value = path === '/search' && query.q && !text ? query.q : text;
   return (
     <header className="topbar glass">
-      <Link to="/" className="brand" aria-label="Cairn home"><Logo /><span className="brand__name">Cairn</span></Link>
+      <Link to="/" className="brand" aria-label="Nomi home"><Logo /><span className="brand__name">Nomi</span></Link>
       <form className="topbar__search" role="search" onSubmit={submit}>
         <Icon name="search" size={16} />
         <input type="search" aria-label="Search people, projects, ideas, AI tools, communities and posts" placeholder="Search people, projects, ideas, tools..." value={value} onChange={(e) => setText(e.target.value)} />
       </form>
       <div className="topbar__right">
         <Link to="/search" className="iconbtn topbar__searchicon" aria-label="Search"><Icon name="search" /></Link>
+        <Link to="/play" className="iconbtn" aria-label="Play and learn" title="Play & Learn"><Icon name="gamepad" /></Link>
+        <button type="button" className="iconbtn" aria-label="Change colors" title="Colors" onClick={() => openModal('theme')}><Icon name="palette" /></button>
         <Link to="/fund" className="wallet" aria-label={`Prototype wallet ${cents(s.wallet)}. Open funding`}><Icon name="coin" size={15} /><span>{cents(s.wallet)}</span></Link>
         <Link to="/notifications" className="iconbtn bell" aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}>
           <Icon name="bell" />{unread > 0 && <span className="dot">{unread > 9 ? '9+' : unread}</span>}

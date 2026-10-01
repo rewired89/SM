@@ -17,10 +17,11 @@ export default function Home() {
       <GlassPanel className="hero">
         <span className="eyebrow">Start here</span>
         <h1>Find something interesting. Help it exist.</h1>
-        <p className="secondary">Cairn is where ideas, projects and AI tools get discovered, joined and funded one small step at a time. Try the loop: open a project, use a related tool, then contribute $0.50 and watch the progress move.</p>
+        <p className="secondary">Nomi is where ideas, projects and AI tools get discovered, joined and funded one small step at a time. Try the loop: open a project, use a related tool, then contribute $0.50 and watch the progress move.</p>
         <div className="row row--wrap">
           <TactileButton variant="primary" to={`/project/${aurora.id}`}>Open Project Aurora</TactileButton>
           <TactileButton to="/explore">Explore everything</TactileButton>
+          <TactileButton to="/play">Play & learn</TactileButton>
           <Link to="/fund" className="btn btn--ghost">See where $0.50 goes</Link>
         </div>
       </GlassPanel>

@@ -1,12 +1,14 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useReducer, useRef } from 'react';
 import { reducer, applyContribution } from './reducer.js';
 import { initialState } from './initialState.js';
 import * as sel from './selectors.js';
 import { useUI } from './UIProvider.jsx';
 import { ME } from '../data/users.js';
+import { applyTheme } from '../lib/themes.js';
+import { applyLearn, BADGES } from '../lib/learn.js';
 import { uid, cents, pctLabel } from '../lib/format.js';
 
-const KEY = 'cairn_state_v1';
+const KEY = 'nomi_state_v1';
 const Ctx = createContext(null);
 export const useStore = () => useContext(Ctx);
 
@@ -32,6 +34,7 @@ export function StoreProvider({ children }) {
   const ref = useRef(state);
   ref.current = state;
 
+  useLayoutEffect(() => { applyTheme(state.theme); }, [state.theme]);
   useEffect(() => {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage unavailable */ }
   }, [state]);
@@ -44,6 +47,7 @@ export function StoreProvider({ children }) {
     };
     const mk = {
       follow: (type, id, name) => toggle('following', sel.K(type, id), `Following ${name}`, `Unfollowed ${name}`),
+      setTheme: (id, name) => { dispatch({ type: 'THEME', id }); if (name) toast(`Colors: ${name}`); },
       like: (id) => dispatch({ type: 'TOGGLE', list: 'liked', key: id }),
       save: (id) => toggle('saved', id, 'Saved to bookmarks', 'Removed from bookmarks'),
       join: (id, name) => toggle('joined', id, `You joined ${name}`, `You left ${name}`),
@@ -64,7 +68,7 @@ export function StoreProvider({ children }) {
       },
       startConversation: (userId) => {
         const id = `cv_${userId.replace('u_', '')}`;
-        if (!ref.current.conversations.some((c) => c.id === id)) dispatch({ type: 'MSG', cvId: id, userId, from: 'me', text: 'Hi! I found you on Cairn.' });
+        if (!ref.current.conversations.some((c) => c.id === id)) dispatch({ type: 'MSG', cvId: id, userId, from: 'me', text: 'Hi! I found you on Nomi.' });
         return id;
       },
 
@@ -138,6 +142,22 @@ export function StoreProvider({ children }) {
         }, 5000);
       },
 
+      learn(payload) {
+        const { earned } = applyLearn(ref.current.learn, payload);
+        dispatch({ type: 'LEARN', payload });
+        earned.forEach((id) => { const b = BADGES.find((x) => x.id === id); toast(`Badge earned: ${b.emoji} ${b.name}`, { tone: 'success', to: '/play', ms: 5000 }); });
+      },
+      shareGame({ gameId, title, emoji, label, score, total }) {
+        const name = sel.me().name;
+        return mk.createPost({ type: 'game', text: `${name} completed ${gameId === 'daily' ? 'today\'s 30-second challenge' : title}: ${score}/${total}.`, tags: [], extra: { gameId, title, emoji, label, score, total } });
+      },
+      createChallenge(d) {
+        const id = `ch_${uid('n')}`;
+        const entity = { id, title: 'Community challenge', emoji: '🏆', skill: 'community challenge', sourceType: 'community', topic: d.category, takeaway: d.explanation.split(/(?<=[.!?])\s/)[0], authorId: ME, ...d };
+        dispatch({ type: 'CREATE', kind: 'challenge', entity });
+        toast('Challenge published', { tone: 'success' });
+        return id;
+      },
       createPost({ type = 'post', text, tags = [], ref: r, extra }) {
         const post = { id: uid('s'), type, authorId: ME, ts: Date.now(), text, tags, likes: 0, comments: 0, ref: r, extra, createdByMe: true };
         dispatch({ type: 'POST', post });

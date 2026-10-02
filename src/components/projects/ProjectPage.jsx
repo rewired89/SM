@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link } from '../../lib/router.js';
+import { Link, useRoute } from '../../lib/router.js';
 import { GlassPanel, TactileButton, ProgressBar, Badge, Empty, StoneCard, Tag } from '../ui/index.jsx';
 import { PersonChip, FollowBtn, SupportBtn } from '../common/bits.jsx';
 import FundingMilestone from './FundingMilestone.jsx';
@@ -21,7 +21,9 @@ import { navigate } from '../../lib/router.js';
 export default function ProjectPage({ id }) {
   const { s, a } = useStore();
   const { openModal } = useUI();
+  const { query } = useRoute();
   useEffect(() => { a.view(id); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (query.meeting === '1') { const pr = sel.projectById(s, id); if (pr && sel.canRequestMeeting(s, pr)) openModal('meeting', { projectId: id }); } }, [id, query.meeting]); // eslint-disable-line react-hooks/exhaustive-deps
   const p = sel.projectById(s, id);
   if (!p) return <Empty title="Project not found"><Link to="/projects" className="btn">Browse projects</Link></Empty>;
   const ms = sel.milestonesOf(s, id);
@@ -36,6 +38,7 @@ export default function ProjectPage({ id }) {
         <h1>{p.title}</h1>
         <p className="lead">{p.tagline}</p>
         <div className="row row--wrap"><TrustBadge project={p} /><span className="muted">Founder</span><ReputationBadge userId={p.ownerId} /></div>
+        {(p.founders?.length > 0 || p.cofounders?.length > 0) && <p className="secondary"><strong>Founder{(p.founders || []).length > 1 ? 's' : ''}:</strong> {(p.founders || []).map((x) => x.name).join(', ')}{p.cofounders?.length > 0 && <> · <strong>Co-founder{p.cofounders.length > 1 ? 's' : ''}:</strong> {p.cofounders.map((x) => x.name).join(', ')}</>}</p>}
         <div className="facts">
           <div><span className="eyebrow">Status</span><strong>{p.status}</strong></div>
           <div><span className="eyebrow">Category</span><strong>{[p.category, ...p.subs].join(' · ')}</strong></div>

@@ -10,6 +10,7 @@ import { applyWin, ACHIEVEMENTS, SHOP, CHEER_COST } from '../lib/rewards.js';
 import { saveAttachments, parseLink } from '../lib/media.js';
 import { scoreProject, pdfPages } from '../lib/review.js';
 import { THRESHOLD } from '../data/trust.js';
+import { MEETING_MIN } from '../lib/profile.js';
 import { fmtSlot } from '../lib/meetings.js';
 import { classify, STRIKE_WINDOW_DAYS, SUSPENSION_DAYS } from '../lib/conduct.js';
 import { setBan } from '../lib/bans.js';
@@ -50,6 +51,8 @@ const REPLIES = [
   'Love this. Let us set up a quick call this week and map out where you can help first.',
   'Welcome aboard! I will add you to the project channel. Start with the open issues on the board.',
 ];
+
+const cleanPeople = (list = []) => list.map((x) => x.name.trim()).filter(Boolean).map((name) => ({ name, userId: (users.find((u) => u.name.toLowerCase() === name.toLowerCase()) || {}).id || null }));
 
 export function StoreProvider({ children, accountId }) {
   const [state, dispatch] = useReducer(reducer, accountId, load);
@@ -134,6 +137,10 @@ export function StoreProvider({ children, accountId }) {
           const was = sel.milestonesOf(s, pid), now = sel.milestonesOf(next, pid);
           result.completed = now.find((m, i) => m.done && !was[i].done) || null;
           result.project = proj;
+          if (proj.ownerId !== ME && sel.backedTotal(next, proj.id) >= MEETING_MIN && !sel.activeMeeting(next, proj.id)) {
+            result.meeting = true;
+            result.meetingNew = sel.backedTotal(s, proj.id) < MEETING_MIN;
+          }
         } else if (targetType === 'idea') {
           result.before = { funded: sel.fundedOf(s, 'idea', e), pct: sel.ideaPct(s, e) };
           result.after = { funded: sel.fundedOf(next, 'idea', e), pct: sel.ideaPct(next, e) };
@@ -141,6 +148,10 @@ export function StoreProvider({ children, accountId }) {
         }
         dispatch({ type: 'CONTRIBUTE', entry });
         toast(`${cents(amount)} contributed to ${entry.label}`, { tone: 'success' });
+        if (result.meetingNew) {
+          dispatch({ type: 'NOTE', noteType: 'collab', text: `🤝 You unlocked a meeting with the founder of ${proj.title}. Request it now.`, to: `/project/${proj.id}?meeting=1` });
+          toast(`Meeting unlocked with ${sel.userById(proj.ownerId).name}. Tap to request it.`, { tone: 'success', to: `/project/${proj.id}?meeting=1`, ms: 7000 });
+        }
         if (proj && !s.creatorUpdated.includes(proj.id) && proj.ownerId !== ME) {
           setTimeout(() => {
             const cur = ref.current;
@@ -286,7 +297,9 @@ export function StoreProvider({ children, accountId }) {
         const milestones = app.milestones.map((m) => ({ id: uid('m'), projectId: id, title: m.title.trim(), needed: Number(m.amount), unlocks: m.unlocks.trim(), evidence: m.evidence.trim() }));
         const needs = app.needs.split(',').map((x) => x.trim()).filter(Boolean);
         const links = [app.github, app.website, app.youtube].map((u) => parseLink(u)).filter(Boolean);
-        const entity = { id, title: app.title.trim(), tagline: app.tagline.trim(), kind: 'Project', status: 'Just started', category: app.category, subs: [], tags: app.tags, about: app.about.trim(), problem: app.problem.trim(), audience: app.audience.trim(), approach: app.approach.trim(), experiments: app.experiments.trim(), timeline: app.timeline.trim(), success: app.success.trim(), risks: app.risks.trim(), team: [{ userId: ME, role: 'Founder' }], needs, looking: needs.map((n) => ({ skill: n, open: true })), ownerId: ME, funded: 0, followers: 0, progress: [{ label: 'Planning', pct: 5 }], budget, askTotal, fundingLocked: true, lockedAt: Date.now(), media, links };
+        const founders = cleanPeople(app.founders), cofounders = cleanPeople(app.cofounders);
+        const teamFrom = (list, role) => list.filter((x) => x.userId && x.userId !== ME).map((x) => ({ userId: x.userId, role }));
+        const entity = { id, title: app.title.trim(), tagline: app.tagline.trim(), kind: 'Project', status: 'Just started', category: app.category, subs: [], tags: app.tags, about: app.about.trim(), problem: app.problem.trim(), audience: app.audience.trim(), approach: app.approach.trim(), experiments: app.experiments.trim(), timeline: app.timeline.trim(), success: app.success.trim(), risks: app.risks.trim(), team: [{ userId: ME, role: 'Founder' }, ...teamFrom(founders.slice(1), 'Founder'), ...teamFrom(cofounders, 'Co-founder')], founders, cofounders, needs, looking: needs.map((n) => ({ skill: n, open: true })), ownerId: ME, funded: 0, followers: 0, progress: [{ label: 'Planning', pct: 5 }], budget, askTotal, fundingLocked: true, lockedAt: Date.now(), media, links };
         const post = { id: uid('s'), type: 'post', authorId: ME, ts: Date.now(), text: `Started a new project: ${entity.title}. ${entity.tagline}`, tags: app.tags, likes: 0, comments: 0, ref: { type: 'project', id }, media, links, createdByMe: true };
         dispatch({ type: 'CREATE', kind: 'project', entity, milestones, post });
         dispatch({ type: 'ROOM_SET', projectId: id, room: { name: `${entity.title} team room`, ownerId: ME, members: [ME], createdAt: Date.now(), messages: [{ id: uid('rm'), system: true, text: 'Room created. Add the collaborators you trust.', ts: Date.now() }] } });

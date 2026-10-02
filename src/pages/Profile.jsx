@@ -33,7 +33,7 @@ export default function Profile({ userId }) {
   const tools = sel.allTools(s).filter((t) => t.creatorId === id);
   const games = gamesBy(id).filter((g) => g.status === 'approved' || mine);
   const tabs = [
-    { id: 'projects', label: `Projects ${projects.length}` }, { id: 'ideas', label: `Ideas ${ideas.length}` }, { id: 'tools', label: `AI tools ${tools.length}` }, { id: 'games', label: `Games ${games.length}` }, { id: 'activity', label: 'Activity' },
+    { id: 'projects', label: `Projects ${projects.length}` }, { id: 'ideas', label: `Ideas ${ideas.length}` }, { id: 'tools', label: `AI tools ${tools.length}` }, { id: 'games', label: `Games & demos ${games.length}` }, { id: 'activity', label: 'Activity' },
     ...(mine ? [{ id: 'brain', label: 'Brain map' }, { id: 'contrib', label: 'Contributions' }, { id: 'following', label: 'Following' }, { id: 'saved', label: 'Saved' }, { id: 'look', label: 'Appearance' }] : []),
   ];
   const followedProjects = s.following.filter((k) => k.startsWith('project:')).map((k) => sel.projectById(s, k.slice(8))).filter(Boolean);
@@ -68,7 +68,7 @@ export default function Profile({ userId }) {
       {tab === 'projects' && <ProfileProjects projects={projects} />}
       {tab === 'ideas' && (ideas.length ? <div className="grid grid--2">{ideas.map((i) => <IdeaCard key={i.id} idea={i} embedded />)}</div> : <Empty title="No ideas yet" />)}
       {tab === 'tools' && (tools.length ? <div className="grid grid--2">{tools.map((t) => <AIToolCard key={t.id} tool={t} />)}</div> : <Empty title="No AI tools yet" />)}
-      {tab === 'games' && (games.length ? <div className="grid grid--2">{games.map((g) => <Link key={g.id} to={`/cgame/${g.id}`} className="tile stack stack--sm"><strong>{g.title}</strong><span className="secondary">{g.description}</span><small className="muted">{g.status === 'approved' ? `${g.score}/100 · ${g.plays} plays` : g.status === 'human_review' ? 'Waiting for review' : 'Rejected'}</small></Link>)}</div> : <Empty title="No games yet">{mine && <Link to="/games/submit" className="btn btn--primary">Submit a tiny game</Link>}</Empty>)}
+      {tab === 'games' && (games.length ? <div className="grid grid--2">{games.map((g) => <Link key={g.id} to={`/${g.kind === 'tool' ? 'ademo' : 'cgame'}/${g.id}`} className="tile stack stack--sm"><strong>{g.title}</strong><span className="secondary">{g.description}</span><small className="muted">{g.status === 'approved' ? `${g.score}/100 · ${g.plays} plays` : g.status === 'human_review' ? 'Waiting for review' : 'Rejected'}</small></Link>)}</div> : <Empty title="No games yet">{mine && <Link to="/games/submit" className="btn btn--primary">Submit a tiny game</Link>}</Empty>)}
       {tab === 'activity' && <ProfileActivity userId={id} />}
       {mine && tab === 'brain' && (<div className="stack stack--lg"><div className="tile"><LearningToday /></div><BrainMap /><BadgeShelf /></div>)}
       {mine && tab === 'look' && (<div className="stack"><h2>Colors</h2><p className="secondary">Choose a pair of colors for Nomi.</p><ThemePicker /></div>)}

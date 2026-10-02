@@ -27,6 +27,7 @@ export async function sha(str) {
 
 export function analyzeGame({ html, meta, smoke, duplicate }) {
   const hard = [];
+  const tool = meta.kind === 'tool';
   const size = new Blob([html]).size;
   if (size > MAX_BYTES) hard.push(`The file is ${(size / 1024).toFixed(0)} KB. The limit is ${MAX_BYTES / 1024} KB for a tiny game.`);
   FORBIDDEN.forEach(([re, why]) => { if (has(re, html)) hard.push(why); });
@@ -44,14 +45,15 @@ export function analyzeGame({ html, meta, smoke, duplicate }) {
   if (!smoke) add('works', 'Starts and runs', 25, 0, ['Smoke test did not run']);
   else add('works', 'Starts and runs', 25, smoke.ready && !smoke.errors.length ? 25 : smoke.ready ? 10 : 0, [smoke.ready ? `Reported ready after ${smoke.readyMs} ms` : 'Never called NOMI.ready() within 4 seconds', smoke.errors.length ? 'It logged errors' : 'No errors']);
   // 2 reports result
-  const win = has(/NOMI\s*\.\s*win\s*\(/, html), lose = has(/NOMI\s*\.\s*lose\s*\(/, html);
-  add('result', 'Reports win and lose', 15, (win ? 10 : 0) + (lose ? 5 : 0), [win ? 'Calls NOMI.win()' : 'Never calls NOMI.win(), so players cannot earn anything', lose ? 'Calls NOMI.lose()' : 'Never calls NOMI.lose()']);
+  const win = has(/NOMI\s*\.\s*win\s*\(/, html), lose = has(/NOMI\s*\.\s*lose\s*\(/, html), ask = has(/NOMI\s*\.\s*ask\s*\(/, html);
+  if (tool) add('result', 'Does something useful', 15, ask ? 15 : 8, [ask ? 'Uses NOMI.ask() so the Nomi assistant powers it and your users keep their input private' : 'Does not call NOMI.ask(), so it can only run its own offline logic']);
+  else add('result', 'Reports win and lose', 15, (win ? 10 : 0) + (lose ? 5 : 0), [win ? 'Calls NOMI.win()' : 'Never calls NOMI.win(), so players cannot earn anything', lose ? 'Calls NOMI.lose()' : 'Never calls NOMI.lose()']);
   // 3 tiny and clear
   let p = 0; const n = [];
   if ((meta.title || '').trim().length >= 3) p += 3; else n.push('Add a title');
   if ((meta.description || '').trim().length >= 40) p += 4; else n.push('Description needs 40+ characters');
   if ((meta.how || '').trim().length >= 30) p += 4; else n.push('How to play needs 30+ characters');
-  if (Number(meta.duration) > 0 && Number(meta.duration) <= 90) p += 4; else n.push('A tiny game takes 90 seconds or less');
+  if (tool || (Number(meta.duration) > 0 && Number(meta.duration) <= 90)) p += 4; else n.push('A tiny game takes 90 seconds or less');
   add('clear', 'Tiny and clear', 15, p, n.length ? n : ['Title, description, how to play and length are set']);
   // 4 purpose
   add('purpose', 'Has a purpose', 10, (meta.purpose || '').trim().length >= 40 ? 10 : (meta.purpose || '').trim().length >= 15 ? 5 : 0, [(meta.purpose || '').trim().length >= 40 ? 'Says what a player takes away' : 'Explain what a player learns, feels or practices (40+ characters)']);
@@ -69,6 +71,26 @@ export function analyzeGame({ html, meta, smoke, duplicate }) {
 }
 
 /* Everything a creator needs to start: the SDK contract in a working file */
+export const STARTER_TOOL = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My AI Demo</title>
+<style>body{margin:0;padding:16px;font-family:system-ui,sans-serif;background:#f4f7ff;color:#14213d}textarea{width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:10px;border:1px solid #bcc7e6}
+button{font:inherit;font-weight:800;padding:10px 20px;border-radius:99px;border:0;background:#4a6cf7;color:#fff;cursor:pointer;margin-top:8px}li{margin:6px 0}@media (prefers-reduced-motion: reduce){*{animation:none!important}}</style></head>
+<body><h1>My AI demo</h1><label for="q">Paste some text</label><textarea id="q" rows="4"></textarea><button id="go">Analyze</button><div id="out" role="status" aria-live="polite"></div>
+<script>
+// Your demo talks to Nomi with two calls: NOMI.ready() and NOMI.ask(text), which returns {headline, items:[{label,text}]}.
+// It runs in a sandbox with no network and no storage. The Nomi assistant answers, so you never see what users type.
+var q = document.getElementById('q'), out = document.getElementById('out');
+document.getElementById('go').addEventListener('click', function () {
+  if (!q.value.trim()) { out.textContent = 'Type something first.'; return; }
+  out.textContent = 'Thinking...';
+  NOMI.ask(q.value).then(function (r) { out.innerHTML = '<h2>' + r.headline + '</h2><ul>' + r.items.map(function (i) { return '<li><strong>' + i.label + ':</strong> ' + i.text + '</li>'; }).join('') + '</ul>'; });
+});
+document.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.ctrlKey) document.getElementById('go').click(); });
+NOMI.ready();
+</script></body></html>
+`;
+
 export const STARTER = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My Tiny Game</title>

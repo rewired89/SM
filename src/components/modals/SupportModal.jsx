@@ -43,7 +43,7 @@ export default function SupportModal({ targetType, targetId }) {
               <span className="secondary">{pctLabel(r.before.pct, d)} → <strong>{pctLabel(r.after.pct, d)}</strong> · {money(r.before.funded, 2)} → {money(r.after.funded, 2)}</span>
             </div>
           )}
-          {r.project && sel.backedTotal(s, r.project.id) >= 500 && r.project.ownerId !== ME && <div className="banner banner--success"><strong>🤝 You unlocked a meeting</strong><span className="secondary">You have backed {r.project.title} with {money(sel.backedTotal(s, r.project.id), 0)}. You can now ask the founder for a meeting.</span><div><TactileButton size="sm" variant="primary" onClick={() => openModal('meeting', { projectId: r.project.id })}>Request a meeting</TactileButton></div></div>}
+          {r.meeting && <div className="banner banner--success"><strong>🤝 {r.meetingNew ? 'You unlocked a meeting with the founder' : 'You can request a meeting'}</strong><span className="secondary">You have backed {r.project.title} with {money(sel.backedTotal(s, r.project.id), 0)}. Backers at this level get a brief meeting with the founder, so you do not have to wait in their message inbox.</span><div><TactileButton size="sm" variant="primary" icon="calendar" onClick={() => { closeModal(); openModal('meeting', { projectId: r.project.id }); }}>Request a meeting now</TactileButton></div></div>}
           <ul className="alloc">{r.allocations.map((al) => <li key={al.label + al.type}><span>{al.note || al.label}</span><strong>{cents(al.amount)}</strong></li>)}</ul>
           <p className="muted">You helped move the project forward. Paid with {r.entry.method} (simulated). Prototype only: no real money moved.</p>
           <div className="row row--wrap">
@@ -85,6 +85,7 @@ export default function SupportModal({ targetType, targetId }) {
           <div className="row" style={{ marginTop: 8 }}><label className="muted" htmlFor="custom">Other amount</label><div className="money-in"><span>$</span><input id="custom" className="input" type="number" min="0.5" max={left} step="0.5" inputMode="decimal" value={custom} onChange={(ev) => { setCustom(ev.target.value); if (Number(ev.target.value) > 0) setAmount(Number(ev.target.value)); }} /></div></div>
         </fieldset>
         <div className="row row--between row--wrap"><span className="muted">Paying with {pm.label} · {cents(left)} left to give today (limit ${sel.dailyLimit(s)} per day)</span><a className="muted" href="#/settings" onClick={closeModal}>Change</a></div>
+        {isProject && e.ownerId !== ME && amount + sel.backedTotal(s, e.id) >= 500 && sel.backedTotal(s, e.id) < 500 && <div className="banner banner--success"><strong>🤝 This unlocks a meeting</strong><span className="secondary">With ${500} in total, you can request a brief meeting with the founder.</span></div>}
         {amount > left && <p className="danger" role="alert">That is over today's limit. You can give up to {cents(left)} more today.</p>}
         <TactileButton variant="primary" size="lg" className="btn--block" disabled={bad} onClick={submit}>Contribute {cents(amount)}</TactileButton>
         <p className="muted">Contributions are not investments and do not give ownership. Want to give more than ${sel.dailyLimit(s)} in a day, or talk to the founder? After backing a project with $500 you can request a meeting.</p>

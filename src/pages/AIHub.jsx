@@ -4,6 +4,9 @@ import { Tabs, TactileButton } from '../components/ui/index.jsx';
 import { useStore } from '../store/StoreProvider.jsx';
 import { useUI } from '../store/UIProvider.jsx';
 import * as sel from '../store/selectors.js';
+import { approvedTools } from '../lib/gamestore.js';
+import { Link } from '../lib/router.js';
+import { StoneCard } from '../components/ui/index.jsx';
 import { categoryTree } from '../data/communities.js';
 
 export default function AIHub() {
@@ -21,6 +24,10 @@ export default function AIHub() {
       <Tabs label="AI type" tabs={[{ id: 'tool', label: 'AI Tools' }, { id: 'agent', label: 'AI Agents' }]} value={tab} onChange={(t) => { setTab(t); setCat('All'); }} />
       <div className="chips" role="group" aria-label="Filter by category">{cats.map((c) => <button key={c} type="button" className="chip" aria-pressed={cat === c} onClick={() => setCat(c)}>{c}</button>)}</div>
       <div className="grid grid--2">{list.map((t) => <AIToolCard key={t.id} tool={t} />)}</div>
+      <section className="stack" aria-label="Sandboxed demos">
+        <div className="row row--between row--wrap"><div><h2>Try in the sandbox</h2><p className="secondary">Browser demos that run in a locked box. Nothing can touch your phone or computer.</p></div><Link to="/ai/submit" className="btn btn--sm">Submit a demo</Link></div>
+        <div className="grid grid--2">{approvedTools().map((g) => (<StoneCard key={g.id} to={`/ademo/${g.id}`} className="stack stack--sm" label={`Try ${g.title}`}><span className="eyebrow">🛡️ Sandboxed · {g.score}/100 reviewed</span><h3 className="card-title">{g.title}</h3><p className="secondary">{g.description}</p></StoneCard>))}</div>
+      </section>
     </div>
   );
 }

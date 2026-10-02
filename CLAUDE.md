@@ -111,3 +111,9 @@ Home → Project Aurora → follow → milestone/updates → related tool (Resea
 - Registry `lib/gamestore.js` (`nomi_games_v1`, device level) with seeded Tap the Moon and Memory Pairs (`public/games`). Play hub section, `/cgame/:id`, Profile → Games tab.
 - `/admin` (`pages/Admin.jsx`, demo account has `admin: true`): human review queue, suspend 3 days or ban forever for local accounts with refund list.
 - The reviewer and conduct filter are rule based. A real build needs AI plus human review and a real moderation service.
+
+## Founders and AI demos
+
+- After a contribution that brings a backer to $500 on one project, the support form previews the unlock, the thank you screen shows Request a meeting now, and a notification and toast link to `/project/:id?meeting=1` (opens the meeting modal).
+- `/apply` step 1 has Founder + and Co-founder + lists (`founders`, `cofounders`: `{name, userId}`). The first founder defaults to the profile real name, `@nicknames` are rejected. Names matching a Nomi user join `team`. Shown on the project page.
+- Tier 1 AI sandbox: `/ai/submit` (`GameSubmit kind="tool"`), demos run in `CommunityGame` with `NOMI.ready()` and `NOMI.ask(text)` (answered by `lib/assistant.js`, a prototype stand-in, 10 asks per minute, creator never sees input). Reviewer scores tools without win/lose. Seeded Theme Spotter in `public/games`. Shown in AI hub "Try in the sandbox" and at `/ademo/:id`. No downloads, no hosted links (tiers 2 and 3 intentionally not built).

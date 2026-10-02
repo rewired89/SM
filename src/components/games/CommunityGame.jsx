@@ -3,7 +3,7 @@ import { asset, getBlob } from '../../lib/media.js';
 
 /* Runs a user-made game in a sandboxed iframe: scripts allowed, no same-origin, no network, no popups. */
 const CSP = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; media-src data: blob:; font-src data:">`;
-const SDK = `<script>(function(){function p(m){m.nomi=true;parent.postMessage(m,'*')}window.NOMI={ready:function(){p({type:'ready'})},win:function(s){p({type:'win',score:+s||0})},lose:function(){p({type:'lose'})}};window.addEventListener('error',function(e){p({type:'error',message:String(e.message)})})})();</script>`;
+const SDK = `<script>(function(){function p(m){m.nomi=true;parent.postMessage(m,'*')}var pend={};window.addEventListener('message',function(e){var d=e.data;if(d&&d.nomi&&d.type==='answer'&&pend[d.id]){pend[d.id](d.result);delete pend[d.id]}});window.NOMI={ask:function(q){return new Promise(function(r){var id=String(Math.random()).slice(2);pend[id]=r;p({type:'ask',id:id,prompt:String(q).slice(0,2000)})})},ready:function(){p({type:'ready'})},win:function(s){p({type:'win',score:+s||0})},lose:function(){p({type:'lose'})}};window.addEventListener('error',function(e){p({type:'error',message:String(e.message)})})})();</script>`;
 const FRAME_CSS = '<style>html,body{margin:0}</style>';
 
 export function buildSrcdoc(html) {
@@ -20,11 +20,12 @@ export async function loadGameHtml(game) {
 }
 
 /* onEvent receives {type:'ready'|'win'|'lose'|'error', ...}. Wins in the first 5 seconds are ignored. */
-export default function CommunityGame({ game, html: htmlProp, onEvent, height = 420, hidden }) {
+export default function CommunityGame({ game, html: htmlProp, onEvent, onAsk, height = 420, hidden }) {
   const [html, setHtml] = useState(htmlProp ?? null);
   const [missing, setMissing] = useState(false);
   const frame = useRef(null);
   const readyAt = useRef(0);
+  const asks = useRef([]);
   useEffect(() => {
     if (htmlProp != null) { setHtml(htmlProp); return undefined; }
     let alive = true;
@@ -38,13 +39,21 @@ export default function CommunityGame({ game, html: htmlProp, onEvent, height = 
       const d = e.data;
       if (!d || d.nomi !== true) return;
       const now = Date.now();
+      if (d.type === 'ask') {
+        asks.current = asks.current.filter((x) => now - x < 60000);
+        const reply = (result) => frame.current?.contentWindow?.postMessage({ nomi: true, type: 'answer', id: d.id, result }, '*');
+        if (asks.current.length >= 10) { reply({ headline: 'Slow down', items: [{ label: 'Limit', text: 'Demos can ask the Nomi assistant 10 times a minute.' }] }); return; }
+        asks.current.push(now);
+        Promise.resolve(onAsk ? onAsk(String(d.prompt || '')) : { headline: 'No assistant here', items: [] }).then(reply);
+        return;
+      }
       if (d.type === 'ready') readyAt.current = now;
       if (d.type === 'win' && readyAt.current && now - readyAt.current < 5000) { onEvent?.({ type: 'instant' }); return; }
       onEvent?.({ ...d, readyMs: readyAt.current ? now - readyAt.current : 0 });
     };
     window.addEventListener('message', on);
     return () => window.removeEventListener('message', on);
-  }, [onEvent]);
+  }, [onEvent, onAsk]);
   if (missing) return <p className="muted">This game file is only stored on the device that submitted it.</p>;
   if (srcDoc == null) return <div className="row"><span className="spinner" /> <span className="muted">Loading game...</span></div>;
   return (

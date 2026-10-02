@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Theme Spotter</title>
+<style>body{margin:0;padding:16px;font-family:system-ui,sans-serif;background:#f4f7ff;color:#14213d}h1{font-size:1.2rem;margin:0 0 8px}textarea{width:100%;box-sizing:border-box;font:inherit;padding:10px;border-radius:10px;border:1px solid #bcc7e6}
+button{font:inherit;font-weight:800;padding:10px 20px;border-radius:99px;border:0;background:#4a6cf7;color:#fff;cursor:pointer;margin-top:8px}li{margin:6px 0}@media (prefers-reduced-motion: reduce){*{animation:none!important}}</style></head>
+<body><h1>Theme Spotter</h1><label for="q">Paste some text</label><textarea id="q" rows="5"></textarea><button id="go">Analyze</button><div id="out" role="status" aria-live="polite"></div>
+<script>
+var q=document.getElementById('q'),out=document.getElementById('out');
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function run(){if(!q.value.trim()){out.textContent='Type something first.';return}out.textContent='Thinking...';
+NOMI.ask(q.value).then(function(r){out.innerHTML='<h2>'+esc(r.headline)+'</h2><ul>'+r.items.map(function(i){return'<li><strong>'+esc(i.label)+':</strong> '+esc(i.text)+'</li>'}).join('')+'</ul>'})}
+document.getElementById('go').addEventListener('click',run);
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.ctrlKey)run()});
+NOMI.ready();
+</script></body></html>

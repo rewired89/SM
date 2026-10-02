@@ -32,11 +32,11 @@ src/components/
   common/ThemePicker.jsx       color pair picker
   meetings/                    MeetingCard (accept, counter, decline, .ics)
   modals/                      MeetingModal, SupportModal, CollaborationModal, CreateModal (+Challenge), ThemeModal, PaymentModal, ModalHost
-src/lib/                       conduct, bans, reputation, gamereview, gamestore (see CLAUDE.md)
+src/lib/                       conduct, bans, reputation, gamereview, gamestore, assistant (see CLAUDE.md)
 src/components/auth/BanPage.jsx, common/ReputationBadge.jsx, games/CommunityGame.jsx
 src/pages/                     GameSubmit, CommunityGamePage, Admin, Meetings, Apply (project application wizard), RoomPage (private team room), FundingReadiness, Trust, CollabPage, Settings, Rewards, ArcadePage, Play (hub), PlayGame, Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
 ```
 
-Routes: `/games/submit`, `/cgame/:id`, `/admin`, `/meetings`, `/apply[/:id]`, `/room/:projectId`, `/funding/:projectId`, `/trust`, `/collab_<name>` (and `/collab/:slug`), `/settings`, `/rewards`, `/arcade/:id[?offline=1]`, `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.
+Routes: `/ai/submit`, `/ademo/:id`, `/games/submit`, `/cgame/:id`, `/admin`, `/meetings`, `/apply[/:id]`, `/room/:projectId`, `/funding/:projectId`, `/trust`, `/collab_<name>` (and `/collab/:slug`), `/settings`, `/rewards`, `/arcade/:id[?offline=1]`, `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.
 
 Docs: `docs/TRUST_AND_SAFETY.md` (what is simulated, what a real build needs, open legal questions).

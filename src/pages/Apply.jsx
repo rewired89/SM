@@ -5,14 +5,15 @@ import MediaPicker from '../components/media/MediaPicker.jsx';
 import { useStore } from '../store/StoreProvider.jsx';
 import * as sel from '../store/selectors.js';
 import { topTags } from '../data/communities.js';
-import { ME } from '../data/users.js';
+import { ME, users } from '../data/users.js';
 import { money } from '../lib/format.js';
 
 const CATS = ['Science', 'Technology', 'Creative', 'AI'];
 const STEPS = ['Basics', 'The work', 'The money', 'Materials', 'Review'];
 const MIN_ASK = 50, MAX_ASK = 50000;
-const blank = () => ({ title: '', tagline: '', category: 'Science', tags: [], about: '', problem: '', audience: '', approach: '', experiments: '', timeline: '', success: '', risks: '', needs: '', budget: [{ item: '', amount: '', why: '' }], milestones: [{ title: '', amount: '', unlocks: '', evidence: '' }], github: '', website: '', youtube: '' });
+const blank = () => ({ title: '', tagline: '', category: 'Science', tags: [], about: '', problem: '', audience: '', approach: '', experiments: '', timeline: '', success: '', risks: '', needs: '', budget: [{ item: '', amount: '', why: '' }], milestones: [{ title: '', amount: '', unlocks: '', evidence: '' }], github: '', website: '', youtube: '', founders: [{ name: '' }], cofounders: [] });
 const num = (v) => Number(v) || 0;
+const cleanP = (l) => l.map((x) => x.name.trim()).filter(Boolean).map((name) => ({ name, userId: (users.find((u) => u.name.toLowerCase() === name.toLowerCase()) || {}).id || null }));
 
 const Field = ({ id, label, hint, children, count, min }) => (
   <div className="field"><label htmlFor={id}>{label}</label>{children}
@@ -27,9 +28,9 @@ export default function Apply({ id }) {
   const moneyOpen = !edit || (createdProject && !existing.fundingLocked);
 
   const initial = useMemo(() => {
-    if (!edit) return { ...blank(), ...(s.appDraft || {}) };
+    if (!edit) { const d = { ...blank(), ...(s.appDraft || {}) }; if (!d.founders?.length || !d.founders[0].name) d.founders = [{ name: s.profile.name || '' }, ...(d.founders || []).slice(1)]; return d; }
     const ms = sel.milestonesOf(s, id);
-    return { ...blank(), title: existing.title, tagline: existing.tagline, category: existing.category, tags: existing.tags || [], about: existing.about || '', problem: existing.problem || '', audience: existing.audience || '', approach: existing.approach || '', experiments: existing.experiments || '', timeline: existing.timeline || '', success: existing.success || '', risks: existing.risks || '', needs: (existing.needs || []).join(', '), budget: (existing.budget || []).map((b) => ({ ...b, amount: String(b.amount) })), milestones: ms.map((m) => ({ title: m.title, amount: String(m.needed), unlocks: m.unlocks || '', evidence: m.evidence || '' })) };
+    return { ...blank(), title: existing.title, tagline: existing.tagline, category: existing.category, tags: existing.tags || [], about: existing.about || '', problem: existing.problem || '', audience: existing.audience || '', approach: existing.approach || '', experiments: existing.experiments || '', timeline: existing.timeline || '', success: existing.success || '', risks: existing.risks || '', needs: (existing.needs || []).join(', '), founders: existing.founders?.length ? existing.founders.map((x) => ({ name: x.name })) : [{ name: s.profile.name || '' }], cofounders: (existing.cofounders || []).map((x) => ({ name: x.name })), budget: (existing.budget || []).map((b) => ({ ...b, amount: String(b.amount) })), milestones: ms.map((m) => ({ title: m.title, amount: String(m.needed), unlocks: m.unlocks || '', evidence: m.evidence || '' })) };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
   const [A, setA] = useState(initial);
@@ -61,6 +62,8 @@ export default function Apply({ id }) {
     const e = [];
     if (n === 0) {
       if (!L(A.title)) e.push('Give your project a name.');
+      if (!A.founders.some((f) => L(f.name))) e.push('Add at least one founder, using a real name.');
+      if ([...A.founders, ...A.cofounders].some((f) => f.name.trim().startsWith('@'))) e.push('Use real names for founders and co-founders, not nicknames or @usernames.');
       if (!L(A.tagline)) e.push('Add a one-line summary.');
       if (L(A.about) < 60) e.push('Explain what the project is about (at least 60 characters).');
       if (L(A.problem) < 60) e.push('Describe the problem it solves (at least 60 characters).');
@@ -93,7 +96,7 @@ export default function Apply({ id }) {
         const pid = await a.submitApplication({ ...A, github: A.github, website: A.website, youtube: A.youtube }, items);
         if (pid) navigate(`/project/${pid}`);
       } else {
-        const patch = { title: A.title.trim(), tagline: A.tagline.trim(), category: A.category, tags: A.tags, about: A.about.trim(), problem: A.problem.trim(), audience: A.audience.trim(), approach: A.approach.trim(), experiments: A.experiments.trim(), timeline: A.timeline.trim(), success: A.success.trim(), risks: A.risks.trim(), needs: A.needs.split(',').map((x) => x.trim()).filter(Boolean) };
+        const patch = { title: A.title.trim(), tagline: A.tagline.trim(), category: A.category, tags: A.tags, about: A.about.trim(), problem: A.problem.trim(), audience: A.audience.trim(), approach: A.approach.trim(), experiments: A.experiments.trim(), timeline: A.timeline.trim(), success: A.success.trim(), risks: A.risks.trim(), needs: A.needs.split(',').map((x) => x.trim()).filter(Boolean), founders: cleanP(A.founders), cofounders: cleanP(A.cofounders) };
         patch.looking = patch.needs.map((n) => ({ skill: n, open: true }));
         const moneyPatch = moneyOpen && createdProject ? { budget: A.budget.map((b) => ({ item: b.item.trim(), amount: Number(b.amount), why: b.why.trim() })), askTotal: total, milestones: A.milestones.map((m) => ({ id: `m_${Math.random().toString(36).slice(2, 8)}`, projectId: id, title: m.title.trim(), needed: Number(m.amount), unlocks: m.unlocks.trim(), evidence: m.evidence.trim() })) } : null;
         await a.updateProject(id, patch, items, moneyPatch);
@@ -113,6 +116,14 @@ export default function Apply({ id }) {
 
       <GlassPanel className="settings-panel stack">
         {step === 0 && (<>
+          <div className="field"><span className="label">Founder</span>
+            <span className="muted">Use your real name, not your nickname. Backers want to know who is accountable. Add another founder with +.</span>
+            {A.founders.map((f, i) => (<div className="row" key={`f${i}`}><input className="input" aria-label={`Founder ${i + 1} name`} value={f.name} placeholder="First and last name" maxLength={60} onChange={(e) => setA({ ...A, founders: A.founders.map((x, j) => (j === i ? { name: e.target.value } : x)) })} />{i > 0 && <TactileButton size="sm" variant="ghost" type="button" aria-label={`Remove founder ${i + 1}`} onClick={() => setA({ ...A, founders: A.founders.filter((_, j) => j !== i) })}>Remove</TactileButton>}</div>))}
+            <div><TactileButton size="sm" type="button" icon="plus" aria-label="Add founder" onClick={() => setA({ ...A, founders: [...A.founders, { name: '' }] })}>Founder +</TactileButton></div></div>
+          <div className="field"><span className="label">Co-founder</span>
+            <span className="muted">Optional. People building this with you. If they are on Nomi, use the name on their profile and they show up on the team.</span>
+            {A.cofounders.map((f, i) => (<div className="row" key={`c${i}`}><input className="input" aria-label={`Co-founder ${i + 1} name`} value={f.name} placeholder="First and last name" maxLength={60} onChange={(e) => setA({ ...A, cofounders: A.cofounders.map((x, j) => (j === i ? { name: e.target.value } : x)) })} /><TactileButton size="sm" variant="ghost" type="button" aria-label={`Remove co-founder ${i + 1}`} onClick={() => setA({ ...A, cofounders: A.cofounders.filter((_, j) => j !== i) })}>Remove</TactileButton></div>))}
+            <div><TactileButton size="sm" type="button" icon="plus" aria-label="Add co-founder" onClick={() => setA({ ...A, cofounders: [...A.cofounders, { name: '' }] })}>Co-founder +</TactileButton></div></div>
           <Field id="ap-title" label="Name of the project"><input id="ap-title" className="input" value={A.title} onChange={set('title')} maxLength={60} /></Field>
           <Field id="ap-tag" label="One-line summary"><input id="ap-tag" className="input" value={A.tagline} onChange={set('tagline')} maxLength={100} placeholder="Plant-powered sensor node for remote farms" /></Field>
           <Field id="ap-about" label="What is it about?" count={L(A.about)} min={60}><textarea id="ap-about" className="textarea" rows={4} value={A.about} onChange={set('about')} maxLength={1200} /></Field>
@@ -177,6 +188,7 @@ export default function Apply({ id }) {
         {step === 4 && (<>
           <h2>{A.title || 'Untitled project'}</h2>
           <p className="secondary">{A.tagline}</p>
+          <p className="secondary"><strong>Founder{A.founders.filter((f) => L(f.name)).length > 1 ? 's' : ''}:</strong> {A.founders.map((f) => f.name.trim()).filter(Boolean).join(', ')}{A.cofounders.some((f) => L(f.name)) && <> · <strong>Co-founders:</strong> {A.cofounders.map((f) => f.name.trim()).filter(Boolean).join(', ')}</>}</p>
           <div className="grid grid--2">
             <StoneCard className="tile--flat stack stack--sm"><span className="eyebrow">Funding ask</span><strong className="big">{money(total, 2)}</strong><span className="muted">{A.budget.length} budget lines · {A.milestones.length} milestones</span></StoneCard>
             <StoneCard className="tile--flat stack stack--sm"><span className="eyebrow">Looking for</span><span>{A.needs || 'Nobody specific yet'}</span><span className="muted">{A.category} · {A.tags.map((t) => `#${t}`).join(' ') || 'no hashtags'}</span></StoneCard>

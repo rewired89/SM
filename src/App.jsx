@@ -43,7 +43,8 @@ function Router() {
     case 'idea': return <IdeaPage id={dec} />;
     case 'projects': return <Projects />;
     case 'project': return <ProjectPage id={dec} />;
-    case 'ai': return dec ? <AIToolPage id={dec} /> : <AIHub />;
+    case 'ai': return dec === 'submit' ? <GameSubmit kind="tool" key="tool" /> : dec ? <AIToolPage id={dec} /> : <AIHub />;
+    case 'ademo': return <CommunityGamePage key={dec} id={dec} />;
     case 'collab': return <CollabPage key={dec} slug={dec} />;
     case 'funding': return <FundingReadiness key={dec} id={dec} />;
     case 'trust': return <Trust />;

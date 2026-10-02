@@ -8,10 +8,9 @@ const wave = (base, amp) => {
 };
 
 const CLOUDS = [
-  { top: '6%', w: 260, dur: 150, delay: -40, o: 0.85 },
-  { top: '18%', w: 180, dur: 190, delay: -120, o: 0.7 },
-  { top: '38%', w: 320, dur: 230, delay: -60, o: 0.55 },
-  { top: '58%', w: 220, dur: 170, delay: -10, o: 0.5 },
+  { top: '7%', left: '8%', w: 260, o: 0.8 },
+  { top: '16%', left: '68%', w: 200, o: 0.6 },
+  { top: '36%', left: '38%', w: 300, o: 0.4 },
 ];
 
 const Cloud = ({ w }) => (
@@ -25,7 +24,7 @@ export default function Backdrop() {
   if (ctx && !ctx.s.ambient) return null;
   return (
     <div className="backdrop" aria-hidden="true">
-      {CLOUDS.map((c, i) => <div key={i} className="backdrop__cloud" style={{ top: c.top, opacity: c.o, animationDuration: `${c.dur}s`, animationDelay: `${c.delay}s` }}><Cloud w={c.w} /></div>)}
+      {CLOUDS.map((c, i) => <div key={i} className="backdrop__cloud" style={{ top: c.top, left: c.left, opacity: c.o }}><Cloud w={c.w} /></div>)}
       <div className="backdrop__waves">
         <svg className="wave wave--3" viewBox="0 0 2880 300" preserveAspectRatio="none"><path d={wave(150, 34)} /></svg>
         <svg className="wave wave--2" viewBox="0 0 2880 300" preserveAspectRatio="none"><path d={wave(170, 28)} /></svg>

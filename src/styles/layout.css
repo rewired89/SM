@@ -36,7 +36,7 @@
 
 /* ---- Mobile nav ---- */
 .mnav { display: none; }
-.mnav__create { width: 56px; height: 56px; margin-top: -22px; border-radius: 50%; border: 3px solid #fff; display: grid; place-items: center; color: #fff; background: linear-gradient(180deg, var(--accent-light), var(--accent)); box-shadow: 0 12px 22px -6px var(--accent-glow); transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+.mnav__create { width: 56px; height: 56px; margin-top: -22px; border-radius: 50%; border: 3px solid #fff; display: grid; place-items: center; color: var(--on-accent, #fff); background: linear-gradient(180deg, var(--accent-light), var(--accent)); box-shadow: 0 12px 22px -6px var(--accent-glow); transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
 .mnav__create:hover { transform: translateY(-2px); }
 .mnav__create:active { transform: translateY(2px); box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.35); }
 
@@ -66,17 +66,16 @@
 
 /* ---- ambient backdrop: clouds and waves tinted by the chosen colors ---- */
 .backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.backdrop__cloud { position: absolute; left: 0; animation: cloud-drift linear infinite; filter: drop-shadow(0 10px 18px rgba(var(--accent-rgb), 0.12)); }
-@keyframes cloud-drift { from { transform: translateX(-30vw); } to { transform: translateX(110vw); } }
-.backdrop__waves { position: absolute; left: 0; right: 0; bottom: 0; height: 34vh; min-height: 200px; }
-.wave { position: absolute; left: 0; bottom: 0; width: 200%; height: 100%; animation: wave-slide linear infinite; }
+.backdrop__cloud { position: absolute; left: 0; filter: drop-shadow(0 10px 18px rgba(var(--accent-rgb), 0.12)); }
+.backdrop__waves { position: absolute; left: 0; right: 0; bottom: 0; height: 42vh; min-height: 220px; }
+.wave { position: absolute; left: 0; bottom: 0; width: 200%; height: 100%; animation: wave-slide linear infinite; will-change: transform; }
 .wave path { transition: fill 400ms var(--ease); }
-.wave--1 { animation-duration: 38s; } .wave--1 path { fill: rgba(var(--accent-rgb), 0.2); }
-.wave--2 { animation-duration: 56s; animation-direction: reverse; bottom: 10px; } .wave--2 path { fill: rgba(var(--accent2-rgb), 0.22); }
-.wave--3 { animation-duration: 80s; bottom: 24px; } .wave--3 path { fill: rgba(var(--accent-rgb), 0.12); }
+.wave--1 { animation-duration: 90s; } .wave--1 path { fill: rgba(var(--accent-rgb), 0.3); }
+.wave--2 { animation-duration: 140s; animation-direction: reverse; bottom: 10px; } .wave--2 path { fill: rgba(var(--accent2-rgb), 0.3); }
+.wave--3 { animation-duration: 200s; bottom: 24px; } .wave--3 path { fill: rgba(var(--accent-rgb), 0.18); }
 @keyframes wave-slide { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (max-width: 760px) { .backdrop__waves { height: 26vh; } }
-@media (prefers-reduced-motion: reduce) { .backdrop__cloud, .wave { animation: none !important; } .backdrop__cloud { transform: translateX(10vw); } }
+@media (prefers-reduced-motion: reduce) { .wave { animation: none !important; } }
 
 .suggest { position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 50; padding: 6px; display: grid; gap: 2px; max-height: 360px; overflow-y: auto; border-radius: 18px; background: rgba(255, 255, 255, 0.97); }
 .suggest li { display: flex; justify-content: space-between; gap: 10px; padding: 9px 12px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; }

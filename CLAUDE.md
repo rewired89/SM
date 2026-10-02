@@ -46,7 +46,7 @@ Light soft-UI theme from the reference images: pale stone base with grain, sky-b
 
 ## Themes
 
-`src/lib/themes.js`: seven two-color pairs (Sky & Blush, Blush & Sky, Pink & Teal, Teal & Pink, Pink & Purple, Purple & Teal, Violet & Gold). `applyTheme` sets CSS variables (`--accent`, `--accent2`, `--hero-*`, `--bg-a/b`) on `<html>`. Picker in the top bar palette button and Profile → Appearance. Never hardcode blue or pink in CSS, use the variables.
+`src/lib/themes.js`: nine two-color pairs built from ONE shared palette (PINK #ff8fc1, soft TEAL #3fd0cd, BLUE, PURPLE, GOLD, OCEAN, CORAL): Sky & Blush, Blush & Sky, Pink & Teal, Teal & Pink, Ocean & Seafoam, Ocean & Coral, Pink & Purple, Purple & Teal, Violet & Gold. Never introduce a new shade of pink or teal. Light accents (luminance > 0.3) get dark text via `--on-accent` and `--hero-ink`. `applyTheme` sets CSS variables (`--accent`, `--accent2`, `--hero-*`, `--bg-a/b`) on `<html>`. Picker in the top bar palette button and Profile → Appearance. Never hardcode blue or pink in CSS, use the variables.
 
 ## Play & Learn
 
@@ -58,7 +58,7 @@ Inline one-button games live in the feed (`ArcadeCard`, positions 4, 9, 13 of Fo
 
 ## Ambient background
 
-`components/layout/Backdrop.jsx`: drifting clouds and three layered waves filled from `--accent` and `--accent2`, so waves follow the chosen palette. Toggle in the color picker (`state.ambient`). Respects reduced motion.
+`components/layout/Backdrop.jsx`: static soft clouds and three layered waves (90s, 140s, 200s per slide, transform only, to spare battery) filled from `--accent` and `--accent2`, so waves follow the chosen palette. Toggle in the color picker (`state.ambient`). Respects reduced motion.
 
 ## Media, profile and payments
 

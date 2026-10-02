@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Log Whisperer</title>
+<style>
+html,body{margin:0}body{padding:14px;font-family:system-ui,sans-serif;background:#f3f6ff;color:#14213d}
+h1{font-size:1.15rem;margin:0 0 4px}p.sub{margin:0 0 10px;color:#4a5578;font-size:.9rem}
+textarea{width:100%;box-sizing:border-box;font:13px/1.4 ui-monospace,Menlo,monospace;padding:10px;border-radius:12px;border:1px solid #bcc7e6;background:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+button{font:inherit;font-weight:800;padding:10px 18px;border-radius:99px;border:0;background:#3b5bdb;color:#fff;cursor:pointer}
+button.alt{background:#fff;color:#14213d;border:1px solid #bcc7e6}
+.lv{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.pill{padding:4px 10px;border-radius:99px;font-size:.8rem;font-weight:700;background:#e6ebff}
+.pill.e{background:#ffd9de;color:#8a1030}.pill.w{background:#fff0c2;color:#6b4a00}
+.card{background:#fff;border-radius:12px;padding:10px 12px;margin:8px 0;border-left:5px solid #3b5bdb;font-size:.92rem}
+.card strong{display:block}.risk{border-left-color:#d6336c}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body><h1>Log Whisperer</h1>
+<p class="sub">Paste log lines and get plain language findings. Nothing leaves this box.</p>
+<label for="q">Log lines</label>
+<textarea id="q" rows="6" spellcheck="false" placeholder="Paste log lines here..."></textarea>
+<div class="row"><button id="go">Whisper</button><button id="sample" class="alt">Try a sample log</button><button id="clear" class="alt">Clear</button></div>
+<div id="lv" class="lv" aria-label="Line counts"></div>
+<div id="out" role="status" aria-live="polite"></div>
+<script>
+(function(){
+var SAMPLE=['Oct 01 02:14:08 sshd[912]: Failed password for root from 203.0.113.9','Oct 01 02:14:11 sshd[912]: Failed password for root from 203.0.113.9','Oct 01 02:14:15 sshd[912]: Accepted password for deploy from 198.51.100.4','Oct 01 02:19:42 sudo: deploy : COMMAND=/bin/chmod 777 /etc/shadow','Oct 01 02:20:01 CRON[1204]: INFO session opened for user backup'].join('\n');
+var q=document.getElementById('q'),out=document.getElementById('out'),lv=document.getElementById('lv');
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function counts(t){var l=t.split('\n').filter(function(x){return x.trim()}),e=0,w=0;l.forEach(function(x){if(/error|fail|denied|fatal|chmod 777/i.test(x))e++;else if(/warn|timeout|retry/i.test(x))w++});return{n:l.length,e:e,w:w}}
+function run(){
+ var t=q.value.trim();if(!t){out.textContent='Paste some log lines first, or try the sample.';return}
+ var c=counts(t);lv.innerHTML='<span class="pill">'+c.n+' lines</span><span class="pill e">'+c.e+' look bad</span><span class="pill w">'+c.w+' warnings</span>';
+ out.textContent='Whispering...';
+ NOMI.ask(t).then(function(r){
+  out.innerHTML='<h2 style="font-size:1rem">'+esc(r.headline)+'</h2>'+r.items.map(function(i){var risk=/dangerous|root|success after|failed/i.test(i.label);return'<div class="card'+(risk?' risk':'')+'"><strong>'+esc(i.label)+'</strong>'+esc(i.text)+'</div>'}).join('');
+ });
+}
+document.getElementById('go').addEventListener('click',run);
+document.getElementById('sample').addEventListener('click',function(){q.value=SAMPLE;run()});
+document.getElementById('clear').addEventListener('click',function(){q.value='';lv.innerHTML='';out.textContent='';q.focus()});
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))run()});
+NOMI.ready();
+})();
+</script></body></html>

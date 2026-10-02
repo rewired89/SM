@@ -1,6 +1,7 @@
 import { Link } from '../../lib/router.js';
 import { GlassPanel, Badge, Empty, Icon, StoneCard } from '../ui/index.jsx';
 import { PersonChip, SupportBtn } from '../common/bits.jsx';
+import { allGames } from '../../lib/gamestore.js';
 import AIToolDemo from './AIToolDemo.jsx';
 import MicroContribution from './MicroContribution.jsx';
 import GameBreak from '../games/GameBreak.jsx';
@@ -39,6 +40,7 @@ export default function AIToolPage({ id }) {
         <div><Badge tone="warning">Fee</Badge><span>{tool.fee ? `${tool.fee.label}: ${tool.fee.price}.` : 'No service fees on this tool.'}</span></div>
       </div>
 
+      {allGames().some((g) => g.toolId === tool.id && g.status === 'approved') && <Link to={`/ademo/${allGames().find((g) => g.toolId === tool.id).id}`} className="banner banner--success"><strong>🛡️ Try it in the safe sandbox</strong><span className="secondary">Runs in a locked box with no access to your phone or computer. Open the sandbox demo.</span></Link>}
       <section className="stack" aria-label="Try it"><h2>Try it</h2><StoneCard><AIToolDemo key={tool.id} tool={tool} /></StoneCard></section>
       <MicroContribution tool={tool} />
       <GameBreak variant="knowledge" tags={['AI']} topic="AI tools" />

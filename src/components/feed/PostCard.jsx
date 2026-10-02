@@ -76,14 +76,18 @@ function Body({ post }) {
 }
 
 export default function PostCard({ post, reason }) {
-  const { s } = useStore();
+  const { s, a } = useStore();
   const [open, setOpen] = useState(false);
   const author = sel.userById(post.authorId);
   return (
     <StoneCard as="article" className={`post post--${post.type}`} aria-label={`${LABEL[post.type]} by ${author.name}`}>
       <header className="post__head">
         <PersonChip user={author} sub={`@${author.handle} · ${ago(post.ts)}`} />
-        <Badge tone={post.type === 'post' ? undefined : 'accent'}>{LABEL[post.type]}</Badge>
+        <div className="row">
+          <Badge tone={post.type === 'post' ? undefined : 'accent'}>{LABEL[post.type]}</Badge>
+          {sel.canDeletePost(post) && <TactileButton size="sm" variant="ghost" aria-label="Erase this post" onClick={() => { if (window.confirm('Erase this post? This cannot be undone.')) a.deletePost(post.id); }}>Erase</TactileButton>}
+          {post.createdByMe && sel.isPostLocked(post) && <span className="muted" title="Project and funding posts stay public so backers can rely on them">🔒</span>}
+        </div>
       </header>
       {reason && <div className="why" title="Why you are seeing this (simulated recommendation)">✦ {reason}</div>}
       <Body post={post} />

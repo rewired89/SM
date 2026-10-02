@@ -420,6 +420,13 @@ export function StoreProvider({ children, accountId }) {
         toast('Challenge published', { tone: 'success' });
         return id;
       },
+      deletePost(id) {
+        const post = sel.postById(ref.current, id);
+        if (!post || !sel.canDeletePost(post)) { toast('Project and funding posts cannot be erased.', { tone: 'danger' }); return false; }
+        dispatch({ type: 'POST_DELETE', id });
+        toast('Post erased', { tone: 'success' });
+        return true;
+      },
       createPost({ type = 'post', text, tags = [], ref: r, extra, media = [], links = [] }) {
         const post = { id: uid('s'), type, authorId: ME, ts: Date.now(), text, tags, likes: 0, comments: 0, ref: r, extra, media, links, createdByMe: true };
         dispatch({ type: 'POST', post });

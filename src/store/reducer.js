@@ -44,6 +44,7 @@ export function reducer(s, a) {
     case 'NOTE': return note(s, a.noteType, a.text, a.to);
     case 'READ': return { ...s, notifications: s.notifications.map((n) => (n.id === a.id ? { ...n, read: true } : n)) };
     case 'READ_ALL': return { ...s, notifications: s.notifications.map((n) => ({ ...n, read: true })) };
+    case 'POST_DELETE': { const { [`post:${a.id}`]: _gone, ...comments } = s.comments; return { ...s, createdPosts: s.createdPosts.filter((p) => p.id !== a.id), comments, liked: s.liked.filter((k) => k !== a.id), saved: s.saved.filter((k) => k !== a.id) }; }
     case 'POST': return { ...s, createdPosts: [a.post, ...s.createdPosts] };
     case 'CREATE': {
       const c = s.created;

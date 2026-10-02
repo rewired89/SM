@@ -240,3 +240,7 @@ export function reputationOf(s, userId) {
   }
   return computeReputation(i);
 }
+
+/* only your own posts can be erased, and never project or funding posts (they are public records backers rely on) */
+export const isPostLocked = (post) => post.ref?.type === 'project' || post.type === 'update' || post.type === 'milestone';
+export const canDeletePost = (post) => !!post.createdByMe && post.authorId === ME && !isPostLocked(post);

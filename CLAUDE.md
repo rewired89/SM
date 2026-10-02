@@ -118,3 +118,7 @@ Home → Project Aurora → follow → milestone/updates → related tool (Resea
 - `/apply` step 1 has Founder + and Co-founder + lists (`founders`, `cofounders`: `{name, userId}`). The first founder defaults to the profile real name, `@nicknames` are rejected. Names matching a Nomi user join `team`. Shown on the project page.
 - Tier 1 AI sandbox: `/ai/submit` (`GameSubmit kind="tool"`), demos run in `CommunityGame` with `NOMI.ready()` and `NOMI.ask(text)` (answered by `lib/assistant.js`, a prototype stand-in, 10 asks per minute, creator never sees input). Reviewer scores tools without win/lose. Seeded Theme Spotter in `public/games`. Shown in AI hub "Try in the sandbox" and at `/ademo/:id`. No downloads, no hosted links (tiers 2 and 3 intentionally not built).
 - Log Whisperer sandbox demo (`public/games/log-whisperer.html`, seed `cg_logwhisper`, `toolId: t_logwhisper`) is the showcase: the tool page shows a Try it in the safe sandbox banner, the AI hub lists it first. `lib/assistant.js` routes log-looking input to the `logs` analyzer.
+
+## Erasing posts
+
+- Authors can erase their own posts (`Erase` in `PostCard`, `deletePost`, reducer `POST_DELETE` also drops comments, likes and saves). Posts tied to a project, project updates (evidence) and funding milestone posts are locked (`sel.isPostLocked`, `sel.canDeletePost`) and show a 🔒 instead, because backers and reputation rely on them.

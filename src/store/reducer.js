@@ -75,6 +75,10 @@ export function reducer(s, a) {
       earned.forEach((id) => { const x = ACHIEVEMENTS.find((q) => q.id === id); out = note(out, 'badge', `Achievement: ${x.emoji} ${x.name}. ${x.desc}`, '/rewards'); });
       return out;
     }
+    case 'CG_WIN': {
+      const cg = s.rewards.cg?.day === a.day ? s.rewards.cg : { day: a.day, counts: {} };
+      return { ...s, rewards: { ...s.rewards, cg: { day: a.day, counts: { ...cg.counts, [a.id]: (cg.counts[a.id] || 0) + 1 } } } };
+    }
     case 'BUY': {
       const it = SHOP.find((x) => x.id === a.id);
       if (!it || s.rewards.unlocked.includes(it.id) || s.rewards.sparks < it.cost) return s;
@@ -93,6 +97,8 @@ export function reducer(s, a) {
       return { ...s, payments: { methods, defaultId: s.payments.defaultId === a.id ? methods[0]?.id || null : s.payments.defaultId } };
     }
     case 'PAY_DEFAULT': return { ...s, payments: { ...s.payments, defaultId: a.id } };
+    case 'STRIKE': return { ...s, conduct: { ...s.conduct, strikes: [...s.conduct.strikes, a.strike] } };
+    case 'SUSPENDED': return { ...s, conduct: { ...s.conduct, suspensions: (s.conduct.suspensions || 0) + 1 } };
     case 'LIMIT': return { ...s, dailyLimit: a.n };
     case 'MEETING_SET': return { ...s, meetings: s.meetings.some((m) => m.id === a.meeting.id) ? s.meetings.map((m) => (m.id === a.meeting.id ? a.meeting : m)) : [a.meeting, ...s.meetings] };
     case 'PROJECT_EDIT': {

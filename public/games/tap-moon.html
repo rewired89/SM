@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tap the Moon</title>
+<style>html,body{margin:0;height:100%;font-family:system-ui,sans-serif;background:linear-gradient(#1b2559,#5b6fd6);color:#fff;overflow:hidden;touch-action:manipulation}
+#hud{position:absolute;top:8px;left:12px;right:12px;display:flex;justify-content:space-between;font-weight:700}
+#stage{position:absolute;inset:0}.moon{position:absolute;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#ffe9a8);border:0;box-shadow:0 0 18px #ffe9a8;cursor:pointer}
+.cloud{background:radial-gradient(circle at 35% 35%,#aab,#667);box-shadow:none}
+#msg{position:absolute;inset:0;display:grid;place-content:center;text-align:center;background:rgba(10,15,50,.6);gap:6px}
+#msg button{font:inherit;font-weight:800;padding:10px 20px;border-radius:99px;border:0;background:#ffe9a8;color:#1b2559;cursor:pointer}</style></head>
+<body><div id="hud"><span id="s">Moons 0/8</span><span id="m">Misses 0/3</span></div><div id="stage" aria-live="polite"></div>
+<div id="msg"><strong>Tap the moons. Skip the grey clouds.</strong><span>Catch 8 moons before 3 slip away. Keyboard: press Space to catch the lowest moon.</span><button id="go">Start</button></div>
+<script>
+(function(){
+var st=document.getElementById('stage'),msg=document.getElementById('msg'),S=document.getElementById('s'),M=document.getElementById('m');
+var caught=0,miss=0,items=[],running=false,t=0,spawn=0,last=0;
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function add(){var cloud=Math.random()<.25,el=document.createElement('button');el.className='moon'+(cloud?' cloud':'');el.setAttribute('aria-label',cloud?'Grey cloud, avoid':'Moon, tap');
+el.style.left=Math.random()*(innerWidth-70)+'px';el.style.top='-60px';var o={el:el,y:-60,cloud:cloud,v:(reduce?50:80)+Math.random()*40};
+el.addEventListener('pointerdown',function(e){e.preventDefault();hit(o)});el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' ')hit(o)});st.appendChild(el);items.push(o)}
+function hit(o){if(!running||o.gone)return;o.gone=1;o.el.remove();if(o.cloud){miss++}else{caught++}ui();check()}
+function ui(){S.textContent='Moons '+caught+'/8';M.textContent='Misses '+miss+'/3'}
+function check(){if(caught>=8)end(true);else if(miss>=3)end(false)}
+function end(win){running=false;msg.style.display='grid';msg.innerHTML='<strong>'+(win?'You caught them all!':'So close, try again!')+'</strong><span>The moon pulls the tides with its gravity.</span><button id="go">Play again</button>';document.getElementById('go').onclick=start;if(win)NOMI.win(caught*10-miss);else NOMI.lose()}
+function loop(ts){if(!running)return;var dt=Math.min(.05,(ts-last)/1000);last=ts;spawn-=dt;if(spawn<=0){add();spawn=.9+Math.random()*.6}
+items=items.filter(function(o){if(o.gone)return false;o.y+=o.v*dt;o.el.style.top=o.y+'px';if(o.y>innerHeight){o.el.remove();if(!o.cloud){miss++;ui();check()}return false}return true});requestAnimationFrame(loop)}
+function start(){caught=0;miss=0;items.forEach(function(o){o.el.remove()});items=[];ui();msg.style.display='none';running=true;spawn=.3;last=performance.now();requestAnimationFrame(loop)}
+document.addEventListener('keydown',function(e){if(e.key===' '&&running){e.preventDefault();var low=items.filter(function(o){return!o.cloud&&!o.gone}).sort(function(a,b){return b.y-a.y})[0];if(low)hit(low)}});
+document.getElementById('go').onclick=start;NOMI.ready();
+})();
+</script></body></html>

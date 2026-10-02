@@ -32,7 +32,7 @@ export default function Sidebar() {
       <nav aria-label="Main">
         <TactileButton variant="primary" size="lg" className="btn--block sidebar__create" icon="plus" onClick={() => openModal('create')}><span className="sidebar__label">Create</span></TactileButton>
         <ul>
-          {NAV.map((n) => {
+          {[...NAV, ...(auth.account?.admin ? [{ to: '/admin', icon: 'settings', label: 'Admin', match: (p) => p.startsWith('/admin') }] : [])].map((n) => {
             const on = n.match(path);
             const count = n.badge ? badge[n.badge] : 0;
             return (

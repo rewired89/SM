@@ -1,3 +1,4 @@
+import { gamesBy } from '../lib/gamestore.js';
 import { users, ME } from '../data/users.js';
 import { projects, milestones } from '../data/projects.js';
 import { ideas } from '../data/ideas.js';
@@ -218,3 +219,24 @@ export const meetingsFor = (s) => (s.meetings || []).filter((m) => m.backerId ==
 export const activeMeeting = (s, projectId) => (s.meetings || []).find((m) => m.projectId === projectId && m.backerId === ME && m.status === 'negotiating');
 export const canRequestMeeting = (s, p) => p.ownerId !== ME && backedTotal(s, p.id) >= MEETING_MIN && !activeMeeting(s, p.id);
 export const meetingsWaiting = (s) => meetingsFor(s).filter((m) => m.status === 'negotiating' && m.turn === ME).length;
+
+/* ---------- reputation ---------- */
+import { repSeed } from '../data/reputation.js';
+import { computeReputation } from '../lib/reputation.js';
+export const evidenceFor = (s, milestoneId) => allPosts(s).filter((p) => p.type === 'update' && p.extra?.milestoneId === milestoneId);
+export function reputationOf(s, userId) {
+  const seed = repSeed(userId);
+  const i = { ...seed, reviews: [...seed.reviews], strikes: 0, suspensions: 0 };
+  if (userId === ME) {
+    const mine = s.created.projects.filter((p) => p.ownerId === ME);
+    i.launched += mine.length;
+    i.funded += mine.filter((p) => fundedOf(s, 'project', p) > 0).length;
+    mine.forEach((p) => { const ms = milestonesOf(s, p.id).filter((m) => m.done); i.done += ms.length; i.evidence += ms.filter((m) => evidenceFor(s, m.id).length).length; const r = reviewOf(s, p.id); if (r && !r.seeded) i.reviews.push(r.score); });
+    i.updates += s.createdPosts.filter((p) => p.type === 'update').length;
+    i.games += gamesBy(ME).filter((g) => g.status === 'approved').length;
+    const t0 = Date.now() - 30 * 86400000;
+    i.strikes = (s.conduct?.strikes || []).filter((x) => x.ts > t0).length;
+    i.suspensions = s.conduct?.suspensions || 0;
+  }
+  return computeReputation(i);
+}

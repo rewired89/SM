@@ -8,6 +8,8 @@ import BadgeShelf from '../components/games/BadgeShelf.jsx';
 import LearningToday from '../components/games/LearningToday.jsx';
 import { games, gameById, HUB_CHIPS, MOODS } from '../data/games.js';
 import { dailyGameId } from '../lib/learn.js';
+import { approvedGames } from '../lib/gamestore.js';
+import { userById } from '../store/selectors.js';
 import { useStore } from '../store/StoreProvider.jsx';
 import { useUI } from '../store/UIProvider.jsx';
 import * as sel from '../store/selectors.js';
@@ -52,6 +54,15 @@ export default function Play() {
         <div className="chips" role="group" aria-label="Play for">{MOODS.map((m) => <button key={m} type="button" className="chip" aria-pressed={mood === m} onClick={() => setMood(mood === m ? null : m)}>{m}</button>)}</div>
         <div className="grid grid--2">{list.map((g) => <GameCard key={g.id} game={g} />)}</div>
         {!list.length && <p className="empty">No games match. Try clearing a filter.</p>}
+      </section>
+
+      <section className="stack" aria-label="Community games">
+        <div className="row row--between row--wrap"><h2>Community games</h2><Link to="/games/submit" className="btn btn--sm">Submit your game</Link></div>
+        <div className="grid grid--2">{approvedGames().map((g) => (
+          <StoneCard key={g.id} to={`/cgame/${g.id}`} className="stack stack--sm" label={`Play ${g.title}`}>
+            <span className="eyebrow">By {userById(g.creatorId)?.name} · {g.duration}s · {g.score}/100 reviewed</span>
+            <h3 className="card-title">{g.title}</h3><p className="secondary">{g.description}</p>
+          </StoneCard>))}</div>
       </section>
 
       <section className="stack" aria-label="Community challenges">

@@ -2,6 +2,7 @@ import { StoneCard, ProgressBar, Badge } from '../ui/index.jsx';
 import { SupportBtn, FollowBtn, PersonChip } from '../common/bits.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import * as sel from '../../store/selectors.js';
+import { ReputationBadge } from '../common/ReputationBadge.jsx';
 import TrustBadge from '../trust/TrustBadge.jsx';
 import CollabSummary from '../common/CollabSummary.jsx';
 import { money, pctLabel } from '../../lib/format.js';
@@ -19,7 +20,7 @@ export default function ProjectCard({ project, compact }) {
       <h3 className="card-title">{project.title}</h3>
       <p className="secondary">{project.tagline}</p>
       <TrustBadge project={project} />
-      {!compact && <PersonChip user={owner} size={28} />}
+      {!compact && <div className="row row--between"><PersonChip user={owner} size={28} /><ReputationBadge userId={owner.id} compact /></div>}
       {ms && (
         <div className="stack stack--sm">
           <div className="row row--between"><span className="muted">Next: {ms.title}</span><span className="muted">{pctLabel(sel.projectPct(s, project))} of {money(sel.projectGoal(s, project))}</span></div>

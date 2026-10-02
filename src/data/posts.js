@@ -52,3 +52,5 @@ posts.push(
   P('s39', 'post', 'u_amara', 85, 'Field day. Mud everywhere. Data looks great.', { tags: ['Research'], likes: 19, comments: 2 }),
   { ...P('s40', 'post', 'u_maya', 110, 'Quick test of the new dashboard layout. Still rough, but it runs on the robot.', { tags: ['Robotics'], likes: 35, comments: 5 }), media: [I('img-robotlab', 'dashboard-test.jpg', 'Title card: 3 objects, no cloud')] },
 );
+
+posts.push(P('s41', 'update', 'u_maya', 1480, 'The second camera module is mounted and tested. Here is the proof it runs both streams without cloud processing.', { ref: { type: 'project', id: 'p_robotlab' }, extra: { day: 50, prev: '1 camera', curr: '2 cameras', changed: 'Second camera tested on the bench, both streams at 12 fps', milestoneId: 'm5' }, tags: ['Robotics', 'Hardware'], likes: 58, comments: 7 }));

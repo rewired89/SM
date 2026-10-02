@@ -39,3 +39,7 @@ Goal: people who give money can trust that a real, accountable person is behind 
 - FCRA consent and disclosure: https://help.checkr.com/s/article/360000144867-Disclosure-and-consent-for-background-checks
 - Experiment.com review: https://experiment.com/faq
 - Kickstarter creator verification: https://help.kickstarter.com/hc/en-us/articles/115005126474-How-do-I-know-a-project-creator-is-who-they-claim-they-are
+
+## Conduct, reputation and community games
+
+Prototype: rule based text filter, strikes (3 in 30 days = 3 day suspension, second suspension permanent), refunds on permanent removal listed but simulated, rule based game reviewer with a human queue. Real build: moderation vendor plus human reviewers, appeals process, audit log, real refunds through the processor, server side game sandbox review.

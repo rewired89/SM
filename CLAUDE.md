@@ -97,3 +97,17 @@ The top bar search (`SearchBox`) understands `/collab_name` (jumps to that page)
 ## Demo path
 
 Home → Project Aurora → follow → milestone/updates → related tool (Research Assistant) → use it 3 times → micro-contribution prompt → Support $0.50 on a project → progress moves → creator posts update after ~7s → notification → Fund page / profile history. Hearthlight is $0.40 from a milestone for the "milestone complete" moment.
+
+## Conduct, bans and reputation (all simulated)
+
+- `lib/conduct.js` `classify(text)` levels: 1 mild (warn), 2 directed insult (blocked, strike), 3 threat (immediate suspension). 3 strikes in 30 days = 3 day suspension, a second suspension is permanent. `moderate()` in `StoreProvider` guards comments, messages, room chat, collab requests, posts, applications.
+- Bans live outside account data in `nomi_bans_v1` (`lib/bans.js`), `AuthGate` shows `BanPage`. Permanent ban deletes the account state and lists refunds of funded projects (simulated). "Clear this ban" is prototype only.
+- Reputation: `lib/reputation.js` + `data/reputation.js` seeds + `reputationOf` selector. Launched/funded projects, milestones done with posted evidence (`FundingMilestone` Post evidence, update posts carry `extra.milestoneId`), updates, review scores, approved games, minus strikes and suspensions. `ReputationBadge` / `ReputationPanel`.
+
+## Community games and admin
+
+- `/games/submit` (`pages/GameSubmit.jsx`): creator uploads or pastes one self contained HTML file using `NOMI.ready/win/lose`. `lib/gamereview.js` `analyzeGame` scores 100 (80+ approved, 60 to 79 human review, hard fails rejected) after a hidden `SmokeTest`.
+- Games run in `components/games/CommunityGame.jsx`: sandboxed iframe (`allow-scripts`, no same origin, CSP). Wins under 5s are ignored. Max 3 rewarded wins per game per day (`rewards.cg`).
+- Registry `lib/gamestore.js` (`nomi_games_v1`, device level) with seeded Tap the Moon and Memory Pairs (`public/games`). Play hub section, `/cgame/:id`, Profile → Games tab.
+- `/admin` (`pages/Admin.jsx`, demo account has `admin: true`): human review queue, suspend 3 days or ban forever for local accounts with refund list.
+- The reviewer and conduct filter are rule based. A real build needs AI plus human review and a real moderation service.

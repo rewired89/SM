@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, back } from '../lib/router.js';
 import { GlassPanel, StoneCard, TactileButton, ProgressBar, Badge, Empty } from '../components/ui/index.jsx';
+import { ReputationBadge } from '../components/common/ReputationBadge.jsx';
 import TrustBadge from '../components/trust/TrustBadge.jsx';
 import { PersonChip, SupportBtn } from '../components/common/bits.jsx';
 import { useStore } from '../store/StoreProvider.jsx';
@@ -32,7 +33,7 @@ export default function CollabPage({ slug }) {
         <span className="eyebrow">Collaborators · {type}</span>
         <h1>{e.title}</h1>
         <p className="muted">nomi.app{sel.collabPath(e)}</p>
-        {type === 'project' && <TrustBadge project={e} />}
+        <div className="row row--wrap">{type === 'project' && <TrustBadge project={e} />}<span className="muted">Founder</span><ReputationBadge userId={owner.id} /></div>
         <div className="stats">
           <div className="stat"><span className="muted">Collaborators</span><strong>{st.collaborators}</strong></div>
           <div className="stat"><span className="muted">Open roles</span><strong>{st.open}</strong></div>

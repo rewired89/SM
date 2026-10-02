@@ -6,7 +6,7 @@ const ACC = 'nomi_accounts_v1', SES = 'nomi_session_v1', CODE = 'nomi_code';
 const read = (k, store = localStorage) => { try { return JSON.parse(store.getItem(k)); } catch { return null; } };
 const write = (k, v, store = localStorage) => { try { store.setItem(k, JSON.stringify(v)); } catch { /* storage unavailable */ } };
 
-export const DEMO_ACCOUNT = { id: DEMO_ID, email: 'demo@nomi.app', name: 'Dayana', handle: 'rewired', demo: true };
+export const DEMO_ACCOUNT = { id: DEMO_ID, email: 'demo@nomi.app', name: 'Dayana', handle: 'rewired', demo: true, admin: true };
 export const getAccounts = () => [DEMO_ACCOUNT, ...(read(ACC) || [])];
 export const getSession = () => read(SES);
 export const getAccount = (id) => getAccounts().find((a) => a.id === id);

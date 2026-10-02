@@ -11,6 +11,9 @@ import { saveAttachments, parseLink } from '../lib/media.js';
 import { scoreProject, pdfPages } from '../lib/review.js';
 import { THRESHOLD } from '../data/trust.js';
 import { fmtSlot } from '../lib/meetings.js';
+import { classify, STRIKE_WINDOW_DAYS, SUSPENSION_DAYS } from '../lib/conduct.js';
+import { setBan } from '../lib/bans.js';
+import { useAuth } from '../components/auth/AuthGate.jsx';
 import { users } from '../data/users.js';
 import { uid, cents, pctLabel } from '../lib/format.js';
 
@@ -32,7 +35,7 @@ function load(accountId) {
     const saved = JSON.parse(raw);
     if (saved.v !== 1) return initialState(accountId);
     const base = initialState(accountId);
-    const out = { ...base, ...saved, dailyLimit: saved.dailyLimit ?? 500, meetings: saved.meetings ?? base.meetings, created: { ...base.created, ...saved.created } };
+    const out = { ...base, ...saved, conduct: saved.conduct ?? base.conduct, dailyLimit: saved.dailyLimit ?? 500, meetings: saved.meetings ?? base.meetings, created: { ...base.created, ...saved.created } };
     out.collabRequests = (out.collabRequests || []).map((r) => ({ fromId: ME, role: 'Collaborator', status: 'pending', ...r }));
     if (out.profile?.collabTypes) out.profile = { ...out.profile, collabTypes: [...new Set(out.profile.collabTypes.map((t) => (t === 'Tech with AI collaborator' ? 'Tech with AI · Vibe Code' : t)))] };
     return out;
@@ -51,12 +54,15 @@ const REPLIES = [
 export function StoreProvider({ children, accountId }) {
   const [state, dispatch] = useReducer(reducer, accountId, load);
   const { toast, openModal } = useUI();
+  const auth = useAuth();
+  const skipSave = useRef(false);
   const ref = useRef(state);
   ref.current = state;
   applyProfile(state.profile);
 
   useLayoutEffect(() => { applyTheme(state.theme); }, [state.theme]);
   useEffect(() => {
+    if (skipSave.current) return;
     try { localStorage.setItem(keyFor(accountId), JSON.stringify(state)); } catch { /* storage unavailable */ }
   }, [state]);
 
@@ -73,7 +79,7 @@ export function StoreProvider({ children, accountId }) {
       save: (id) => toggle('saved', id, 'Saved to bookmarks', 'Removed from bookmarks'),
       join: (id, name) => toggle('joined', id, `You joined ${name}`, `You left ${name}`),
       interest: (id, title) => toggle('interested', id, `Marked interested in ${title}`, `No longer interested in ${title}`),
-      comment: (key, text) => text.trim() && dispatch({ type: 'COMMENT', key, text: text.trim(), userId: ME }),
+      comment: (key, text) => text.trim() && mk.moderate(text) && dispatch({ type: 'COMMENT', key, text: text.trim(), userId: ME }),
       view: (id) => dispatch({ type: 'VIEW', id }),
       markRead: (id) => dispatch({ type: 'READ', id }),
       markAllRead: () => dispatch({ type: 'READ_ALL' }),
@@ -85,6 +91,7 @@ export function StoreProvider({ children, accountId }) {
 
       sendMessage: (cvId, text, userId) => {
         if (!text.trim()) return;
+        if (!mk.moderate(text)) return;
         dispatch({ type: 'MSG', cvId, userId, from: 'me', text: text.trim() });
       },
       startConversation: (userId) => {
@@ -158,6 +165,7 @@ export function StoreProvider({ children, accountId }) {
         const ownerId = e.ownerId || e.authorId;
         const owner = sel.userById(ownerId);
         const cvId = `cv_${ownerId.replace('u_', '')}`;
+        if (!mk.moderate(message || '')) return;
         if (sel.isBlocked(s, targetId, ME)) { toast('The founder is not accepting requests from you.', { tone: 'danger' }); return; }
         const id = uid('cr');
         dispatch({ type: 'COLLAB', request: { id, targetType, targetId, fromId: ME, role, skill, message, ts: Date.now(), status: 'pending' } });
@@ -192,6 +200,16 @@ export function StoreProvider({ children, accountId }) {
         earned.forEach((id) => { const x = ACHIEVEMENTS.find((q) => q.id === id); toast(`Achievement: ${x.emoji} ${x.name}`, { tone: 'success', to: '/rewards', ms: 5000 }); });
         return { gained, parts, capped };
       },
+      gameSubmitted(g) {
+        dispatch({ type: 'NOTE', noteType: 'badge', text: g.status === 'approved' ? `${g.title} was approved (${g.score}/100) and is live in Play & Learn.` : `${g.title} scored ${g.score}/100 and is waiting for a human reviewer.`, to: g.status === 'approved' ? `/cgame/${g.id}` : '/play' });
+        toast(g.status === 'approved' ? 'Your game is live' : 'Sent for human review', { tone: 'success' });
+      },
+      communityWin(id, score) {
+        const day = new Date().toISOString().slice(0, 10), r = ref.current.rewards, n = r.cg?.day === day ? (r.cg.counts[id] || 0) : 0;
+        dispatch({ type: 'CG_WIN', id, day });
+        if (n >= 3) return { gained: 0, limited: true };
+        return mk.arcadeWin({ gameId: `cg_${id}`, flawless: false, score: Math.round(score || 1) });
+      },
       buy(id) {
         const it = SHOP.find((x) => x.id === id);
         if (ref.current.rewards.sparks < it.cost) { toast('Not enough sparks yet. Win a quick game!', { tone: 'danger' }); return; }
@@ -211,6 +229,7 @@ export function StoreProvider({ children, accountId }) {
       setDefaultPayment: (id) => dispatch({ type: 'PAY_DEFAULT', id }),
       setLimit(n) { dispatch({ type: 'LIMIT', n }); toast(`Daily limit: $${n}`); },
       async publishPost({ type = 'post', text, tags = [], items = [], links = [], ref: r, extra }) {
+        if (!mk.moderate(`${text} ${extra?.title || ''} ${extra?.changed || ''}`)) return null;
         const media = await saveAttachments(items);
         return mk.createPost({ type, text, tags, ref: r, extra, media, links });
       },
@@ -230,8 +249,36 @@ export function StoreProvider({ children, accountId }) {
       setIdentity(identity) { dispatch({ type: 'IDENTITY', identity }); toast(identity.status === 'verified' ? 'Identity verified' : 'Verification did not pass', { tone: identity.status === 'verified' ? 'success' : 'danger' }); },
       connectPayout() { dispatch({ type: 'PAYOUT', payout: { connected: true, label: 'Sandbox payout account', connectedAt: Date.now() } }); toast('Payout account connected (sandbox)', { tone: 'success' }); },
       reportProject(projectId, reason) { dispatch({ type: 'REPORT', report: { id: uid('rp'), projectId, reason, ts: Date.now() } }); toast('Thanks. A human reviewer will take a look.', { tone: 'success' }); },
+      /* returns true when the text may be posted. Directed abuse is blocked and counts as a strike. */
+      moderate(text) {
+        const r = classify(text);
+        if (r.level === 0) return true;
+        if (r.level === 1) { toast('Heads up: strong language. Keep it kind and it is fine to be direct.'); return true; }
+        const s = ref.current;
+        const now = Date.now();
+        const recent = s.conduct.strikes.filter((x) => now - x.ts < STRIKE_WINDOW_DAYS * 86400000);
+        dispatch({ type: 'STRIKE', strike: { ts: now, level: r.level, reason: r.reason } });
+        const count = recent.length + 1;
+        const repeat = (s.conduct.suspensions || 0) >= 1;
+        if (r.level === 3 || count >= 3) {
+          if (repeat) {
+            const refunds = sel.allProjects(s).filter((p) => p.ownerId === ME && sel.fundedOf(s, 'project', p) > 0).map((p) => ({ title: p.title, amount: sel.fundedOf(s, 'project', p) }));
+            setBan(accountId, { permanent: true, reason: r.reason, at: now, refunds });
+            skipSave.current = true;
+            try { localStorage.removeItem(keyFor(accountId)); } catch { /* ignore */ }
+          } else {
+            dispatch({ type: 'SUSPENDED' });
+            setBan(accountId, { permanent: false, until: now + SUSPENSION_DAYS * 86400000, reason: r.reason, at: now });
+          }
+          auth.applyBan();
+          return false;
+        }
+        toast(`That cannot be posted: ${r.reason.toLowerCase()}. Strike ${count} of 3 in ${STRIKE_WINDOW_DAYS} days. A third strike suspends your account for ${SUSPENSION_DAYS} days.`, { tone: 'danger', ms: 7000 });
+        return false;
+      },
       saveDraft: (draft) => dispatch({ type: 'DRAFT', draft }),
       async submitApplication(app, items) {
+        if (!mk.moderate([app.title, app.tagline, app.about, app.problem, app.approach, app.experiments, app.risks].join(' '))) return null;
         const media = await saveAttachments(items);
         const id = `p_${uid('n')}`;
         const budget = app.budget.map((b) => ({ item: b.item.trim(), amount: Number(b.amount), why: b.why.trim() }));
@@ -248,6 +295,7 @@ export function StoreProvider({ children, accountId }) {
         return id;
       },
       async updateProject(id, patch, items = [], money) {
+        if (!mk.moderate([patch.title, patch.tagline, patch.about, patch.problem, patch.approach, patch.experiments, patch.risks].filter(Boolean).join(' '))) return false;
         const saved = await saveAttachments(items);
         const cur = sel.projectById(ref.current, id);
         dispatch({ type: 'PROJECT_EDIT', id, patch: { ...patch, ...(saved.length ? { media: [...(cur.media || []), ...saved] } : {}) } });
@@ -331,7 +379,7 @@ export function StoreProvider({ children, accountId }) {
       },
       sendRoomMessage(projectId, text) {
         const r = ref.current.rooms[projectId];
-        if (!r || !r.members.includes(ME) || !text.trim()) return;
+        if (!r || !r.members.includes(ME) || !text.trim() || !mk.moderate(text)) return;
         dispatch({ type: 'ROOM_SET', projectId, room: { ...r, messages: [...r.messages, { id: uid('rm'), from: ME, text: text.trim(), ts: Date.now() }] } });
         const others = r.members.filter((m) => m !== ME);
         if (others.length) setTimeout(() => {

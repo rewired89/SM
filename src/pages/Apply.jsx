@@ -91,7 +91,7 @@ export default function Apply({ id }) {
       const allLinks = [A.github, A.website, A.youtube];
       if (!edit) {
         const pid = await a.submitApplication({ ...A, github: A.github, website: A.website, youtube: A.youtube }, items);
-        navigate(`/project/${pid}`);
+        if (pid) navigate(`/project/${pid}`);
       } else {
         const patch = { title: A.title.trim(), tagline: A.tagline.trim(), category: A.category, tags: A.tags, about: A.about.trim(), problem: A.problem.trim(), audience: A.audience.trim(), approach: A.approach.trim(), experiments: A.experiments.trim(), timeline: A.timeline.trim(), success: A.success.trim(), risks: A.risks.trim(), needs: A.needs.split(',').map((x) => x.trim()).filter(Boolean) };
         patch.looking = patch.needs.map((n) => ({ skill: n, open: true }));

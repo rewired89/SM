@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Memory Pairs: Brain Edition</title>
+<style>html,body{margin:0;min-height:100%;font-family:system-ui,sans-serif;background:#f3f1ff;color:#1d1a3a}
+main{max-width:420px;margin:0 auto;padding:12px;text-align:center}h1{font-size:1.1rem;margin:6px 0}
+#grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.c{aspect-ratio:1;border-radius:12px;border:0;font-size:1.6rem;background:#7c4dff;color:#fff;cursor:pointer;box-shadow:0 3px 0 #4b2db8}.c.f{background:#fff;color:#000;box-shadow:0 3px 0 #cfc8f5}.c.m{background:#c8f3dc;box-shadow:0 3px 0 #8fd1ae}
+#fact{min-height:3em;font-size:.9rem;color:#4a4575}button.go{font:inherit;font-weight:800;padding:8px 18px;border-radius:99px;border:0;background:#7c4dff;color:#fff;cursor:pointer}</style></head>
+<body><main><h1>Memory Pairs: Brain Edition</h1><p id="info">Match each brain part to its job. Find all 6 pairs in 24 flips or fewer.</p><div id="grid" role="group" aria-label="Cards"></div><div id="fact" role="status" aria-live="polite"></div><button class="go" id="again" hidden>Play again</button></main>
+<script>
+(function(){
+var PAIRS=[['🧠','Thinking'],['👁️','Vision'],['👂','Hearing'],['🧬','Memory code'],['💤','Sleep'],['❤️','Emotion']];
+var FACT={'🧠':'The cortex handles planning and thinking.','👁️':'Vision is processed at the back of the brain.','👂':'Sound is decoded in the temporal lobes.','🧬':'Memories form by strengthening connections.','💤':'Sleep helps the brain organize new memories.','❤️':'The amygdala helps tag moments as emotional.'};
+var g=document.getElementById('grid'),fact=document.getElementById('fact'),again=document.getElementById('again'),open=[],flips=0,matched=0,lock=false,cards=[];
+function shuffle(a){return a.map(function(x){return[Math.random(),x]}).sort(function(p,q){return p[0]-q[0]}).map(function(x){return x[1]})}
+function build(){g.innerHTML='';open=[];flips=0;matched=0;lock=false;fact.textContent='';again.hidden=true;
+cards=shuffle(PAIRS.flatMap(function(p){return[{k:p[0],t:p[0]},{k:p[0],t:p[1]}]}));
+cards.forEach(function(c,i){var b=document.createElement('button');b.className='c';b.textContent='?';b.setAttribute('aria-label','Card '+(i+1)+', face down');b.onclick=function(){flip(b,c)};g.appendChild(b)})}
+function flip(b,c){if(lock||b.classList.contains('f')||b.classList.contains('m'))return;b.classList.add('f');b.textContent=c.t;b.setAttribute('aria-label',c.t);open.push([b,c]);
+if(open.length===2){flips++;lock=true;var a=open[0],d=open[1];
+if(a[1].k===d[1].k&&a[1].t!==d[1].t){a[0].classList.add('m');d[0].classList.add('m');fact.textContent=FACT[a[1].k];matched++;open=[];lock=false;if(matched===6)finish()}
+else setTimeout(function(){a[0].classList.remove('f');d[0].classList.remove('f');a[0].textContent='?';d[0].textContent='?';open=[];lock=false;if(flips>=24&&matched<6){fact.textContent='Out of flips. Try again!';again.hidden=false;NOMI.lose()}},700)}}
+function finish(){fact.textContent+=' You did it in '+flips+' flips!';again.hidden=false;if(flips<=24)NOMI.win(Math.max(1,30-flips))}
+again.onclick=build;document.addEventListener('keydown',function(){});build();NOMI.ready();
+})();
+</script></body></html>

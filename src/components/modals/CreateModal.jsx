@@ -31,7 +31,7 @@ const FORMS = {
   community: { title: 'Start a community', title1: 'Community name', main: ['text', 'What is it about?'] },
 };
 
-function Composer({ kind, onBack, projectId }) {
+function Composer({ kind, onBack, projectId, milestoneId }) {
   const { s, a } = useStore();
   const { closeModal } = useUI();
   const f = FORMS[kind];
@@ -50,18 +50,20 @@ function Composer({ kind, onBack, projectId }) {
     if (!valid || busy) return;
     setBusy(true);
     try {
-      if (['post', 'question'].includes(kind)) await a.publishPost({ type: kind, text: v.text.trim(), tags, items, links });
-      else if (kind === 'research') await a.publishPost({ type: 'research', text: v.text.trim(), tags, items, links, extra: { title: v.title.trim(), kind: v.kindSel } });
+      let posted = true;
+      if (['post', 'question'].includes(kind)) posted = await a.publishPost({ type: kind, text: v.text.trim(), tags, items, links });
+      else if (kind === 'research') posted = await a.publishPost({ type: 'research', text: v.text.trim(), tags, items, links, extra: { title: v.title.trim(), kind: v.kindSel } });
       else if (kind === 'update') {
         const proj = sel.projectById(s, projectId);
         const day = Math.max(0, ...sel.allPosts(s).filter((x) => x.type === 'update' && x.ref?.id === projectId).map((x) => x.extra?.day || 0)) + 1;
-        await a.publishPost({ type: 'update', text: v.text.trim(), tags: proj.tags, items, links, ref: { type: 'project', id: projectId }, extra: { day, prev: v.prev.trim() || 'Before', curr: v.curr.trim() || 'Now', changed: v.changed.trim() || 'See details' } });
+        posted = await a.publishPost({ type: 'update', text: v.text.trim(), tags: proj.tags, items, links, ref: { type: 'project', id: projectId }, extra: { day, prev: v.prev.trim() || 'Before', curr: v.curr.trim() || 'Now', changed: v.changed.trim() || 'See details', ...(milestoneId ? { milestoneId } : {}) } });
       } else {
         const id = await a.createEntity(kind, { title: v.title.trim(), tagline: v.sub.trim() || v.text.trim().slice(0, 80), pitch: v.text.trim(), about: v.text.trim(), category: kind === 'tool' ? v.tcat : v.cat, needs, tags, items, links });
         closeModal();
         navigate(`/${{ project: 'project', idea: 'idea', tool: 'ai', community: 'community' }[kind]}/${id}`);
         return;
       }
+      if (!posted) return;
       closeModal();
       navigate(kind === 'update' ? `/project/${projectId}` : '/');
     } finally { setBusy(false); }
@@ -135,7 +137,7 @@ function ChallengeComposer({ onBack }) {
   );
 }
 
-export default function CreateModal({ start, projectId }) {
+export default function CreateModal({ start, projectId, milestoneId }) {
   const { closeModal } = useUI();
   const [kind, setKindRaw] = useState(start === 'project' ? null : start || null);
   const setKind = (k) => { if (k === 'project') { closeModal(); navigate('/apply'); return; } setKindRaw(k); };
@@ -150,7 +152,7 @@ export default function CreateModal({ start, projectId }) {
             </button></li>
           ))}
         </ul>
-      ) : kind === 'challenge' ? <ChallengeComposer onBack={() => setKind(null)} /> : <Composer kind={kind} projectId={projectId} onBack={() => (start === 'update' ? closeModal() : setKind(null))} />}
+      ) : kind === 'challenge' ? <ChallengeComposer onBack={() => setKind(null)} /> : <Composer kind={kind} projectId={projectId} milestoneId={milestoneId} onBack={() => (start === 'update' ? closeModal() : setKind(null))} />}
     </Modal>
   );
 }

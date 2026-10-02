@@ -49,6 +49,7 @@ const demoState = () => ({
   profile: seedProfile(),
   payments: { methods: [], defaultId: null },
   dailyLimit: 500,
+  conduct: { strikes: [], suspensions: 0 },
   meetings: (() => {
     const at = (days, h, m = 0) => { const d = new Date(); d.setDate(d.getDate() + days); d.setHours(h, m, 0, 0); return d.toISOString(); };
     return [
@@ -93,7 +94,7 @@ const freshState = (accountId) => {
     following: [], liked: [], saved: [], joined: [], interested: [], deltas: {}, contributions: [], comments: {},
     notifications: [{ id: 'n_welcome', type: 'follow', text: 'Welcome to Nomi! Set up your profile, then explore a project or play a quick game.', to: '/settings', ts: Date.now(), read: false }],
     rooms: {}, blocks: {}, hiddenComments: [], appDraft: null, projectEdits: {},
-    meetings: [],
+    meetings: [], conduct: { strikes: [], suspensions: 0 },
     conversations: [], createdPosts: [], created: { projects: [], ideas: [], tools: [], communities: [], milestones: [], challenges: [] },
     collabRequests: [], toolUses: {}, microSeen: {}, viewed: [], creatorUpdated: [],
     learn: blankLearn(), rewards: seedRewards(),

@@ -18,7 +18,7 @@ export default function PostComposer() {
     e.preventDefault();
     if (empty || busy) return;
     setBusy(true);
-    try { await a.publishPost({ text: text.trim(), items, links }); setText(''); setItems([]); setLinks([]); setAttach(false); } finally { setBusy(false); }
+    try { const ok = await a.publishPost({ text: text.trim(), items, links }); if (ok) { setText(''); setItems([]); setLinks([]); setAttach(false); } } finally { setBusy(false); }
   };
   return (
     <GlassPanel className="composer">

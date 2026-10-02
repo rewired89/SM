@@ -28,7 +28,19 @@ export default function Trust() {
         <p className="secondary">Money does not buy access. Founders choose who joins the private team room and who is on the team. They can hide comments and block people who harass them, which also stops those people from joining, commenting or seeing the room. This is meant for harassment, not for honest criticism. Blocked people can report it, and Nomi reviewers can step in.</p>
       </section>
 
-      <section className="stack"><h2>5. See something wrong?</h2>
+      <section className="stack"><h2>5. Reputation</h2>
+        <p className="secondary">Founders earn a score from what they actually did: projects launched and funded, milestones finished with results posted as evidence, regular updates, independent review scores and approved community games. Strikes and suspensions lower it. A milestone only counts as proven when its founder posts the results.</p>
+      </section>
+
+      <section className="stack"><h2>6. Community standards</h2>
+        <p className="secondary">Disagree as hard as you like, but do not threaten, insult or harass people. Mild swearing gets a warning. Directed insults are blocked and earn a strike. Three strikes in 30 days means a 3 day suspension. Threats or self harm taunts mean immediate suspension. A second suspension is permanent. Permanent removal deletes your progress and refunds, in full, money backers gave to your funded projects. Strikes and suspensions reduce your reputation. Appeals go to a human reviewer.</p>
+      </section>
+
+      <section className="stack"><h2>7. Community games</h2>
+        <p className="secondary">Anyone can submit a tiny game. Nomi's reviewer runs it in a sandbox and scores it out of 100: it must start, report win and lose, be clear, accessible and fair. 80+ goes live, 60 to 79 goes to a human, below that is sent back with notes. Games can never reach your account, network or money.</p>
+      </section>
+
+      <section className="stack"><h2>8. See something wrong?</h2>
         <p className="secondary">Every project has a Report button. Reports go to a human reviewer, and funding can be paused while they look.</p>
       </section>
     </div>

@@ -5,6 +5,7 @@ import { PersonChip, FollowBtn, SupportBtn } from '../common/bits.jsx';
 import FundingMilestone from './FundingMilestone.jsx';
 import PostCard from '../feed/PostCard.jsx';
 import CommentThread from '../feed/CommentThread.jsx';
+import { ReputationBadge } from '../common/ReputationBadge.jsx';
 import ProjectStory from './ProjectStory.jsx';
 import TrustBadge from '../trust/TrustBadge.jsx';
 import Attachments from '../media/Attachments.jsx';
@@ -34,7 +35,7 @@ export default function ProjectPage({ id }) {
         <div className="row row--between row--wrap"><span className="eyebrow">⚙ {p.kind}</span><Badge tone="accent">{p.status}</Badge></div>
         <h1>{p.title}</h1>
         <p className="lead">{p.tagline}</p>
-        <TrustBadge project={p} />
+        <div className="row row--wrap"><TrustBadge project={p} /><span className="muted">Founder</span><ReputationBadge userId={p.ownerId} /></div>
         <div className="facts">
           <div><span className="eyebrow">Status</span><strong>{p.status}</strong></div>
           <div><span className="eyebrow">Category</span><strong>{[p.category, ...p.subs].join(' · ')}</strong></div>

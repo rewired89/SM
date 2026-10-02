@@ -24,14 +24,18 @@ const seedContributions = () => {
   })).reverse();
 };
 
-import { users, ME } from '../data/users.js';
+import { users } from '../data/users.js';
 
-const meU = users.find((u) => u.id === ME);
+const meU = users.find((u) => u.id === 'u_dayana');
 const seedProfile = () => ({ name: meU.name, handle: meU.handle, bio: meU.bio, location: meU.location, avatar: null, skills: [...meU.skills], interests: [...meU.interests], career: { ...meU.career, studying: '' }, socials: { ...meU.socials }, openToCollab: meU.openToCollab, collabTypes: [...meU.collabTypes] });
 
-export const initialState = () => ({
+const demoState = () => ({
   v: 1,
   wallet: 20,
+  reviews: {},
+  identity: { status: 'verified', checkedAt: Date.now() - 20 * 86400000, vendorRef: 'sbx_demo_account', reason: '' },
+  payout: { connected: true, label: 'Sandbox payout account', connectedAt: Date.now() - 20 * 86400000 },
+  reports: [],
   theme: 'sky',
   profile: seedProfile(),
   payments: { methods: [], defaultId: null },
@@ -61,3 +65,23 @@ export const initialState = () => ({
   viewed: [],
   creatorUpdated: [],
 });
+
+const blankLearn = () => ({ xp: 0, stats: {}, topics: {}, maybes: 0, protections: 0, dailyCount: 0, plays: {}, seen: [], lessons: [], badges: [], daily: { date: '', done: false } });
+
+/* a brand new account starts empty: no history, no contributions, nothing followed */
+const freshState = (accountId) => {
+  const u = users.find((x) => x.id === accountId);
+  return {
+    ...demoState(),
+    profile: { name: u.name, handle: u.handle, bio: '', location: '', avatar: null, skills: [], interests: [], career: null, socials: {}, openToCollab: false, collabTypes: [] },
+    following: [], liked: [], saved: [], joined: [], interested: [], deltas: {}, contributions: [], comments: {},
+    notifications: [{ id: 'n_welcome', type: 'follow', text: 'Welcome to Nomi! Set up your profile, then explore a project or play a quick game.', to: '/settings', ts: Date.now(), read: false }],
+    conversations: [], createdPosts: [], created: { projects: [], ideas: [], tools: [], communities: [], milestones: [], challenges: [] },
+    collabRequests: [], toolUses: {}, microSeen: {}, viewed: [], creatorUpdated: [],
+    learn: blankLearn(), rewards: seedRewards(),
+    identity: { status: 'none', checkedAt: 0, vendorRef: '', reason: '' }, payout: { connected: false }, reviews: {}, reports: [],
+    payments: { methods: [], defaultId: null },
+  };
+};
+
+export const initialState = (accountId = 'u_dayana') => (accountId === 'u_dayana' ? demoState() : freshState(accountId));

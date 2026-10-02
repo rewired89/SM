@@ -2,6 +2,7 @@ import { Link, useRoute } from '../../lib/router.js';
 import { Icon, TactileButton } from '../ui/index.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import { useUI } from '../../store/UIProvider.jsx';
+import { useAuth } from '../auth/AuthGate.jsx';
 
 export const NAV = [
   { to: '/', icon: 'home', label: 'Home', match: (p) => p === '/' },
@@ -22,6 +23,7 @@ export default function Sidebar() {
   const { path } = useRoute();
   const { s } = useStore();
   const { openModal } = useUI();
+  const auth = useAuth();
   const badge = { msg: s.conversations.reduce((a, c) => a + c.unread, 0), note: s.notifications.filter((n) => !n.read).length };
   return (
     <aside className="sidebar">
@@ -42,6 +44,7 @@ export default function Sidebar() {
           })}
         </ul>
       </nav>
+      <button type="button" className="btn btn--ghost btn--sm" onClick={auth.signOut} title="Sign out"><span className="sidebar__label">Sign out</span><span className="sidebar__short">⎋</span></button>
       <p className="sidebar__tag sidebar__label muted">Participation over popularity.</p>
     </aside>
   );

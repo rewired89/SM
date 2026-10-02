@@ -5,6 +5,7 @@ import { PersonChip, FollowBtn, SupportBtn } from '../common/bits.jsx';
 import FundingMilestone from './FundingMilestone.jsx';
 import PostCard from '../feed/PostCard.jsx';
 import CommentThread from '../feed/CommentThread.jsx';
+import TrustBadge from '../trust/TrustBadge.jsx';
 import Attachments from '../media/Attachments.jsx';
 import GameBreak from '../games/GameBreak.jsx';
 import AIToolCard from '../ai/AIToolCard.jsx';
@@ -12,6 +13,7 @@ import { useStore } from '../../store/StoreProvider.jsx';
 import { useUI } from '../../store/UIProvider.jsx';
 import * as sel from '../../store/selectors.js';
 import { money, pctLabel } from '../../lib/format.js';
+import { ME } from '../../data/users.js';
 
 export default function ProjectPage({ id }) {
   const { s, a } = useStore();
@@ -23,13 +25,14 @@ export default function ProjectPage({ id }) {
   const updates = sel.allPosts(s).filter((x) => x.type === 'update' && x.ref?.id === id);
   const tools = sel.allTools(s).filter((t) => t.projectId === id);
   const cKey = sel.K('project', id);
-  const mine = p.ownerId === 'u_dayana';
+  const mine = p.ownerId === ME;
   return (
     <article className="stack stack--lg">
       <GlassPanel className="page-head">
         <div className="row row--between row--wrap"><span className="eyebrow">⚙ {p.kind}</span><Badge tone="accent">{p.status}</Badge></div>
         <h1>{p.title}</h1>
         <p className="lead">{p.tagline}</p>
+        <TrustBadge project={p} />
         <div className="facts">
           <div><span className="eyebrow">Status</span><strong>{p.status}</strong></div>
           <div><span className="eyebrow">Category</span><strong>{[p.category, ...p.subs].join(' · ')}</strong></div>
@@ -42,6 +45,8 @@ export default function ProjectPage({ id }) {
           <TactileButton icon="users" to={sel.collabPath(p)}>Collaborators ({sel.collabTeam(s, 'project', p).length})</TactileButton>
           <TactileButton icon="send" onClick={() => openModal('collab', { targetType: 'project', targetId: p.id })} disabled={mine}>Collaborate</TactileButton>
           <FollowBtn type="project" id={p.id} name={p.title} size="md" />
+          {mine && <TactileButton icon="coin" to={`/funding/${p.id}`}>{sel.fundable(s, 'project', p).ok ? 'Funding status' : 'Apply for funding'}</TactileButton>}
+          {!mine && <TactileButton variant="ghost" onClick={() => { const r = prompt('What is wrong with this project? A human reviewer will read it.'); if (r && r.trim()) a.reportProject(p.id, r.trim()); }}>Report</TactileButton>}
           {mine && <TactileButton variant="primary" icon="edit" onClick={() => openModal('create', { start: 'update', projectId: p.id })}>Post an update</TactileButton>}
           {!mine && <TactileButton onClick={() => a.cheer(p.id, p.title)}>👏 Cheer · 5 ✦{s.rewards.cheers[p.id] ? ` (${s.rewards.cheers[p.id]})` : ''}</TactileButton>}
         </div>

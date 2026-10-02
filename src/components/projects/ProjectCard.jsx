@@ -2,6 +2,7 @@ import { StoneCard, ProgressBar, Badge } from '../ui/index.jsx';
 import { SupportBtn, FollowBtn, PersonChip } from '../common/bits.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import * as sel from '../../store/selectors.js';
+import TrustBadge from '../trust/TrustBadge.jsx';
 import CollabSummary from '../common/CollabSummary.jsx';
 import { money, pctLabel } from '../../lib/format.js';
 
@@ -17,6 +18,7 @@ export default function ProjectCard({ project, compact }) {
       </div>
       <h3 className="card-title">{project.title}</h3>
       <p className="secondary">{project.tagline}</p>
+      <TrustBadge project={project} />
       {!compact && <PersonChip user={owner} size={28} />}
       {ms && (
         <div className="stack stack--sm">

@@ -16,6 +16,7 @@ export default function Fund() {
   return (
     <div className="stack stack--lg">
       <div><h1>Fund</h1><p className="secondary">Small contributions, tied to things you actually used or care about. Prototype only: all money here is simulated.</p></div>
+      <p className="secondary">Only reviewed projects with verified creators can receive contributions. <a className="accent" href="#/trust">How we check</a>.</p>
       <section aria-label="Payment methods" className="stack"><h2>Payment methods</h2><PaymentsPanel /></section>
       <section aria-label="Your impact" className="stack">
         <span className="eyebrow">Your impact</span>

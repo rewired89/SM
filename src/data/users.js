@@ -1,6 +1,9 @@
 const U = (id, name, handle, headline, skills, bio, hue, location) => ({ id, name, handle, headline, skills, bio, hue, location });
 
-export const ME = 'u_dayana';
+/* ME is a live binding: AuthGate calls setMe() with the signed-in account before the app renders */
+export let ME = 'u_dayana';
+export const DEMO_ID = 'u_dayana';
+export const setMe = (id) => { ME = id; };
 
 export const users = [
   U('u_dayana', 'Dayana', 'rewired', ['Cybersecurity', 'Bioinformatics', 'AI'], ['Cybersecurity', 'Python', 'AI', 'Research', 'Bioinformatics'], 'Security engineer by day, bioelectricity nerd by night. Building ways to keep information alive in strange places.', 28, 'Miami, FL'),
@@ -38,3 +41,9 @@ const EXTRA = {
   u_dayana: { interests: ['Cybersecurity', 'Biology', 'AI', 'Research'], career: { field: 'Cybersecurity', status: 'working' }, openToCollab: true, collabTypes: ['Tech with AI · Vibe Code', 'Scientist collaborator'], socials: { github: 'https://github.com/rewired89' } },
 };
 users.forEach((u) => Object.assign(u, { avatar: null, interests: [], career: null, socials: {}, openToCollab: false, collabTypes: [] }, EXTRA[u.id]));
+
+/* accounts created in this browser become people in the network */
+export function registerUser(acct) {
+  if (users.some((u) => u.id === acct.id)) return;
+  users.push({ id: acct.id, name: acct.name, handle: acct.handle, headline: [], skills: [], bio: '', hue: acct.hue ?? Math.floor(Math.random() * 360), location: '', avatar: null, interests: [], career: null, socials: {}, openToCollab: false, collabTypes: [] });
+}

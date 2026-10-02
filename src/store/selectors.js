@@ -176,3 +176,22 @@ export function collabCandidates(s, type, e, role) {
     return { user: u, score: hit.length, reason: [...new Set(hit)].slice(0, 2).join(', ') };
   }).filter((x) => x.score > 0 || !role).sort((a, b) => b.score - a.score);
 }
+
+/* ---------- trust: project review, identity, payout ---------- */
+import { TRUST, THRESHOLD } from '../data/trust.js';
+export const reviewOf = (s, id) => s.reviews[id] || (TRUST[id] ? { score: TRUST[id].score, status: 'approved', submittedAt: TRUST[id].at, seeded: true } : null);
+export function fundable(s, type, e) {
+  const reasons = [];
+  if (type === 'project') {
+    const r = reviewOf(s, e.id);
+    if (!r) reasons.push('This project has not been reviewed for funding yet');
+    else if (r.score < THRESHOLD) reasons.push(`Review score ${r.score}/100, funding needs ${THRESHOLD} or more`);
+    if (e.ownerId === ME && s.identity.status !== 'verified') reasons.push('The creator has not verified their identity yet');
+    if (e.ownerId === ME && !s.payout.connected) reasons.push('The creator has not connected a payout account yet');
+  } else if (type === 'idea') {
+    if (s.created.ideas.some((i) => i.id === e.id)) reasons.push('Ideas cannot receive money yet. Turn it into a project and apply for funding');
+  } else if (type === 'tool') {
+    if (s.created.tools.some((t) => t.id === e.id) && s.identity.status !== 'verified') reasons.push('Tool creators must verify their identity before receiving contributions');
+  }
+  return { ok: reasons.length === 0, reasons };
+}

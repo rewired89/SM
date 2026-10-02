@@ -1,4 +1,4 @@
-import { Link } from '../../lib/router.js';
+import { Link, navigate } from '../../lib/router.js';
 import { Avatar, Badge } from '../ui/index.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import { useUI } from '../../store/UIProvider.jsx';
@@ -14,6 +14,10 @@ export const PersonChip = ({ user, size = 36, sub }) => (
 
 export function SupportBtn({ type, id, amount = 0.5, label, className = 'btn btn--sm btn--primary' }) {
   const { openModal } = useUI();
+  const { s } = useStore();
+  const e = sel.entityOf(s, { type, id });
+  const gate = e ? sel.fundable(s, type, e) : { ok: true, reasons: [] };
+  if (!gate.ok) return <button type="button" className={`${className.includes('btn--sm') ? 'btn btn--sm' : 'btn'} btn--blocked`} aria-disabled="true" title={gate.reasons[0]} onClick={() => navigate(type === 'project' ? `/funding/${id}` : '/trust')}>Funding not enabled</button>;
   return (
     <button type="button" className={className} onClick={() => openModal('support', { targetType: type, targetId: id })} aria-label={`Support ${label || ''} with $${amount.toFixed(2)}`}>
       Support ${amount.toFixed(2)}

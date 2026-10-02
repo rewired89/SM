@@ -13,6 +13,8 @@ import Profile from './pages/Profile.jsx';
 import SearchPage from './pages/SearchPage.jsx';
 import FilterPage from './pages/FilterPage.jsx';
 import Play from './pages/Play.jsx';
+import FundingReadiness from './pages/FundingReadiness.jsx';
+import Trust from './pages/Trust.jsx';
 import CollabPage from './pages/CollabPage.jsx';
 import Settings from './pages/Settings.jsx';
 import Rewards from './pages/Rewards.jsx';
@@ -37,6 +39,8 @@ function Router() {
     case 'project': return <ProjectPage id={dec} />;
     case 'ai': return dec ? <AIToolPage id={dec} /> : <AIHub />;
     case 'collab': return <CollabPage key={dec} slug={dec} />;
+    case 'funding': return <FundingReadiness key={dec} id={dec} />;
+    case 'trust': return <Trust />;
     case 'settings': return <Settings />;
     case 'rewards': return <Rewards />;
     case 'arcade': return <ArcadePage id={dec} />;

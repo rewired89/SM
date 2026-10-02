@@ -204,3 +204,22 @@
 
 .collab-sum { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 12px; border-radius: 12px; background: rgba(var(--accent-rgb), 0.07); border: 1px solid rgba(var(--accent-rgb), 0.16); font-size: 0.84rem; font-weight: 650; color: var(--text-secondary); transition: background var(--dur) var(--ease); }
 .collab-sum:hover { background: rgba(var(--accent-rgb), 0.14); color: var(--accent-strong); }
+
+/* ---- auth ---- */
+.auth { position: relative; z-index: 1; min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 40px; align-items: center; max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+.auth__hero { display: grid; gap: 20px; }
+.auth__hero h1 { font-size: clamp(2rem, 4.5vw, 3.2rem); line-height: 1.05; }
+.auth__points { display: grid; gap: 8px; font-weight: 600; color: var(--text-secondary); }
+.auth__card { padding: 28px; display: grid; gap: 18px; }
+@media (max-width: 860px) { .auth { grid-template-columns: 1fr; padding: 24px 16px; gap: 24px; } }
+
+/* ---- trust ---- */
+.trust { display: inline-flex; }
+.trust .badge { text-transform: none; letter-spacing: 0; font-size: 0.74rem; }
+.ok { color: #12844c; font-weight: 800; }
+.scorebar { position: relative; padding-bottom: 20px; }
+.scorebar__tick { position: absolute; top: -4px; width: 2px; height: 18px; background: var(--text-primary); }
+.scorebar__tick i { position: absolute; top: 20px; left: -8px; font-style: normal; font-size: 0.72rem; font-weight: 800; }
+.checklist-card { display: grid; gap: 12px; }
+.step-no { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: rgba(var(--accent-rgb), 0.12); color: var(--accent-strong); flex: none; }
+.step-no.is-done { background: #12a864; color: #fff; }

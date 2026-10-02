@@ -68,9 +68,16 @@ Canonical URL is `/collab_<project-name>` (also `/collab/:slug`), page `pages/Co
 
 The top bar search (`SearchBox`) understands `/collab_name` (jumps to that page), `#hashtag` and plain words, with live suggestions. Hashtag searches show a banner listing every project and idea with that tag (for example #Bioelectricity: Acheron, NeuroMap, Bioelectric Memory) and each card links to its collab page via `CollabSummary`.
 
+## Accounts, review and funding gate (all simulated)
+
+- `AuthGate` (main.jsx) shows `AuthPage` until signed in: passwordless email code (demo shows the code), or the demo account Dayana. Each account has its own state key `nomi_state_v1:<id>`, `ME` in `data/users.js` is a live binding set by `setMe`. New accounts start empty. Sign out and delete in Settings → Account and the sidebar.
+- Money can only go to things that pass `fundable()`: projects need a review score of 80+ (`lib/review.js`, rubric on `/trust`), a verified creator (`state.identity`) and a payout account (`state.payout`). Created ideas cannot receive money, created tools need a verified creator. Seeded projects are pre-approved (`data/trust.js`). Blocked items show "Funding not enabled" and stay public.
+- `/funding/:projectId` is the creator checklist: identity (`IdentityFlow`, sandbox outcomes), project review (`ReviewForm`, `ReviewResult`), payout. `TrustBadge` shows status on cards and pages. Report button on projects. Never collect real ID or card data in the prototype.
+- Plan, vendors and legal questions: `docs/TRUST_AND_SAFETY.md`.
+
 ## State shape
 
-`profile`, `payments`, `monthlyLimit`, `theme`, `ambient`, `rewards`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
+`reviews`, `identity`, `payout`, `reports`, `profile`, `payments`, `monthlyLimit`, `theme`, `ambient`, `rewards`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
 
 ## Demo path
 

@@ -8,31 +8,34 @@ import { applyTheme } from '../lib/themes.js';
 import { applyLearn, BADGES } from '../lib/learn.js';
 import { applyWin, ACHIEVEMENTS, SHOP, CHEER_COST } from '../lib/rewards.js';
 import { saveAttachments } from '../lib/media.js';
+import { scoreProject, pdfPages } from '../lib/review.js';
+import { THRESHOLD } from '../data/trust.js';
 import { users } from '../data/users.js';
 import { uid, cents, pctLabel } from '../lib/format.js';
 
-const KEY = 'nomi_state_v1';
+const keyFor = (id) => (id === 'u_dayana' ? 'nomi_state_v1' : `nomi_state_v1:${id}`);
 
 /* the signed-in profile is merged into the shared user record so every component sees edits */
-const meUser = users.find((u) => u.id === ME);
 function applyProfile(p) {
-  if (!p) return;
+  const meUser = users.find((u) => u.id === ME);
+  if (!p || !meUser) return;
   Object.assign(meUser, { name: p.name, handle: p.handle, bio: p.bio, location: p.location, avatar: p.avatar, skills: p.skills, interests: p.interests, career: p.career, socials: p.socials, openToCollab: p.openToCollab, collabTypes: p.collabTypes, headline: p.interests.slice(0, 3) });
 }
 const Ctx = createContext(null);
 export const useStore = () => useContext(Ctx);
 
-function load() {
+function load(accountId) {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return initialState();
+    const raw = localStorage.getItem(keyFor(accountId));
+    if (!raw) return initialState(accountId);
     const saved = JSON.parse(raw);
-    if (saved.v !== 1) return initialState();
-    const out = { ...initialState(), ...saved, created: { ...initialState().created, ...saved.created } };
+    if (saved.v !== 1) return initialState(accountId);
+    const base = initialState(accountId);
+    const out = { ...base, ...saved, created: { ...base.created, ...saved.created } };
     out.collabRequests = (out.collabRequests || []).map((r) => ({ fromId: ME, role: 'Collaborator', status: 'pending', ...r }));
     if (out.profile?.collabTypes) out.profile = { ...out.profile, collabTypes: [...new Set(out.profile.collabTypes.map((t) => (t === 'Tech with AI collaborator' ? 'Tech with AI · Vibe Code' : t)))] };
     return out;
-  } catch { return initialState(); }
+  } catch { return initialState(accountId); }
 }
 
 const SPLIT_MICRO = { creator: 0.4, pool: 0.4, infra: 0.2 };
@@ -42,8 +45,8 @@ const REPLIES = [
   'Welcome aboard! I will add you to the project channel. Start with the open issues on the board.',
 ];
 
-export function StoreProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, undefined, load);
+export function StoreProvider({ children, accountId }) {
+  const [state, dispatch] = useReducer(reducer, accountId, load);
   const { toast, openModal } = useUI();
   const ref = useRef(state);
   ref.current = state;
@@ -51,7 +54,7 @@ export function StoreProvider({ children }) {
 
   useLayoutEffect(() => { applyTheme(state.theme); }, [state.theme]);
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage unavailable */ }
+    try { localStorage.setItem(keyFor(accountId), JSON.stringify(state)); } catch { /* storage unavailable */ }
   }, [state]);
 
   const actions = useMemo(() => {
@@ -72,7 +75,7 @@ export function StoreProvider({ children }) {
       markRead: (id) => dispatch({ type: 'READ', id }),
       markAllRead: () => dispatch({ type: 'READ_ALL' }),
       readConversation: (id) => dispatch({ type: 'CV_READ', id }),
-      reset: () => { dispatch({ type: 'RESET' }); toast('Demo reset'); },
+      reset: () => { dispatch({ type: 'RESET', state: initialState(accountId) }); toast('Data reset'); },
 
       useTool: (id) => dispatch({ type: 'TOOL_USE', id }),
       dismissMicro: (id) => dispatch({ type: 'MICRO_SEEN', id }),
@@ -93,10 +96,13 @@ export function StoreProvider({ children }) {
         if (s.wallet < amount) { toast('Monthly limit reached. Raise it in Settings → Payments.', { tone: 'danger', to: '/settings' }); return null; }
         const pm = s.payments.methods.find((m) => m.id === s.payments.defaultId) || s.payments.methods[0];
         const e = sel.entityOf(s, { type: targetType, id: targetId });
+        const gate = sel.fundable(s, targetType, e);
+        if (!gate.ok) { toast(gate.reasons[0], { tone: 'danger', ms: 5000 }); return null; }
         const r2 = (n) => +n.toFixed(2);
         let allocations;
         if (micro) {
-          const proj = sel.projectById(s, e.projectId);
+          const proj0 = sel.projectById(s, e.projectId);
+          const proj = proj0 && sel.fundable(s, 'project', proj0).ok ? proj0 : null;
           allocations = [
             { type: 'tool', id: e.id, label: e.name, amount: r2(amount * SPLIT_MICRO.creator), note: 'Tool creator' },
             ...(proj ? [{ type: 'project', id: proj.id, label: proj.title, amount: r2(amount * SPLIT_MICRO.pool), note: 'Project funding pool' }] : []),
@@ -197,6 +203,22 @@ export function StoreProvider({ children }) {
         const media = await saveAttachments(items);
         return mk.createPost({ type, text, tags, ref: r, extra, media, links });
       },
+      async submitReview(projectId, m) {
+        const s = ref.current;
+        const proj = sel.projectById(s, projectId);
+        const items = [...(m.deck ? [m.deck] : []), ...(m.videoItems || [])];
+        const saved = await saveAttachments(items);
+        const pages = m.deck?.kind === 'pdf' ? await pdfPages(m.deck.file) : 0;
+        const mats = { ...m, deck: m.deck ? { name: m.deck.file.name, kind: m.deck.kind, size: m.deck.file.size, pages } : null, videoFiles: (m.videoItems || []).length, videoItems: undefined };
+        const res = scoreProject(mats, { milestones: sel.milestonesOf(s, projectId) });
+        const review = { score: res.score, status: res.pass ? 'approved' : 'not_approved', breakdown: res.breakdown, submittedAt: Date.now(), attempts: (s.reviews[projectId]?.attempts || 0) + 1, materials: { ...mats, readme: (m.readme || '').slice(0, 20000) }, media: saved };
+        dispatch({ type: 'REVIEW', id: projectId, review });
+        dispatch({ type: 'NOTE', noteType: 'milestone', text: res.pass ? `${proj.title} passed review with ${res.score}/100. Funding can open once your checklist is complete.` : `${proj.title} scored ${res.score}/100. You need ${THRESHOLD} to receive funds. See what to improve.`, to: `/funding/${projectId}` });
+        return review;
+      },
+      setIdentity(identity) { dispatch({ type: 'IDENTITY', identity }); toast(identity.status === 'verified' ? 'Identity verified' : 'Verification did not pass', { tone: identity.status === 'verified' ? 'success' : 'danger' }); },
+      connectPayout() { dispatch({ type: 'PAYOUT', payout: { connected: true, label: 'Sandbox payout account', connectedAt: Date.now() } }); toast('Payout account connected (sandbox)', { tone: 'success' }); },
+      reportProject(projectId, reason) { dispatch({ type: 'REPORT', report: { id: uid('rp'), projectId, reason, ts: Date.now() } }); toast('Thanks. A human reviewer will take a look.', { tone: 'success' }); },
       setAmbient: (on) => dispatch({ type: 'AMBIENT', on }),
       learn(payload) {
         const { earned } = applyLearn(ref.current.learn, payload);

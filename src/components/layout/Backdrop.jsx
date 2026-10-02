@@ -21,8 +21,8 @@ const Cloud = ({ w }) => (
 );
 
 export default function Backdrop() {
-  const { s } = useStore();
-  if (!s.ambient) return null;
+  const ctx = useStore();
+  if (ctx && !ctx.s.ambient) return null;
   return (
     <div className="backdrop" aria-hidden="true">
       {CLOUDS.map((c, i) => <div key={i} className="backdrop__cloud" style={{ top: c.top, opacity: c.o, animationDuration: `${c.dur}s`, animationDelay: `${c.delay}s` }}><Cloud w={c.w} /></div>)}

@@ -93,8 +93,12 @@ export function reducer(s, a) {
     }
     case 'PAY_DEFAULT': return { ...s, payments: { ...s.payments, defaultId: a.id } };
     case 'LIMIT': return { ...s, monthlyLimit: a.n, wallet: +(s.wallet + (a.n - s.monthlyLimit)).toFixed(2) };
+    case 'REVIEW': return { ...s, reviews: { ...s.reviews, [a.id]: a.review } };
+    case 'IDENTITY': return { ...s, identity: a.identity };
+    case 'PAYOUT': return { ...s, payout: a.payout };
+    case 'REPORT': return { ...s, reports: [a.report, ...s.reports] };
     case 'THEME': return { ...s, theme: a.id };
-    case 'RESET': return initialState();
+    case 'RESET': return a.state;
     default: return s;
   }
 }

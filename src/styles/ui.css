@@ -135,3 +135,8 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 .confetti { font-size: 2.6rem; animation: pop 600ms var(--ease); }
 @keyframes pop { 0% { transform: scale(0.3) rotate(-20deg); opacity: 0; } 70% { transform: scale(1.2) rotate(6deg); } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+
+.btn--blocked { opacity: 0.7; border-style: dashed; color: var(--text-muted); }
+.btn--blocked:hover { opacity: 1; }
+.sidebar__short { display: none; }
+@media (max-width: 1180px) { .sidebar__short { display: inline; } }

@@ -15,7 +15,7 @@ export function applyContribution(s, entry) {
     if (['project', 'idea', 'tool'].includes(a.type)) deltas[K(a.type, a.id)] = (deltas[K(a.type, a.id)] || 0) + a.amount;
   });
   let next = {
-    ...s, deltas, wallet: +(s.wallet - entry.amount).toFixed(2), contributions: [entry, ...s.contributions],
+    ...s, deltas, contributions: [entry, ...s.contributions],
   };
   const pid = entry.allocations.find((a) => a.type === 'project')?.id;
   if (pid) {
@@ -93,7 +93,8 @@ export function reducer(s, a) {
       return { ...s, payments: { methods, defaultId: s.payments.defaultId === a.id ? methods[0]?.id || null : s.payments.defaultId } };
     }
     case 'PAY_DEFAULT': return { ...s, payments: { ...s.payments, defaultId: a.id } };
-    case 'LIMIT': return { ...s, monthlyLimit: a.n, wallet: +(s.wallet + (a.n - s.monthlyLimit)).toFixed(2) };
+    case 'LIMIT': return { ...s, dailyLimit: a.n };
+    case 'MEETING_SET': return { ...s, meetings: s.meetings.some((m) => m.id === a.meeting.id) ? s.meetings.map((m) => (m.id === a.meeting.id ? a.meeting : m)) : [a.meeting, ...s.meetings] };
     case 'PROJECT_EDIT': {
       const mine = s.created.projects.some((p) => p.id === a.id);
       return mine ? { ...s, created: { ...s.created, projects: s.created.projects.map((p) => (p.id === a.id ? { ...p, ...a.patch } : p)) } } : { ...s, projectEdits: { ...s.projectEdits, [a.id]: { ...(s.projectEdits[a.id] || {}), ...a.patch } } };

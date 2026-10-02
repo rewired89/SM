@@ -3,6 +3,7 @@ import { Icon, TactileButton } from '../ui/index.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import { useUI } from '../../store/UIProvider.jsx';
 import { useAuth } from '../auth/AuthGate.jsx';
+import * as sel from '../../store/selectors.js';
 
 export const NAV = [
   { to: '/', icon: 'home', label: 'Home', match: (p) => p === '/' },
@@ -14,6 +15,7 @@ export const NAV = [
   { to: '/communities', icon: 'users', label: 'Communities', match: (p) => p.startsWith('/communit') },
   { to: '/fund', icon: 'coin', label: 'Fund', match: (p) => p.startsWith('/fund') },
   { to: '/messages', icon: 'mail', label: 'Messages', match: (p) => p.startsWith('/messages'), badge: 'msg' },
+  { to: '/meetings', icon: 'calendar', label: 'Meetings', match: (p) => p.startsWith('/meetings'), badge: 'mtg' },
   { to: '/notifications', icon: 'bell', label: 'Notifications', match: (p) => p.startsWith('/notifications'), badge: 'note' },
   { to: '/profile', icon: 'user', label: 'Profile', match: (p) => p === '/profile' || p.startsWith('/u/') },
   { to: '/settings', icon: 'settings', label: 'Settings', match: (p) => p.startsWith('/settings') },
@@ -24,7 +26,7 @@ export default function Sidebar() {
   const { s } = useStore();
   const { openModal } = useUI();
   const auth = useAuth();
-  const badge = { msg: s.conversations.reduce((a, c) => a + c.unread, 0), note: s.notifications.filter((n) => !n.read).length };
+  const badge = { msg: s.conversations.reduce((a, c) => a + c.unread, 0), note: s.notifications.filter((n) => !n.read).length, mtg: sel.meetingsWaiting(s) };
   return (
     <aside className="sidebar">
       <nav aria-label="Main">

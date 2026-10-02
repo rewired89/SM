@@ -53,7 +53,7 @@ export default function Fund() {
           {close.map(({ p, m }) => <StoneCard key={p.id} className="stack stack--sm"><Link to={`/project/${p.id}`}><strong>{p.title}</strong></Link><FundingMilestone milestone={m} projectId={p.id} /></StoneCard>)}
         </section>
       )}
-      <section aria-label="Contribution history" className="stack"><div className="row row--between"><h2>Contribution history</h2><span className="muted">Wallet {cents(s.wallet)}</span></div><ContributionHistory items={s.contributions} limit={12} /></section>
+      <section aria-label="Contribution history" className="stack"><div className="row row--between"><h2>Contribution history</h2><span className="muted">{cents(sel.remainingToday(s))} left to contribute today</span></div><ContributionHistory items={s.contributions} limit={12} /></section>
     </div>
   );
 }

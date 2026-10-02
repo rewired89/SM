@@ -1,7 +1,7 @@
 const STOP = new Set('the a an and or of to in on for with is are was were be been that this it as by at from which their they we our can may more most not no than then so such these those into also have has had will would should could about over under between during after before while because very much many some any each other'.split(' '));
 
 const words = (t) => (t.toLowerCase().match(/[a-z][a-z'-]{2,}/g) || []);
-const sentences = (t) => t.split(/(?<=[.!?])\s+|\n+/).map((s) => s.trim()).filter(Boolean);
+const sentences = (t) => (t.match(/[^.!?\n]+[.!?]*/g) || []).map((s) => s.trim()).filter(Boolean);
 const topWords = (t, n) => {
   const c = {};
   words(t).filter((w) => !STOP.has(w)).forEach((w) => (c[w] = (c[w] || 0) + 1));

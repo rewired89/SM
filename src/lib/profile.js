@@ -42,4 +42,6 @@ export const careerLabel = (c) => {
 };
 
 export const CASHTAG = /^\$[A-Za-z][A-Za-z0-9_]{1,19}$/;
-export const LIMIT_OPTIONS = [5, 10, 20, 50];
+export const DAILY_CAP = 500;
+export const LIMIT_OPTIONS = [10, 50, 100, 250, 500];
+export const MEETING_MIN = 500;

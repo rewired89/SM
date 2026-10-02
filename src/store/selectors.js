@@ -206,3 +206,15 @@ export const isBlocked = (s, projectId, userId) => (s.blocks?.[projectId] || [])
 export const roomOf = (s, projectId) => s.rooms?.[projectId] || null;
 export const myRooms = (s) => Object.entries(s.rooms || {}).filter(([, r]) => r.members.includes(ME)).map(([projectId, r]) => ({ projectId, ...r }));
 export const budgetTotal = (items) => (items || []).reduce((a, b) => a + (Number(b.amount) || 0), 0);
+
+/* ---------- daily contribution limit and backer meetings ---------- */
+import { DAILY_CAP, MEETING_MIN } from '../lib/profile.js';
+export const dailyLimit = (s) => Math.min(DAILY_CAP, s.dailyLimit ?? DAILY_CAP);
+export const spentToday = (s) => { const t0 = new Date(); t0.setHours(0, 0, 0, 0); return s.contributions.filter((c) => c.ts >= t0.getTime()).reduce((a, c) => a + c.amount, 0); };
+export const remainingToday = (s) => Math.max(0, +(dailyLimit(s) - spentToday(s)).toFixed(2));
+/* what this person has given to a project, counting direct and usage contributions */
+export const backedTotal = (s, projectId) => +s.contributions.reduce((a, c) => a + c.allocations.filter((x) => x.type === 'project' && x.id === projectId).reduce((q, x) => q + x.amount, 0), 0).toFixed(2);
+export const meetingsFor = (s) => (s.meetings || []).filter((m) => m.backerId === ME || m.founderId === ME);
+export const activeMeeting = (s, projectId) => (s.meetings || []).find((m) => m.projectId === projectId && m.backerId === ME && m.status === 'negotiating');
+export const canRequestMeeting = (s, p) => p.ownerId !== ME && backedTotal(s, p.id) >= MEETING_MIN && !activeMeeting(s, p.id);
+export const meetingsWaiting = (s) => meetingsFor(s).filter((m) => m.status === 'negotiating' && m.turn === ME).length;

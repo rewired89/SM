@@ -6,14 +6,16 @@ import * as sel from '../../store/selectors.js';
 import { navigate } from '../../lib/router.js';
 import PaymentSetup from '../settings/PaymentSetup.jsx';
 import { money, cents, pctLabel } from '../../lib/format.js';
+import { ME } from '../../data/users.js';
 
-const AMOUNTS = [0.5, 1, 2, 5];
+const AMOUNTS = [0.5, 1, 2, 5, 10, 25, 100, 500];
 const pc = (before, after) => (after - before < 0.1 ? 2 : 1);
 
 export default function SupportModal({ targetType, targetId }) {
   const { s, a } = useStore();
-  const { closeModal } = useUI();
+  const { closeModal, openModal } = useUI();
   const [amount, setAmount] = useState(0.5);
+  const [custom, setCustom] = useState('');
   const [result, setResult] = useState(null);
   const e = sel.entityOf(s, { type: targetType, id: targetId });
   const name = sel.nameOf(e);
@@ -41,6 +43,7 @@ export default function SupportModal({ targetType, targetId }) {
               <span className="secondary">{pctLabel(r.before.pct, d)} → <strong>{pctLabel(r.after.pct, d)}</strong> · {money(r.before.funded, 2)} → {money(r.after.funded, 2)}</span>
             </div>
           )}
+          {r.project && sel.backedTotal(s, r.project.id) >= 500 && r.project.ownerId !== ME && <div className="banner banner--success"><strong>🤝 You unlocked a meeting</strong><span className="secondary">You have backed {r.project.title} with {money(sel.backedTotal(s, r.project.id), 0)}. You can now ask the founder for a meeting.</span><div><TactileButton size="sm" variant="primary" onClick={() => openModal('meeting', { projectId: r.project.id })}>Request a meeting</TactileButton></div></div>}
           <ul className="alloc">{r.allocations.map((al) => <li key={al.label + al.type}><span>{al.note || al.label}</span><strong>{cents(al.amount)}</strong></li>)}</ul>
           <p className="muted">You helped move the project forward. Paid with {r.entry.method} (simulated). Prototype only: no real money moved.</p>
           <div className="row row--wrap">
@@ -52,7 +55,9 @@ export default function SupportModal({ targetType, targetId }) {
     );
   }
 
+  const left = sel.remainingToday(s);
   const hasMethod = s.payments.methods.length > 0;
+  const bad = !(amount >= 0.5) || amount > left;
   const pm = s.payments.methods.find((m) => m.id === s.payments.defaultId) || s.payments.methods[0];
   const submit = () => { const r = a.contribute({ targetType, targetId, amount }); if (r) setResult(r); };
   return (
@@ -73,13 +78,16 @@ export default function SupportModal({ targetType, targetId }) {
         <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
           <legend className="label">Choose contribution</legend>
           <div className="chips" role="radiogroup" aria-label="Contribution amount">
-            {AMOUNTS.map((v) => (
-              <button key={v} type="button" role="radio" aria-checked={amount === v} className="chip chip--amount" onClick={() => setAmount(v)}>{cents(v)}</button>
+            {AMOUNTS.filter((v) => v <= Math.max(0.5, left) || v === 0.5).map((v) => (
+              <button key={v} type="button" role="radio" aria-checked={!custom && amount === v} className="chip chip--amount" onClick={() => { setCustom(''); setAmount(v); }}>{v >= 1 ? `$${v}` : cents(v)}</button>
             ))}
           </div>
+          <div className="row" style={{ marginTop: 8 }}><label className="muted" htmlFor="custom">Other amount</label><div className="money-in"><span>$</span><input id="custom" className="input" type="number" min="0.5" max={left} step="0.5" inputMode="decimal" value={custom} onChange={(ev) => { setCustom(ev.target.value); if (Number(ev.target.value) > 0) setAmount(Number(ev.target.value)); }} /></div></div>
         </fieldset>
-        <div className="row row--between row--wrap"><span className="muted">Paying with {pm.label} · {cents(s.wallet)} left of your monthly limit</span><a className="muted" href="#/settings" onClick={closeModal}>Change</a></div>
-        <TactileButton variant="primary" size="lg" className="btn--block" onClick={submit}>Contribute {cents(amount)}</TactileButton>
+        <div className="row row--between row--wrap"><span className="muted">Paying with {pm.label} · {cents(left)} left to give today (limit ${sel.dailyLimit(s)} per day)</span><a className="muted" href="#/settings" onClick={closeModal}>Change</a></div>
+        {amount > left && <p className="danger" role="alert">That is over today's limit. You can give up to {cents(left)} more today.</p>}
+        <TactileButton variant="primary" size="lg" className="btn--block" disabled={bad} onClick={submit}>Contribute {cents(amount)}</TactileButton>
+        <p className="muted">Contributions are not investments and do not give ownership. Want to give more than ${sel.dailyLimit(s)} in a day, or talk to the founder? After backing a project with $500 you can request a meeting.</p>
       </div>)}
     </Modal>
   );

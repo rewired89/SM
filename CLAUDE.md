@@ -64,7 +64,7 @@ Inline one-button games live in the feed (`ArcadeCard`, positions 4, 9, 13 of Fo
 
 - Posts take photos (8 MB), videos (50 MB), PDF and PowerPoint (25 MB) and links (`MediaPicker`, `MediaGrid`, `LinkChips`). Files live in IndexedDB (`src/lib/media.js`), post metadata in state. Seeded media is static under `public/media`. PDFs preview inline, PPTX is download-only. Only http(s) links, GitHub repos get a repo chip. Feed tab Watch shows video posts.
 - Profile editing at `/settings` (photo, name, @username, bio, skills, hashtags, career incl. "Still in progress", social links, Open to collaborations plus collaborator types, payments, colors). The signed-in user's edits are merged into the shared user record in `StoreProvider` (`applyProfile`). Options live in `src/lib/profile.js`.
-- Payments are SIMULATED. No card number is ever requested or stored, adding a method creates a sandbox method (credit card or Cash App recommended, debit allowed with a warning). A method is required only to contribute. Monthly limit (`monthlyLimit`, `wallet` = remaining). A real build must use the processor's hosted fields.
+- Payments are SIMULATED. No card number is ever requested or stored, adding a method creates a sandbox method (credit card or Cash App recommended, debit allowed with a warning). A method is required only to contribute. Monthly limit (`wallet` = remaining). A real build must use the processor's hosted fields.
 
 ## Collaboration pages
 
@@ -85,9 +85,14 @@ The top bar search (`SearchBox`) understands `/collab_name` (jumps to that page)
 - Each created project gets a private team room (`state.rooms[projectId]`, page `/room/:projectId`). Only the founder adds or removes members. Contributing money never grants a seat. Remove keeps someone out of the room, Remove and block (`state.blocks`) also removes them from the team and stops requests, comments and room access. Founders can hide comments. Moderation is for harassment, documented on `/trust`. Accepted join requests auto-add the person to the room. Rooms show in Messages.
 - The funding review (`ReviewForm`) prefills from the application (budget, problem, risks, links, deck).
 
+## Daily limit and backer meetings
+
+- Contributions are capped at $500 per person per day (`DAILY_CAP` in `lib/profile.js`, users can lower their own limit in Settings → Payments). Any amount from $0.50 up to what is left today (`sel.remainingToday`), with preset chips and a custom amount. The top bar chip shows what is left today. Copy states contributions are not investments and give no ownership.
+- Backing one project with $500 in total (`sel.backedTotal`) unlocks Request a meeting (`MeetingModal`, `/meetings`). Founder and backer trade proposed times (propose, counter, accept, decline, cancel, `respondMeeting`) until one is accepted. Confirmed meetings show the link or place and an .ics calendar download (`lib/meetings.js`). Simulated founders counter after ~5s, simulated backers accept a founder's counter after ~4s. State: `state.meetings`.
+
 ## State shape
 
-`rooms`, `blocks`, `hiddenComments`, `appDraft`, `projectEdits`, `reviews`, `identity`, `payout`, `reports`, `profile`, `payments`, `monthlyLimit`, `theme`, `ambient`, `rewards`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
+`dailyLimit`, `meetings`, `rooms`, `blocks`, `hiddenComments`, `appDraft`, `projectEdits`, `reviews`, `identity`, `payout`, `reports`, `profile`, `payments`, `theme`, `ambient`, `rewards`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, 
 
 ## Demo path
 

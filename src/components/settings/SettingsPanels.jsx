@@ -28,7 +28,7 @@ function toAvatar(file) {
 
 function useDraft() {
   const { s, a } = useStore();
-  const [d, setD] = useState(() => structuredClone(s.profile));
+  const [d, setD] = useState(() => JSON.parse(JSON.stringify(s.profile)));
   return { s, a, d, setD, set: (k) => (e) => setD({ ...d, [k]: e.target.value }) };
 }
 

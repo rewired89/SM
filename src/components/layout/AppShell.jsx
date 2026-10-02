@@ -7,10 +7,12 @@ import Backdrop from './Backdrop.jsx';
 import OfflineBanner from '../games/OfflineBanner.jsx';
 import ModalHost from '../modals/ModalHost.jsx';
 import { useRoute } from '../../lib/router.js';
+import { useUI } from '../../store/UIProvider.jsx';
 
 export default function AppShell({ children }) {
   const { path } = useRoute();
-  useEffect(() => { window.scrollTo({ top: 0 }); document.getElementById('main')?.focus({ preventScroll: true }); }, [path]);
+  const { closeModal } = useUI();
+  useEffect(() => { closeModal(); window.scrollTo({ top: 0 }); document.getElementById('main')?.focus({ preventScroll: true }); }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
   const wide = ['/explore', '/ideas', '/projects', '/ai', '/communities', '/fund', '/play', '/rewards', '/settings'].some((p) => path === p);
   return (
     <>

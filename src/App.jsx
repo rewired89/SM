@@ -16,6 +16,7 @@ import Play from './pages/Play.jsx';
 import FundingReadiness from './pages/FundingReadiness.jsx';
 import Trust from './pages/Trust.jsx';
 import CollabPage from './pages/CollabPage.jsx';
+import Meetings from './pages/Meetings.jsx';
 import RoomPage from './pages/RoomPage.jsx';
 import Apply from './pages/Apply.jsx';
 import Settings from './pages/Settings.jsx';
@@ -43,6 +44,7 @@ function Router() {
     case 'collab': return <CollabPage key={dec} slug={dec} />;
     case 'funding': return <FundingReadiness key={dec} id={dec} />;
     case 'trust': return <Trust />;
+    case 'meetings': return <Meetings />;
     case 'room': return <RoomPage key={dec} id={dec} />;
     case 'apply': return <Apply key={dec || 'new'} id={dec} />;
     case 'settings': return <Settings />;

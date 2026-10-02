@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { StoneCard, TactileButton, Badge } from '../ui/index.jsx';
 import PaymentSetup from './PaymentSetup.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
-import { LIMIT_OPTIONS } from '../../lib/profile.js';
+import { LIMIT_OPTIONS, DAILY_CAP } from '../../lib/profile.js';
+import * as sel from '../../store/selectors.js';
 import { cents } from '../../lib/format.js';
 
 const ICON = { credit: '💳', cashapp: '💵', debit: '🏦' };
@@ -24,9 +25,9 @@ export default function PaymentsPanel() {
         ))}
       </ul>
       {adding ? <StoneCard><PaymentSetup onDone={() => setAdding(false)} /></StoneCard> : <div><TactileButton variant="primary" icon="plus" onClick={() => setAdding(true)}>Add a payment method</TactileButton></div>}
-      <div className="field"><label htmlFor="limit">Monthly contribution limit</label>
-        <select id="limit" className="select" style={{ maxWidth: 220 }} value={s.monthlyLimit} onChange={(e) => a.setLimit(Number(e.target.value))}>{LIMIT_OPTIONS.map((n) => <option key={n} value={n}>${n} per month</option>)}</select>
-        <span className="muted">{cents(s.wallet)} left this month. A limit keeps small contributions small.</span>
+      <div className="field"><label htmlFor="limit">Daily contribution limit</label>
+        <select id="limit" className="select" style={{ maxWidth: 220 }} value={sel.dailyLimit(s)} onChange={(e) => a.setLimit(Number(e.target.value))}>{LIMIT_OPTIONS.map((n) => <option key={n} value={n}>${n} per day</option>)}</select>
+        <span className="muted">{cents(sel.remainingToday(s))} left today. Nomi caps contributions at ${DAILY_CAP} per person per day. Want to give more? Request a meeting with the founder after backing a project with $500.</span>
       </div>
     </div>
   );

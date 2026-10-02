@@ -10,7 +10,15 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231b1a18'/%3E%3Cellipse cx='16' cy='24' rx='9' ry='4' fill='%23706a5f'/%3E%3Cellipse cx='16' cy='17' rx='6.5' ry='3.2' fill='%23a39b8c'/%3E%3Cellipse cx='16' cy='11' rx='4' ry='2.6' fill='%23f2a65a'/%3E%3C/svg%3E" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><p id="boot" style="font-family:system-ui,sans-serif;text-align:center;margin-top:30vh;color:#46526c">Loading Nomi…</p></div>
+    <noscript><p style="font-family:system-ui,sans-serif;text-align:center;margin-top:30vh">Nomi needs JavaScript to run.</p></noscript>
+    <script>
+      // if the app fails to start, show why instead of a blank page
+      window.addEventListener('error', function (e) {
+        var b = document.getElementById('boot');
+        if (b) b.innerHTML = 'Nomi could not start.<br><small>' + String(e.message || e.error).replace(/</g, '&lt;') + '</small><br><small>Try a hard refresh (Ctrl+Shift+R) or a newer browser.</small>';
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -4,7 +4,7 @@
 index.html                     entry, fonts, favicon
 src/main.jsx                   providers (UI → Store) + styles
 src/App.jsx                    route switch (hash router)
-src/lib/                       auth.js (accounts, email code), review.js (rubric, scoring), media.js (IndexedDB files, link parsing), profile.js (careers, collab types, socials, validation), themes.js (color pairs, 2 locked), arcade.js (Cloud Hop, Star Catch, Perfect Stop), rewards.js (sparks, shop, achievements), learn.js (adaptive pick, badges, applyLearn), router.js (useRoute/Link/navigate), format.js, analyzers.js (simulated AI outputs)
+src/lib/                       meetings.js (slots, .ics), auth.js (accounts, email code), review.js (rubric, scoring), media.js (IndexedDB files, link parsing), profile.js (careers, collab types, socials, validation), themes.js (color pairs, 2 locked), arcade.js (Cloud Hop, Star Catch, Perfect Stop), rewards.js (sparks, shop, achievements), learn.js (adaptive pick, badges, applyLearn), router.js (useRoute/Link/navigate), format.js, analyzers.js (simulated AI outputs)
 src/data/                      trust.js (80 threshold, seeded approvals), games.js (game defs, hub chips, seeded challenges), questions.js (all banks + metadata), users, projects(+milestones), ideas(+STAGES), tools(+agents), communities, posts, social (notifications, conversations, seed comments)
 src/store/
   initialState.js              defaults + 25 seeded $0.50 contributions
@@ -30,10 +30,11 @@ src/components/
   settings/                    SettingsPanels (profile, interests, links, collab), PaymentSetup, PaymentsPanel
   games/                       ArcadeCard, QuizGame, DodgeGame, RunnerGame, prompts, ResultScreen, GameCard, GameBreak, GameResultCard, BrainMap, BadgeShelf, LearningToday, OfflineBanner, useLoop
   common/ThemePicker.jsx       color pair picker
-  modals/                      SupportModal, CollaborationModal, CreateModal (+Challenge), ThemeModal, PaymentModal, ModalHost
-src/pages/                     Apply (project application wizard), RoomPage (private team room), FundingReadiness, Trust, CollabPage, Settings, Rewards, ArcadePage, Play (hub), PlayGame, Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
+  meetings/                    MeetingCard (accept, counter, decline, .ics)
+  modals/                      MeetingModal, SupportModal, CollaborationModal, CreateModal (+Challenge), ThemeModal, PaymentModal, ModalHost
+src/pages/                     Meetings, Apply (project application wizard), RoomPage (private team room), FundingReadiness, Trust, CollabPage, Settings, Rewards, ArcadePage, Play (hub), PlayGame, Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
 ```
 
-Routes: `/apply[/:id]`, `/room/:projectId`, `/funding/:projectId`, `/trust`, `/collab_<name>` (and `/collab/:slug`), `/settings`, `/rewards`, `/arcade/:id[?offline=1]`, `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.
+Routes: `/meetings`, `/apply[/:id]`, `/room/:projectId`, `/funding/:projectId`, `/trust`, `/collab_<name>` (and `/collab/:slug`), `/settings`, `/rewards`, `/arcade/:id[?offline=1]`, `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.
 
 Docs: `docs/TRUST_AND_SAFETY.md` (what is simulated, what a real build needs, open legal questions).

@@ -48,7 +48,14 @@ const demoState = () => ({
   theme: 'sky',
   profile: seedProfile(),
   payments: { methods: [], defaultId: null },
-  monthlyLimit: 20,
+  dailyLimit: 500,
+  meetings: (() => {
+    const at = (days, h, m = 0) => { const d = new Date(); d.setDate(d.getDate() + days); d.setHours(h, m, 0, 0); return d.toISOString(); };
+    return [
+      { id: 'mt_s1', projectId: 'p_acheron', backerId: 'u_ines', founderId: 'u_dayana', topic: 'Explore working together', message: 'I backed Acheron with $500 because I can run a pilot with cultured networks. Could we talk through the voltage protocol?', duration: 30, format: 'Video call', place: '', slots: [at(1, 10), at(2, 15), at(3, 11, 30)], proposedBy: 'u_ines', turn: 'u_dayana', status: 'negotiating', final: null, createdAt: minsAgoToTs(180), history: [{ by: 'u_ines', type: 'propose', ts: minsAgoToTs(180) }] },
+      { id: 'mt_s2', projectId: 'p_hsip', backerId: 'u_marcus', founderId: 'u_dayana', topic: 'Ask questions about the work', message: 'Quick sync on the update signing design.', duration: 30, format: 'Video call', place: 'https://meet.example.com/hsip-sync', slots: [at(4, 9)], proposedBy: 'u_dayana', turn: null, status: 'confirmed', final: { slot: at(4, 9), place: 'https://meet.example.com/hsip-sync' }, createdAt: minsAgoToTs(1500), history: [{ by: 'u_marcus', type: 'propose', ts: minsAgoToTs(1500) }, { by: 'u_dayana', type: 'counter', ts: minsAgoToTs(1400) }, { by: 'u_marcus', type: 'accept', ts: minsAgoToTs(1300) }] },
+    ];
+  })(),
   learn: seedLearn(),
   rewards: seedRewards(),
   ambient: true,
@@ -86,6 +93,7 @@ const freshState = (accountId) => {
     following: [], liked: [], saved: [], joined: [], interested: [], deltas: {}, contributions: [], comments: {},
     notifications: [{ id: 'n_welcome', type: 'follow', text: 'Welcome to Nomi! Set up your profile, then explore a project or play a quick game.', to: '/settings', ts: Date.now(), read: false }],
     rooms: {}, blocks: {}, hiddenComments: [], appDraft: null, projectEdits: {},
+    meetings: [],
     conversations: [], createdPosts: [], created: { projects: [], ideas: [], tools: [], communities: [], milestones: [], challenges: [] },
     collabRequests: [], toolUses: {}, microSeen: {}, viewed: [], creatorUpdated: [],
     learn: blankLearn(), rewards: seedRewards(),

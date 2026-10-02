@@ -10,6 +10,7 @@ import { applyWin, ACHIEVEMENTS, SHOP, CHEER_COST } from '../lib/rewards.js';
 import { saveAttachments, parseLink } from '../lib/media.js';
 import { scoreProject, pdfPages } from '../lib/review.js';
 import { THRESHOLD } from '../data/trust.js';
+import { fmtSlot } from '../lib/meetings.js';
 import { users } from '../data/users.js';
 import { uid, cents, pctLabel } from '../lib/format.js';
 
@@ -31,7 +32,7 @@ function load(accountId) {
     const saved = JSON.parse(raw);
     if (saved.v !== 1) return initialState(accountId);
     const base = initialState(accountId);
-    const out = { ...base, ...saved, created: { ...base.created, ...saved.created } };
+    const out = { ...base, ...saved, dailyLimit: saved.dailyLimit ?? 500, meetings: saved.meetings ?? base.meetings, created: { ...base.created, ...saved.created } };
     out.collabRequests = (out.collabRequests || []).map((r) => ({ fromId: ME, role: 'Collaborator', status: 'pending', ...r }));
     if (out.profile?.collabTypes) out.profile = { ...out.profile, collabTypes: [...new Set(out.profile.collabTypes.map((t) => (t === 'Tech with AI collaborator' ? 'Tech with AI · Vibe Code' : t)))] };
     return out;
@@ -39,6 +40,7 @@ function load(accountId) {
 }
 
 const SPLIT_MICRO = { creator: 0.4, pool: 0.4, infra: 0.2 };
+const kindTone = (k) => (k === 'accept' ? 'success' : 'default');
 const ROOM_REPLIES = ['Got it, thanks.', 'Good question. I will look into it tonight.', 'Sounds right to me.', 'Can you share the latest numbers?', 'I can help with that this week.', 'Agreed. Let us write it down in the plan.'];
 const REPLIES = [
   'Thanks for reaching out, your intro is exactly what we needed. Can you share a bit about what you have built before?',
@@ -94,7 +96,8 @@ export function StoreProvider({ children, accountId }) {
       contribute({ targetType, targetId, amount, micro = false }) {
         const s = ref.current;
         if (!s.payments.methods.length) { toast('Add a payment method first. It only takes a moment.', { tone: 'danger' }); openModal('payment'); return null; }
-        if (s.wallet < amount) { toast('Monthly limit reached. Raise it in Settings → Payments.', { tone: 'danger', to: '/settings' }); return null; }
+        if (!(amount >= 0.5)) { toast('The smallest contribution is $0.50.', { tone: 'danger' }); return null; }
+        if (amount > sel.remainingToday(s)) { toast(`The daily limit is $${sel.dailyLimit(s)}. You can give ${cents(sel.remainingToday(s))} more today. It resets at midnight.`, { tone: 'danger', ms: 5500 }); return null; }
         const pm = s.payments.methods.find((m) => m.id === s.payments.defaultId) || s.payments.methods[0];
         const e = sel.entityOf(s, { type: targetType, id: targetId });
         const gate = sel.fundable(s, targetType, e);
@@ -206,7 +209,7 @@ export function StoreProvider({ children, accountId }) {
       addPayment(m) { dispatch({ type: 'PAY_ADD', method: { id: uid('pm'), createdAt: Date.now(), ...m } }); toast(`${m.label} added (simulated)`, { tone: 'success' }); },
       removePayment(id) { dispatch({ type: 'PAY_REMOVE', id }); toast('Payment method removed'); },
       setDefaultPayment: (id) => dispatch({ type: 'PAY_DEFAULT', id }),
-      setLimit(n) { dispatch({ type: 'LIMIT', n }); toast(`Monthly limit: $${n}`); },
+      setLimit(n) { dispatch({ type: 'LIMIT', n }); toast(`Daily limit: $${n}`); },
       async publishPost({ type = 'post', text, tags = [], items = [], links = [], ref: r, extra }) {
         const media = await saveAttachments(items);
         return mk.createPost({ type, text, tags, ref: r, extra, media, links });
@@ -258,6 +261,49 @@ export function StoreProvider({ children, accountId }) {
         toast('Funding terms unlocked. Review the numbers and submit again.');
         return true;
       },
+      requestMeeting(projectId, d) {
+        const s = ref.current;
+        const p = sel.projectById(s, projectId);
+        if (!sel.canRequestMeeting(s, p)) { toast('Meetings unlock after you back a project with $500.', { tone: 'danger' }); return false; }
+        const id = uid('mt');
+        const meeting = { id, projectId, backerId: ME, founderId: p.ownerId, topic: d.topic, message: d.message, duration: d.duration, format: d.format, place: '', slots: d.slots, proposedBy: ME, turn: p.ownerId, status: 'negotiating', final: null, createdAt: Date.now(), history: [{ by: ME, type: 'propose', ts: Date.now() }] };
+        dispatch({ type: 'MEETING_SET', meeting });
+        dispatch({ type: 'NOTE', noteType: 'collab', text: `Meeting request sent to ${sel.userById(p.ownerId).name} for ${p.title}.`, to: '/meetings' });
+        toast('Meeting request sent', { tone: 'success' });
+        setTimeout(() => {
+          const cur = ref.current.meetings.find((m) => m.id === id);
+          if (!cur || cur.status !== 'negotiating') return;
+          const shift = (iso, h) => new Date(new Date(iso).getTime() + h * 3600000).toISOString();
+          const counter = { ...cur, slots: [shift(cur.slots[0], 24), shift(cur.slots[0], 26), shift(cur.slots[0], 48)], place: cur.format === 'Video call' ? `https://meet.example.com/${sel.collabSlug(p)}` : cur.format === 'In person' ? 'A coffee shop near me, I will send the address' : '', proposedBy: p.ownerId, turn: ME, note: 'Those times are tight for me, how about one of these?', history: [...cur.history, { by: p.ownerId, type: 'counter', ts: Date.now() }] };
+          dispatch({ type: 'MEETING_SET', meeting: counter });
+          dispatch({ type: 'NOTE', noteType: 'collab', text: `${sel.userById(p.ownerId).name} suggested new times for your meeting about ${p.title}.`, to: '/meetings' });
+          toast(`${sel.userById(p.ownerId).name} suggested new times`, { to: '/meetings' });
+        }, 5000);
+        return true;
+      },
+      respondMeeting(id, kind, d = {}) {
+        const m = ref.current.meetings.find((x) => x.id === id);
+        const p = sel.projectById(ref.current, m.projectId);
+        const other = m.backerId === ME ? m.founderId : m.backerId;
+        const done = (meeting, text) => { dispatch({ type: 'MEETING_SET', meeting }); toast(text, { tone: kindTone(kind) }); };
+        const hist = (type) => [...m.history, { by: ME, type, ts: Date.now() }];
+        if (kind === 'accept') {
+          const place = d.place ?? m.place;
+          done({ ...m, status: 'confirmed', turn: null, place, final: { slot: d.slot, place }, history: hist('accept') }, 'Meeting confirmed');
+          dispatch({ type: 'NOTE', noteType: 'collab', text: `Meeting with ${sel.userById(other).name} confirmed for ${p.title}.`, to: '/meetings' });
+        } else if (kind === 'counter') {
+          const next = { ...m, slots: d.slots, place: d.place ?? m.place, proposedBy: ME, turn: other, note: d.note || '', history: hist('counter') };
+          done(next, 'New times sent');
+          if (m.founderId === ME) setTimeout(() => {
+            const cur = ref.current.meetings.find((x) => x.id === id);
+            if (!cur || cur.status !== 'negotiating' || cur.turn !== other) return;
+            dispatch({ type: 'MEETING_SET', meeting: { ...cur, status: 'confirmed', turn: null, final: { slot: cur.slots[0], place: cur.place }, history: [...cur.history, { by: other, type: 'accept', ts: Date.now() }] } });
+            dispatch({ type: 'NOTE', noteType: 'collab', text: `${sel.userById(other).name} accepted ${fmtSlot(cur.slots[0])}. Your meeting about ${p.title} is confirmed.`, to: '/meetings' });
+            toast(`${sel.userById(other).name} accepted. Meeting confirmed`, { tone: 'success', to: '/meetings' });
+          }, 4000);
+        } else if (kind === 'decline') done({ ...m, status: 'declined', turn: null, history: hist('decline') }, 'Request declined');
+        else if (kind === 'cancel') done({ ...m, status: 'cancelled', turn: null, history: hist('cancel') }, 'Meeting cancelled');
+      },
       hideComment: (id) => { dispatch({ type: 'HIDE_COMMENT', id }); toast('Comment hidden'); },
       blockUser(projectId, userId) { dispatch({ type: 'BLOCK', projectId, userId }); toast(`${sel.userById(userId).name} can no longer join, comment or see the room`); },
       unblockUser(projectId, userId) { dispatch({ type: 'UNBLOCK', projectId, userId }); toast('Unblocked'); },
@@ -308,7 +354,7 @@ export function StoreProvider({ children, accountId }) {
       },
       createChallenge(d) {
         const id = `ch_${uid('n')}`;
-        const entity = { id, title: 'Community challenge', emoji: '🏆', skill: 'community challenge', sourceType: 'community', topic: d.category, takeaway: d.explanation.split(/(?<=[.!?])\s/)[0], authorId: ME, ...d };
+        const entity = { id, title: 'Community challenge', emoji: '🏆', skill: 'community challenge', sourceType: 'community', topic: d.category, takeaway: (d.explanation.match(/[^.!?]+[.!?]*/) || [d.explanation])[0].trim(), authorId: ME, ...d };
         dispatch({ type: 'CREATE', kind: 'challenge', entity });
         toast('Challenge published', { tone: 'success' });
         return id;

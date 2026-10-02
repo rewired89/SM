@@ -51,6 +51,8 @@ export default function ProjectPage({ id }) {
           {!mine && <TactileButton variant="ghost" onClick={() => { const r = prompt('What is wrong with this project? A human reviewer will read it.'); if (r && r.trim()) a.reportProject(p.id, r.trim()); }}>Report</TactileButton>}
           {mine && <TactileButton icon="edit" to={`/apply/${p.id}`}>Edit project</TactileButton>}
           {mine && p.fundingLocked && sel.fundedOf(s, 'project', p) === 0 && s.created.projects.some((x) => x.id === p.id) && <TactileButton variant="ghost" onClick={() => { if (confirm('Withdraw the funding terms so you can change the amounts? Funding turns off until you submit and pass review again.')) { if (a.withdrawFunding(p.id)) navigate(`/apply/${p.id}`); } }}>Withdraw funding terms</TactileButton>}
+          {sel.canRequestMeeting(s, p) && <TactileButton variant="primary" icon="calendar" onClick={() => openModal('meeting', { projectId: p.id })}>Request a meeting</TactileButton>}
+          {mine && (s.meetings || []).some((x) => x.projectId === p.id && x.founderId === ME && x.status === 'negotiating') && <TactileButton icon="calendar" to="/meetings">Meeting requests ({(s.meetings || []).filter((x) => x.projectId === p.id && x.founderId === ME && x.status === 'negotiating').length})</TactileButton>}
           {(mine || sel.roomOf(s, p.id)?.members.includes(ME)) && <TactileButton icon="mail" to={`/room/${p.id}`}>Team room</TactileButton>}
           {mine && <TactileButton variant="primary" icon="edit" onClick={() => openModal('create', { start: 'update', projectId: p.id })}>Post an update</TactileButton>}
           {!mine && <TactileButton onClick={() => a.cheer(p.id, p.title)}>👏 Cheer · 5 ✦{s.rewards.cheers[p.id] ? ` (${s.rewards.cheers[p.id]})` : ''}</TactileButton>}
@@ -71,6 +73,8 @@ export default function ProjectPage({ id }) {
           ))}
         </StoneCard>
       </section>
+
+      {!mine && sel.fundable(s, 'project', p).ok && !sel.canRequestMeeting(s, p) && !sel.activeMeeting(s, p.id) && <p className="muted">🤝 Back this project with {money(500, 0)} in total to unlock a meeting with the founder. You have given {money(sel.backedTotal(s, p.id), 2)} so far.</p>}
 
       <section className="stack" aria-label="Funding milestones">
         <h2>Funding milestones</h2>

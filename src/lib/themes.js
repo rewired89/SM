@@ -14,6 +14,7 @@ const T = (id, name, c1, c2) => ({
 
 export const THEMES = [
   T('sky', 'Sky & Blush', '#1f6fff', '#ff8fc1'),
+  T('blushsky', 'Blush & Sky', '#e0407f', '#6bb6ff'),
   T('pinkteal', 'Pink & Teal', '#d6307c', '#19c2ae'),
   T('tealpink', 'Teal & Pink', '#0b8277', '#ff7fb5'),
   T('pinkpurple', 'Pink & Purple', '#d6307c', '#9b6bff'),

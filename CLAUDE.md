@@ -46,7 +46,7 @@ Light soft-UI theme from the reference images: pale stone base with grain, sky-b
 
 ## Themes
 
-`src/lib/themes.js`: six two-color pairs (Sky & Blush, Pink & Teal, Teal & Pink, Pink & Purple, Purple & Teal, Violet & Gold). `applyTheme` sets CSS variables (`--accent`, `--accent2`, `--hero-*`, `--bg-a/b`) on `<html>`. Picker in the top bar palette button and Profile → Appearance. Never hardcode blue or pink in CSS, use the variables.
+`src/lib/themes.js`: seven two-color pairs (Sky & Blush, Blush & Sky, Pink & Teal, Teal & Pink, Pink & Purple, Purple & Teal, Violet & Gold). `applyTheme` sets CSS variables (`--accent`, `--accent2`, `--hero-*`, `--bg-a/b`) on `<html>`. Picker in the top bar palette button and Profile → Appearance. Never hardcode blue or pink in CSS, use the variables.
 
 ## Play & Learn
 

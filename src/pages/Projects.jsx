@@ -18,7 +18,7 @@ export default function Projects() {
   if (only === 'funding') list = list.filter((p) => sel.projectPct(s, p) < 100).sort((a, b) => sel.projectPct(s, b) - sel.projectPct(s, a));
   return (
     <div className="stack stack--lg">
-      <div className="row row--between row--wrap"><div><h1>Projects</h1><p className="secondary">Things people are actively building. Read the updates, then help move them forward.</p></div><TactileButton variant="primary" icon="plus" onClick={() => openModal('create', { start: 'project' })}>Start a project</TactileButton></div>
+      <div className="row row--between row--wrap"><div><h1>Projects</h1><p className="secondary">Things people are actively building. Read the updates, then help move them forward.</p></div><TactileButton variant="primary" icon="plus" to="/apply">Post a project</TactileButton></div>
       <Tabs label="Category" tabs={CATS.map((c) => ({ id: c, label: c }))} value={cat} onChange={setCat} />
       <div className="chips" role="group" aria-label="Filters">
         {[['all', 'All'], ['following', 'Following'], ['collab', 'Looking for collaborators'], ['funding', 'Needs funding']].map(([id, label]) => (

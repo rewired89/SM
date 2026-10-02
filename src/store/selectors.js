@@ -13,7 +13,7 @@ const basePostsTs = basePosts.map((p) => ({ ...p, ts: minsAgoToTs(p.m) }));
 export const allUsers = () => users;
 export const userById = (id) => users.find((u) => u.id === id);
 export const me = () => userById(ME);
-export const allProjects = (s) => [...projects, ...s.created.projects];
+export const allProjects = (s) => [...projects.map((p) => (s.projectEdits?.[p.id] ? { ...p, ...s.projectEdits[p.id] } : p)), ...s.created.projects];
 export const allIdeas = (s) => [...s.created.ideas, ...ideas];
 export const allTools = (s) => [...s.created.tools, ...tools];
 export const allCommunities = (s) => [...s.created.communities, ...communities];
@@ -57,10 +57,14 @@ export const followerCount = (s, type, e) => e.followers + (has(s, 'following', 
 export const memberCount = (s, c) => c.members + (has(s, 'joined', c.id) ? 1 : 0);
 export const interestCount = (s, i) => i.interested + (has(s, 'interested', i.id) ? 1 : 0);
 export const likeCount = (s, p) => p.likes + (has(s, 'liked', p.id) ? 1 : 0);
-export const commentsFor = (s, key) => [
-  ...(commentsSeed[key] || []).map((c) => ({ ...c, ts: minsAgoToTs(c.m) })),
-  ...(s.comments[key] || []),
-];
+export const commentsFor = (s, key) => {
+  const pid = key.startsWith('project:') ? key.slice(8) : null;
+  const blocked = pid ? s.blocks?.[pid] || [] : [];
+  return [
+    ...(commentsSeed[key] || []).map((c) => ({ ...c, ts: minsAgoToTs(c.m) })),
+    ...(s.comments[key] || []),
+  ].filter((c) => !blocked.includes(c.userId) && !(s.hiddenComments || []).includes(c.id));
+};
 export const commentCount = (s, key, base = 0) => base + (s.comments[key] || []).length;
 
 export const toolSupport = (s, t) => (t.supported || 0) + (s.deltas[K('tool', t.id)] || 0);
@@ -151,12 +155,13 @@ export function collabTarget(s, key) {
 }
 /* base team plus anyone whose join request the founder accepted */
 export function collabTeam(s, type, e) {
-  const base = type === 'project' ? e.team : [{ userId: e.authorId, role: 'Idea author' }];
+  const gone = s.blocks?.[e.id] || [];
+  const base = (type === 'project' ? e.team : [{ userId: e.authorId, role: 'Idea author' }]).filter((m) => !gone.includes(m.userId));
   const have = new Set(base.map((m) => m.userId));
   const added = s.collabRequests.filter((r) => r.targetType === type && r.targetId === e.id && r.status === 'accepted' && !have.has(r.fromId)).map((r) => ({ userId: r.fromId, role: r.role, joined: true }));
   return [...base, ...added];
 }
-export const incomingRequests = (s, type, e) => s.collabRequests.filter((r) => r.targetType === type && r.targetId === e.id && r.fromId !== ME);
+export const incomingRequests = (s, type, e) => s.collabRequests.filter((r) => r.targetType === type && r.targetId === e.id && r.fromId !== ME && !isBlocked(s, e.id, r.fromId));
 export const myRequests = (s, type, e) => s.collabRequests.filter((r) => r.targetType === type && r.targetId === e.id && r.fromId === ME);
 export function collabStats(s, type, e) {
   if (type === 'project') {
@@ -169,7 +174,7 @@ export function collabStats(s, type, e) {
 const words = (t) => t.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !['collaborator', 'developer', 'researcher', 'engineer'].includes(w) || ['python', 'rust'].includes(w));
 export function collabCandidates(s, type, e, role) {
   const wants = role ? words(role) : [...(Array.isArray(e.looking) ? e.looking : []).filter((l) => l.open !== false).map((l) => l.skill), ...(e.needs || []), ...(e.tags || [])].flatMap(words);
-  const inTeam = new Set(collabTeam(s, type, e).map((t) => t.userId));
+  const inTeam = new Set([...collabTeam(s, type, e).map((t) => t.userId), ...(s.blocks?.[e.id] || [])]);
   return allUsers().filter((u) => !inTeam.has(u.id) && u.openToCollab).map((u) => {
     const have = [...u.skills, ...u.collabTypes, ...(u.interests || [])];
     const hit = have.filter((h) => words(h).some((w) => wants.includes(w)));
@@ -195,3 +200,9 @@ export function fundable(s, type, e) {
   }
   return { ok: reasons.length === 0, reasons };
 }
+
+/* ---------- founder moderation and team rooms ---------- */
+export const isBlocked = (s, projectId, userId) => (s.blocks?.[projectId] || []).includes(userId);
+export const roomOf = (s, projectId) => s.rooms?.[projectId] || null;
+export const myRooms = (s) => Object.entries(s.rooms || {}).filter(([, r]) => r.members.includes(ME)).map(([projectId, r]) => ({ projectId, ...r }));
+export const budgetTotal = (items) => (items || []).reduce((a, b) => a + (Number(b.amount) || 0), 0);

@@ -7,7 +7,7 @@ import { ME } from '../data/users.js';
 import { applyTheme } from '../lib/themes.js';
 import { applyLearn, BADGES } from '../lib/learn.js';
 import { applyWin, ACHIEVEMENTS, SHOP, CHEER_COST } from '../lib/rewards.js';
-import { saveAttachments } from '../lib/media.js';
+import { saveAttachments, parseLink } from '../lib/media.js';
 import { scoreProject, pdfPages } from '../lib/review.js';
 import { THRESHOLD } from '../data/trust.js';
 import { users } from '../data/users.js';
@@ -39,6 +39,7 @@ function load(accountId) {
 }
 
 const SPLIT_MICRO = { creator: 0.4, pool: 0.4, infra: 0.2 };
+const ROOM_REPLIES = ['Got it, thanks.', 'Good question. I will look into it tonight.', 'Sounds right to me.', 'Can you share the latest numbers?', 'I can help with that this week.', 'Agreed. Let us write it down in the plan.'];
 const REPLIES = [
   'Thanks for reaching out, your intro is exactly what we needed. Can you share a bit about what you have built before?',
   'Love this. Let us set up a quick call this week and map out where you can help first.',
@@ -154,6 +155,7 @@ export function StoreProvider({ children, accountId }) {
         const ownerId = e.ownerId || e.authorId;
         const owner = sel.userById(ownerId);
         const cvId = `cv_${ownerId.replace('u_', '')}`;
+        if (sel.isBlocked(s, targetId, ME)) { toast('The founder is not accepting requests from you.', { tone: 'danger' }); return; }
         const id = uid('cr');
         dispatch({ type: 'COLLAB', request: { id, targetType, targetId, fromId: ME, role, skill, message, ts: Date.now(), status: 'pending' } });
         dispatch({ type: 'MSG', cvId, userId: ownerId, from: 'me', text: `Request to join ${sel.nameOf(e)} as ${role} (${skill}): ${message || 'Happy to help where useful.'}` });
@@ -162,7 +164,13 @@ export function StoreProvider({ children, accountId }) {
         setTimeout(() => {
           const founder = role === 'Co-founder';
           dispatch({ type: 'MSG', cvId, userId: ownerId, from: 'them', text: founder ? 'Thanks for the offer. Co-founding is a big step, so let us talk first. When are you free this week?' : REPLIES[Math.floor(Math.random() * REPLIES.length)] });
-          if (!founder) dispatch({ type: 'COLLAB_DECIDE', id, status: 'accepted' });
+          if (!founder) {
+            dispatch({ type: 'COLLAB_DECIDE', id, status: 'accepted' });
+            if (targetType === 'project') {
+              const room = ref.current.rooms[targetId];
+              dispatch({ type: 'ROOM_SET', projectId: targetId, room: room ? { ...room, members: [...new Set([...room.members, ME])] } : { name: `${sel.nameOf(e)} team room`, ownerId, members: [ownerId, ME], createdAt: Date.now(), messages: [{ id: uid('rm'), system: true, text: 'Room created by the founder.', ts: Date.now() }] } });
+            }
+          }
           dispatch({ type: 'NOTE', noteType: 'collab', text: founder ? `${owner.name} wants to talk before deciding on your co-founder request for ${sel.nameOf(e)}.` : `${owner.name} accepted you as ${role} on ${sel.nameOf(e)}.`, to: founder ? `/messages/${cvId}` : sel.collabPath(e) });
           toast(founder ? `${owner.name} wants to talk first` : `${owner.name} said yes! You joined ${sel.nameOf(e)}`, { tone: founder ? 'default' : 'success', to: sel.collabPath(e) });
         }, 5000);
@@ -219,6 +227,75 @@ export function StoreProvider({ children, accountId }) {
       setIdentity(identity) { dispatch({ type: 'IDENTITY', identity }); toast(identity.status === 'verified' ? 'Identity verified' : 'Verification did not pass', { tone: identity.status === 'verified' ? 'success' : 'danger' }); },
       connectPayout() { dispatch({ type: 'PAYOUT', payout: { connected: true, label: 'Sandbox payout account', connectedAt: Date.now() } }); toast('Payout account connected (sandbox)', { tone: 'success' }); },
       reportProject(projectId, reason) { dispatch({ type: 'REPORT', report: { id: uid('rp'), projectId, reason, ts: Date.now() } }); toast('Thanks. A human reviewer will take a look.', { tone: 'success' }); },
+      saveDraft: (draft) => dispatch({ type: 'DRAFT', draft }),
+      async submitApplication(app, items) {
+        const media = await saveAttachments(items);
+        const id = `p_${uid('n')}`;
+        const budget = app.budget.map((b) => ({ item: b.item.trim(), amount: Number(b.amount), why: b.why.trim() }));
+        const askTotal = sel.budgetTotal(budget);
+        const milestones = app.milestones.map((m) => ({ id: uid('m'), projectId: id, title: m.title.trim(), needed: Number(m.amount), unlocks: m.unlocks.trim(), evidence: m.evidence.trim() }));
+        const needs = app.needs.split(',').map((x) => x.trim()).filter(Boolean);
+        const links = [app.github, app.website, app.youtube].map((u) => parseLink(u)).filter(Boolean);
+        const entity = { id, title: app.title.trim(), tagline: app.tagline.trim(), kind: 'Project', status: 'Just started', category: app.category, subs: [], tags: app.tags, about: app.about.trim(), problem: app.problem.trim(), audience: app.audience.trim(), approach: app.approach.trim(), experiments: app.experiments.trim(), timeline: app.timeline.trim(), success: app.success.trim(), risks: app.risks.trim(), team: [{ userId: ME, role: 'Founder' }], needs, looking: needs.map((n) => ({ skill: n, open: true })), ownerId: ME, funded: 0, followers: 0, progress: [{ label: 'Planning', pct: 5 }], budget, askTotal, fundingLocked: true, lockedAt: Date.now(), media, links };
+        const post = { id: uid('s'), type: 'post', authorId: ME, ts: Date.now(), text: `Started a new project: ${entity.title}. ${entity.tagline}`, tags: app.tags, likes: 0, comments: 0, ref: { type: 'project', id }, media, links, createdByMe: true };
+        dispatch({ type: 'CREATE', kind: 'project', entity, milestones, post });
+        dispatch({ type: 'ROOM_SET', projectId: id, room: { name: `${entity.title} team room`, ownerId: ME, members: [ME], createdAt: Date.now(), messages: [{ id: uid('rm'), system: true, text: 'Room created. Add the collaborators you trust.', ts: Date.now() }] } });
+        dispatch({ type: 'DRAFT', draft: null });
+        toast('Project posted. Next: verify and request funding.', { tone: 'success' });
+        return id;
+      },
+      async updateProject(id, patch, items = [], money) {
+        const saved = await saveAttachments(items);
+        const cur = sel.projectById(ref.current, id);
+        dispatch({ type: 'PROJECT_EDIT', id, patch: { ...patch, ...(saved.length ? { media: [...(cur.media || []), ...saved] } : {}) } });
+        if (money) dispatch({ type: 'PROJECT_MONEY', id, patch: { budget: money.budget, askTotal: money.askTotal, fundingLocked: true, lockedAt: Date.now() }, milestones: money.milestones });
+        toast('Project updated', { tone: 'success' });
+      },
+      withdrawFunding(id) {
+        const p = sel.projectById(ref.current, id);
+        if (sel.fundedOf(ref.current, 'project', p) > 0) { toast('Money has already been raised, so the funding terms stay locked.', { tone: 'danger' }); return false; }
+        dispatch({ type: 'FUNDING_UNLOCK', id });
+        toast('Funding terms unlocked. Review the numbers and submit again.');
+        return true;
+      },
+      hideComment: (id) => { dispatch({ type: 'HIDE_COMMENT', id }); toast('Comment hidden'); },
+      blockUser(projectId, userId) { dispatch({ type: 'BLOCK', projectId, userId }); toast(`${sel.userById(userId).name} can no longer join, comment or see the room`); },
+      unblockUser(projectId, userId) { dispatch({ type: 'UNBLOCK', projectId, userId }); toast('Unblocked'); },
+      createRoom(projectId) {
+        const p = sel.projectById(ref.current, projectId);
+        dispatch({ type: 'ROOM_SET', projectId, room: { name: `${p.title} team room`, ownerId: ME, members: [ME], createdAt: Date.now(), messages: [{ id: uid('rm'), system: true, text: 'Room created. Add the collaborators you trust.', ts: Date.now() }] } });
+      },
+      addRoomMember(projectId, userId) {
+        const r = ref.current.rooms[projectId];
+        if (!r || r.ownerId !== ME || r.members.includes(userId) || sel.isBlocked(ref.current, projectId, userId)) return;
+        dispatch({ type: 'ROOM_SET', projectId, room: { ...r, members: [...r.members, userId], messages: [...r.messages, { id: uid('rm'), system: true, text: `${sel.userById(userId).name} was added to the room`, ts: Date.now() }] } });
+        toast(`${sel.userById(userId).name} added`);
+      },
+      removeRoomMember(projectId, userId, block) {
+        const r = ref.current.rooms[projectId];
+        if (!r || r.ownerId !== ME || userId === ME) return;
+        dispatch({ type: 'ROOM_SET', projectId, room: { ...r, members: r.members.filter((m) => m !== userId), messages: [...r.messages, { id: uid('rm'), system: true, text: `${sel.userById(userId).name} was removed from the room`, ts: Date.now() }] } });
+        if (block) mk.blockUser(projectId, userId); else toast(`${sel.userById(userId).name} removed from the room`);
+      },
+      leaveRoom(projectId) {
+        const r = ref.current.rooms[projectId];
+        if (!r || r.ownerId === ME) return;
+        dispatch({ type: 'ROOM_SET', projectId, room: { ...r, members: r.members.filter((m) => m !== ME), messages: [...r.messages, { id: uid('rm'), system: true, text: `${sel.userById(ME).name} left the room`, ts: Date.now() }] } });
+        toast('You left the room');
+      },
+      sendRoomMessage(projectId, text) {
+        const r = ref.current.rooms[projectId];
+        if (!r || !r.members.includes(ME) || !text.trim()) return;
+        dispatch({ type: 'ROOM_SET', projectId, room: { ...r, messages: [...r.messages, { id: uid('rm'), from: ME, text: text.trim(), ts: Date.now() }] } });
+        const others = r.members.filter((m) => m !== ME);
+        if (others.length) setTimeout(() => {
+          const cur = ref.current.rooms[projectId];
+          if (!cur) return;
+          const from = others.filter((m) => cur.members.includes(m))[Math.floor(Math.random() * others.length)];
+          if (!from) return;
+          dispatch({ type: 'ROOM_SET', projectId, room: { ...cur, messages: [...cur.messages, { id: uid('rm'), from, text: ROOM_REPLIES[Math.floor(Math.random() * ROOM_REPLIES.length)], ts: Date.now() }] } });
+        }, 2600);
+      },
       setAmbient: (on) => dispatch({ type: 'AMBIENT', on }),
       learn(payload) {
         const { earned } = applyLearn(ref.current.learn, payload);

@@ -79,9 +79,15 @@ The top bar search (`SearchBox`) understands `/collab_name` (jumps to that page)
 - `/funding/:projectId` is the creator checklist: identity (`IdentityFlow`, sandbox outcomes), project review (`ReviewForm`, `ReviewResult`), payout. `TrustBadge` shows status on cards and pages. Report button on projects. Never collect real ID or card data in the prototype.
 - Plan, vendors and legal questions: `docs/TRUST_AND_SAFETY.md`.
 
+## Project application, edits and team rooms
+
+- Create → Project and the Post a project button open `/apply` (`pages/Apply.jsx`), a 5 step wizard: basics (name, what it is, problem), the work (approach, detailed experiments, timeline, success, risks), the money (budget lines with reasons, milestones with unlocks and evidence, must sum exactly, $50 to $50,000), materials (deck, links), review. Drafts autosave to `state.appDraft`. Submitting (`submitApplication`) locks the funding terms (`fundingLocked`). Funding amounts can never change while locked. Founders can edit the story any time (`/apply/:id`, `updateProject`, seeded projects use the `projectEdits` overlay), and can withdraw the terms only while $0 is raised (`withdrawFunding`, resets the review).
+- Each created project gets a private team room (`state.rooms[projectId]`, page `/room/:projectId`). Only the founder adds or removes members. Contributing money never grants a seat. Remove keeps someone out of the room, Remove and block (`state.blocks`) also removes them from the team and stops requests, comments and room access. Founders can hide comments. Moderation is for harassment, documented on `/trust`. Accepted join requests auto-add the person to the room. Rooms show in Messages.
+- The funding review (`ReviewForm`) prefills from the application (budget, problem, risks, links, deck).
+
 ## State shape
 
-`reviews`, `identity`, `payout`, `reports`, `profile`, `payments`, `monthlyLimit`, `theme`, `ambient`, `rewards`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
+`rooms`, `blocks`, `hiddenComments`, `appDraft`, `projectEdits`, `reviews`, `identity`, `payout`, `reports`, `profile`, `payments`, `monthlyLimit`, `theme`, `ambient`, `rewards`, `learn`, `created.challenges`, `following` (`type:id`), `liked`, `saved`, `joined`, `interested`, `deltas` (funding per `type:id`), `contributions`, `comments` (`post:id`, `idea:id`, `project:id`, `disc:id`), `notifications`, `conversations`, `createdPosts`, `created.{projects,ideas,tools,communities,milestones}`, `collabRequests`, `toolUses`, `viewed`, `wallet`.
 
 ## Demo path
 

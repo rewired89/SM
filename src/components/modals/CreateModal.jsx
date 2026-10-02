@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, TactileButton, Icon } from '../ui/index.jsx';
 import { useStore } from '../../store/StoreProvider.jsx';
 import { useUI } from '../../store/UIProvider.jsx';
@@ -137,7 +137,9 @@ function ChallengeComposer({ onBack }) {
 
 export default function CreateModal({ start, projectId }) {
   const { closeModal } = useUI();
-  const [kind, setKind] = useState(start || null);
+  const [kind, setKindRaw] = useState(start === 'project' ? null : start || null);
+  const setKind = (k) => { if (k === 'project') { closeModal(); navigate('/apply'); return; } setKindRaw(k); };
+  useEffect(() => { if (start === 'project') { closeModal(); navigate('/apply'); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Modal title={kind ? (kind === 'challenge' ? 'New challenge' : FORMS[kind].title) : 'Create'} onClose={closeModal} label="Create">
       {!kind ? (

@@ -32,6 +32,15 @@ const seedProfile = () => ({ name: meU.name, handle: meU.handle, bio: meU.bio, l
 const demoState = () => ({
   v: 1,
   wallet: 20,
+  rooms: {
+    p_acheron: { name: 'Acheron team room', ownerId: 'u_dayana', members: ['u_dayana', 'u_priya', 'u_maya'], createdAt: minsAgoToTs(3000), messages: [
+      { id: 'rm1', from: 'u_dayana', text: 'Welcome! This room is for the people actually helping build Acheron. Ask me anything about the plan.', ts: minsAgoToTs(2900) },
+      { id: 'rm2', from: 'u_priya', text: 'Can you share the replica counts you used for the 91% run?', ts: minsAgoToTs(1500) },
+      { id: 'rm3', from: 'u_maya', text: 'I can port the simulation loop to run faster this weekend.', ts: minsAgoToTs(400) },
+    ] },
+    p_hsip: { name: 'HSIP team room', ownerId: 'u_dayana', members: ['u_dayana', 'u_marcus'], createdAt: minsAgoToTs(2000), messages: [{ id: 'rm4', from: 'u_marcus', text: 'Update signing is the gap. I will draft a threat model note.', ts: minsAgoToTs(300) }] },
+  },
+  blocks: {}, hiddenComments: [], appDraft: null, projectEdits: {},
   reviews: {},
   identity: { status: 'verified', checkedAt: Date.now() - 20 * 86400000, vendorRef: 'sbx_demo_account', reason: '' },
   payout: { connected: true, label: 'Sandbox payout account', connectedAt: Date.now() - 20 * 86400000 },
@@ -76,6 +85,7 @@ const freshState = (accountId) => {
     profile: { name: u.name, handle: u.handle, bio: '', location: '', avatar: null, skills: [], interests: [], career: null, socials: {}, openToCollab: false, collabTypes: [] },
     following: [], liked: [], saved: [], joined: [], interested: [], deltas: {}, contributions: [], comments: {},
     notifications: [{ id: 'n_welcome', type: 'follow', text: 'Welcome to Nomi! Set up your profile, then explore a project or play a quick game.', to: '/settings', ts: Date.now(), read: false }],
+    rooms: {}, blocks: {}, hiddenComments: [], appDraft: null, projectEdits: {},
     conversations: [], createdPosts: [], created: { projects: [], ideas: [], tools: [], communities: [], milestones: [], challenges: [] },
     collabRequests: [], toolUses: {}, microSeen: {}, viewed: [], creatorUpdated: [],
     learn: blankLearn(), rewards: seedRewards(),

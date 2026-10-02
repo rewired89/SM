@@ -24,7 +24,11 @@ export default function Trust() {
         <p className="secondary">Contributions are charged to the backer's credit card or Cash App and paid out to the creator's own verified account through our payment partner. In the full product, money for a milestone is released when the creator posts evidence for it, and backers can ask for a refund if a project stops.</p>
       </section>
 
-      <section className="stack"><h2>4. See something wrong?</h2>
+      <section className="stack"><h2>4. Founder moderation</h2>
+        <p className="secondary">Money does not buy access. Founders choose who joins the private team room and who is on the team. They can hide comments and block people who harass them, which also stops those people from joining, commenting or seeing the room. This is meant for harassment, not for honest criticism. Blocked people can report it, and Nomi reviewers can step in.</p>
+      </section>
+
+      <section className="stack"><h2>5. See something wrong?</h2>
         <p className="secondary">Every project has a Report button. Reports go to a human reviewer, and funding can be paused while they look.</p>
       </section>
     </div>

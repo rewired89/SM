@@ -17,6 +17,8 @@ export default function FundingMilestone({ milestone, projectId, compact }) {
         <span className="secondary">{money(milestone.funded, Number.isInteger(milestone.funded) ? 0 : 2)} funded of {money(milestone.needed)}</span>
         {done ? <span className="success">The creator has posted an update.</span> : <span className="muted">Remaining {money(milestone.needed - milestone.funded, 2)}</span>}
       </div>
+      {milestone.unlocks && <p className="secondary"><strong>Unlocks:</strong> {milestone.unlocks}</p>}
+      {milestone.evidence && <p className="muted"><strong>Evidence we will post:</strong> {milestone.evidence}</p>}
       {!compact && !done && <SupportBtn type="project" id={projectId} label={milestone.title} />}
     </div>
   );

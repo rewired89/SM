@@ -17,6 +17,11 @@ export default function Messages({ id }) {
     <div className={`messages ${cv ? 'has-thread' : ''}`}>
       <GlassPanel className="messages__list" as="nav" aria-label="Conversations">
         <h1 className="messages__title">Messages</h1>
+        {sel.myRooms(s).length > 0 && (
+          <ul className="rooms" aria-label="Team rooms">{sel.myRooms(s).map((r) => (
+            <li key={r.projectId}><Link to={`/room/${r.projectId}`} className="conv"><span className="community-mark" style={{ width: 40, height: 40, background: 'linear-gradient(145deg, var(--accent-light), var(--accent2))' }} aria-hidden="true">🔒</span><span className="grow"><strong>{r.name}</strong><span className="conv__last muted">{r.members.length} members · private</span></span></Link></li>
+          ))}</ul>
+        )}
         <ul>
           {sorted.map((c) => {
             const u = sel.userById(c.userId);

@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TactileButton, Badge } from '../ui/index.jsx';
-import { validate, fmtSize } from '../../lib/media.js';
+import { validate, fmtSize, getBlob } from '../../lib/media.js';
 import { useStore } from '../../store/StoreProvider.jsx';
 import { useUI } from '../../store/UIProvider.jsx';
 
@@ -11,11 +11,18 @@ export default function ReviewForm({ project, onResult }) {
   const { s, a } = useStore();
   const { toast } = useUI();
   const prev = s.reviews[project.id]?.materials || {};
-  const [m, setM] = useState({ deck: null, readme: prev.readme || '', github: prev.github || '', website: prev.website || '', youtube: prev.youtube || '', videoLinks: (prev.videoLinks || []).join('\n'), team: (prev.team || []).join('\n'), claim: prev.claim || '', budget: prev.budget || '', limitations: prev.limitations || '', safetyType: prev.safety?.type || '', safetyNote: prev.safety?.note || '', openLink: prev.openLink || '' });
+  const pl = project.links || [];
+  const app = { budget: (project.budget || []).map((b) => `$${b.amount} ${b.item}: ${b.why}`).join('. '), claim: [project.problem, project.approach].filter(Boolean).join('\n\n'), limitations: project.risks || '', github: pl.find((l) => l.kind === 'repo')?.url || '', youtube: pl.find((l) => /youtube|youtu\.be/.test(l.host))?.url || '', website: pl.find((l) => l.kind === 'link' && !/youtube|youtu\.be/.test(l.host))?.url || '' };
+  const [m, setM] = useState({ deck: null, readme: prev.readme || '', github: prev.github || app.github, website: prev.website || app.website, youtube: prev.youtube || app.youtube, videoLinks: (prev.videoLinks || []).join('\n'), team: (prev.team || []).join('\n'), claim: prev.claim || app.claim, budget: prev.budget || app.budget, limitations: prev.limitations || app.limitations, safetyType: prev.safety?.type || '', safetyNote: prev.safety?.note || '', openLink: prev.openLink || '' });
   const [videos, setVideos] = useState([]);
   const [busy, setBusy] = useState(-1);
   const deckRef = useRef(null), readmeRef = useRef(null), vidRef = useRef(null);
   const set = (k) => (e) => setM({ ...m, [k]: e.target.value });
+  useEffect(() => {
+    const dm = (project.media || []).find((x) => (x.kind === 'pdf' || x.kind === 'deck') && x.id && !x.src);
+    if (!dm) return;
+    getBlob(dm.id).then((blob) => { if (blob) setM((cur) => (cur.deck ? cur : { ...cur, deck: { file: new File([blob], dm.name, { type: dm.type }), kind: dm.kind } })); });
+  }, [project.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pickDeck = (f) => { if (!f) return; const v = validate(f); if (!v.ok || !['pdf', 'deck'].includes(v.kind)) return toast('Please upload a PDF or PowerPoint file.', { tone: 'danger' }); setM({ ...m, deck: { file: f, kind: v.kind } }); };
   const pickReadme = async (f) => { if (!f) return; if (f.size > 200000) return toast('README files over 200 KB are too large for this prototype.', { tone: 'danger' }); setM({ ...m, readme: await f.text() }); };

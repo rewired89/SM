@@ -45,6 +45,7 @@ export default function CollabPage({ slug }) {
         </div>
         <div className="row row--wrap">
           <SupportBtn type={type} id={e.id} label={e.title} className="btn" />
+          {type === 'project' && (mine || sel.roomOf(s, e.id)?.members.includes(ME)) && <TactileButton icon="mail" to={`/room/${e.id}`}>Team room</TactileButton>}
           <TactileButton icon="users" variant="primary" disabled={mine} onClick={() => openModal('collab', { targetType: type, targetId: e.id })}>Request to join</TactileButton>
         </div>
       </GlassPanel>

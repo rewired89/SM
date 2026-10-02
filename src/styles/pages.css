@@ -223,3 +223,28 @@
 .checklist-card { display: grid; gap: 12px; }
 .step-no { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: rgba(var(--accent-rgb), 0.12); color: var(--accent-strong); flex: none; }
 .step-no.is-done { background: #12a864; color: #fff; }
+
+/* ---- application wizard ---- */
+.wizard { display: flex; gap: 8px; flex-wrap: wrap; }
+.wizard__step { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.6); font-weight: 650; color: var(--text-muted); }
+.wizard__step.is-now { background: #fff; color: var(--text-primary); box-shadow: 0 4px 10px -4px rgba(30, 50, 100, 0.3); }
+.wizard__step.is-done { color: var(--text-secondary); }
+.wizard__step:disabled { opacity: 0.55; cursor: default; }
+.money-in { display: flex; align-items: center; gap: 4px; width: 130px; flex: none; font-weight: 700; }
+.money-in .input { padding-right: 8px; }
+.totals { padding: 12px 16px; border-radius: 14px; background: rgba(var(--accent-rgb), 0.08); font-size: 1.05rem; }
+.totals.is-bad { background: rgba(214, 44, 67, 0.08); }
+.totals.is-ok { background: rgba(18, 168, 100, 0.1); }
+.big { font-size: 1.8rem; letter-spacing: -0.03em; color: var(--accent-strong); }
+@media (max-width: 760px) { .wizard__label { display: none; } .wizard__step { padding: 6px; } .money-in { width: 110px; } }
+
+/* ---- team room ---- */
+.room { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.room__chat { display: flex; flex-direction: column; height: 560px; overflow: hidden; }
+.sysmsg { align-self: center; font-size: 0.8rem; color: var(--text-muted); padding: 4px 12px; border-radius: 999px; background: rgba(30, 50, 100, 0.06); }
+.rooms { display: grid; gap: 2px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+.pre { white-space: pre-wrap; }
+.budget { display: grid; gap: 10px; }
+.bubble strong { font-size: 0.78rem; }
+@media (max-width: 900px) { .room { grid-template-columns: 1fr; } .room__chat { height: 460px; } }
+ol.wizard, .rooms { list-style: none; margin: 0; padding: 0; }

@@ -5,6 +5,7 @@ import { PersonChip, FollowBtn, SupportBtn } from '../common/bits.jsx';
 import FundingMilestone from './FundingMilestone.jsx';
 import PostCard from '../feed/PostCard.jsx';
 import CommentThread from '../feed/CommentThread.jsx';
+import ProjectStory from './ProjectStory.jsx';
 import TrustBadge from '../trust/TrustBadge.jsx';
 import Attachments from '../media/Attachments.jsx';
 import GameBreak from '../games/GameBreak.jsx';
@@ -14,6 +15,7 @@ import { useUI } from '../../store/UIProvider.jsx';
 import * as sel from '../../store/selectors.js';
 import { money, pctLabel } from '../../lib/format.js';
 import { ME } from '../../data/users.js';
+import { navigate } from '../../lib/router.js';
 
 export default function ProjectPage({ id }) {
   const { s, a } = useStore();
@@ -47,12 +49,17 @@ export default function ProjectPage({ id }) {
           <FollowBtn type="project" id={p.id} name={p.title} size="md" />
           {mine && <TactileButton icon="coin" to={`/funding/${p.id}`}>{sel.fundable(s, 'project', p).ok ? 'Funding status' : 'Apply for funding'}</TactileButton>}
           {!mine && <TactileButton variant="ghost" onClick={() => { const r = prompt('What is wrong with this project? A human reviewer will read it.'); if (r && r.trim()) a.reportProject(p.id, r.trim()); }}>Report</TactileButton>}
+          {mine && <TactileButton icon="edit" to={`/apply/${p.id}`}>Edit project</TactileButton>}
+          {mine && p.fundingLocked && sel.fundedOf(s, 'project', p) === 0 && s.created.projects.some((x) => x.id === p.id) && <TactileButton variant="ghost" onClick={() => { if (confirm('Withdraw the funding terms so you can change the amounts? Funding turns off until you submit and pass review again.')) { if (a.withdrawFunding(p.id)) navigate(`/apply/${p.id}`); } }}>Withdraw funding terms</TactileButton>}
+          {(mine || sel.roomOf(s, p.id)?.members.includes(ME)) && <TactileButton icon="mail" to={`/room/${p.id}`}>Team room</TactileButton>}
           {mine && <TactileButton variant="primary" icon="edit" onClick={() => openModal('create', { start: 'update', projectId: p.id })}>Post an update</TactileButton>}
           {!mine && <TactileButton onClick={() => a.cheer(p.id, p.title)}>👏 Cheer · 5 ✦{s.rewards.cheers[p.id] ? ` (${s.rewards.cheers[p.id]})` : ''}</TactileButton>}
         </div>
       </GlassPanel>
 
       <section className="stack stack--sm"><h2>About</h2><p className="secondary prose">{p.about}</p></section>
+
+      <ProjectStory project={p} />
 
       <Attachments entity={p} />
 

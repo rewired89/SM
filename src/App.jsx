@@ -16,6 +16,8 @@ import Play from './pages/Play.jsx';
 import FundingReadiness from './pages/FundingReadiness.jsx';
 import Trust from './pages/Trust.jsx';
 import CollabPage from './pages/CollabPage.jsx';
+import RoomPage from './pages/RoomPage.jsx';
+import Apply from './pages/Apply.jsx';
 import Settings from './pages/Settings.jsx';
 import Rewards from './pages/Rewards.jsx';
 import ArcadePage from './pages/ArcadePage.jsx';
@@ -41,6 +43,8 @@ function Router() {
     case 'collab': return <CollabPage key={dec} slug={dec} />;
     case 'funding': return <FundingReadiness key={dec} id={dec} />;
     case 'trust': return <Trust />;
+    case 'room': return <RoomPage key={dec} id={dec} />;
+    case 'apply': return <Apply key={dec || 'new'} id={dec} />;
     case 'settings': return <Settings />;
     case 'rewards': return <Rewards />;
     case 'arcade': return <ArcadePage id={dec} />;

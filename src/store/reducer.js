@@ -48,7 +48,8 @@ export function reducer(s, a) {
     case 'CREATE': {
       const c = s.created;
       const map = { project: 'projects', idea: 'ideas', tool: 'tools', community: 'communities', challenge: 'challenges' };
-      return { ...s, created: { ...c, [map[a.kind]]: [a.entity, ...c[map[a.kind]]], milestones: a.milestone ? [...c.milestones, a.milestone] : c.milestones }, createdPosts: a.post ? [a.post, ...s.createdPosts] : s.createdPosts };
+      const ms = a.milestones || (a.milestone ? [a.milestone] : []);
+      return { ...s, created: { ...c, [map[a.kind]]: [a.entity, ...c[map[a.kind]]], milestones: [...c.milestones, ...ms] }, createdPosts: a.post ? [a.post, ...s.createdPosts] : s.createdPosts };
     }
     case 'COLLAB_DECIDE': return { ...s, collabRequests: s.collabRequests.map((r) => (r.id === a.id ? { ...r, status: a.status } : r)) };
     case 'COLLAB': return { ...s, collabRequests: [a.request, ...s.collabRequests] };
@@ -93,6 +94,17 @@ export function reducer(s, a) {
     }
     case 'PAY_DEFAULT': return { ...s, payments: { ...s.payments, defaultId: a.id } };
     case 'LIMIT': return { ...s, monthlyLimit: a.n, wallet: +(s.wallet + (a.n - s.monthlyLimit)).toFixed(2) };
+    case 'PROJECT_EDIT': {
+      const mine = s.created.projects.some((p) => p.id === a.id);
+      return mine ? { ...s, created: { ...s.created, projects: s.created.projects.map((p) => (p.id === a.id ? { ...p, ...a.patch } : p)) } } : { ...s, projectEdits: { ...s.projectEdits, [a.id]: { ...(s.projectEdits[a.id] || {}), ...a.patch } } };
+    }
+    case 'PROJECT_MONEY': return { ...s, created: { ...s.created, projects: s.created.projects.map((p) => (p.id === a.id ? { ...p, ...a.patch } : p)), milestones: [...s.created.milestones.filter((m) => m.projectId !== a.id), ...a.milestones] } };
+    case 'FUNDING_UNLOCK': { const reviews = { ...s.reviews }; delete reviews[a.id]; return { ...s, reviews, created: { ...s.created, projects: s.created.projects.map((p) => (p.id === a.id ? { ...p, fundingLocked: false } : p)) } }; }
+    case 'DRAFT': return { ...s, appDraft: a.draft };
+    case 'ROOM_SET': return { ...s, rooms: { ...s.rooms, [a.projectId]: a.room } };
+    case 'BLOCK': return { ...s, blocks: { ...s.blocks, [a.projectId]: [...new Set([...(s.blocks[a.projectId] || []), a.userId])] } };
+    case 'UNBLOCK': return { ...s, blocks: { ...s.blocks, [a.projectId]: (s.blocks[a.projectId] || []).filter((x) => x !== a.userId) } };
+    case 'HIDE_COMMENT': return { ...s, hiddenComments: [...s.hiddenComments, a.id] };
     case 'REVIEW': return { ...s, reviews: { ...s.reviews, [a.id]: a.review } };
     case 'IDENTITY': return { ...s, identity: a.identity };
     case 'PAYOUT': return { ...s, payout: a.payout };

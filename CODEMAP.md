@@ -20,7 +20,7 @@ src/components/
   common/bits.jsx              PersonChip, SupportBtn, FollowBtn, StageBadge, NeedsList
   feed/                        Feed, PostCard, PostActions, PostComposer, CommentThread
   ideas/                       IdeaCard, IdeaPage (+Stepper)
-  projects/                    ProjectCard, ProjectPage, ProjectUpdate, FundingMilestone
+  projects/                    ProjectStory (problem, experiments, budget table), ProjectCard, ProjectPage, ProjectUpdate, FundingMilestone
   ai/                          AIToolCard, AIToolPage, AIToolDemo, MicroContribution
   communities/                 CommunityCard (+JoinBtn), CommunityPage
   profile/                     ProfileProjects, ProfileActivity, ContributionHistory
@@ -31,9 +31,9 @@ src/components/
   games/                       ArcadeCard, QuizGame, DodgeGame, RunnerGame, prompts, ResultScreen, GameCard, GameBreak, GameResultCard, BrainMap, BadgeShelf, LearningToday, OfflineBanner, useLoop
   common/ThemePicker.jsx       color pair picker
   modals/                      SupportModal, CollaborationModal, CreateModal (+Challenge), ThemeModal, PaymentModal, ModalHost
-src/pages/                     FundingReadiness, Trust, CollabPage, Settings, Rewards, ArcadePage, Play (hub), PlayGame, Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
+src/pages/                     Apply (project application wizard), RoomPage (private team room), FundingReadiness, Trust, CollabPage, Settings, Rewards, ArcadePage, Play (hub), PlayGame, Home, Explore, Ideas, Projects, AIHub, Communities, Fund, Messages, Notifications, Profile, SearchPage, FilterPage (tag/category)
 ```
 
-Routes: `/funding/:projectId`, `/trust`, `/collab_<name>` (and `/collab/:slug`), `/settings`, `/rewards`, `/arcade/:id[?offline=1]`, `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.
+Routes: `/apply[/:id]`, `/room/:projectId`, `/funding/:projectId`, `/trust`, `/collab_<name>` (and `/collab/:slug`), `/settings`, `/rewards`, `/arcade/:id[?offline=1]`, `/play`, `/play/:gameId|challengeId[?daily=1|offline=1]`, `/`, `/explore`, `/ideas`, `/idea/:id`, `/projects`, `/project/:id`, `/ai`, `/ai/:toolId`, `/communities`, `/community/:id`, `/fund`, `/messages[/:cvId]`, `/notifications`, `/profile`, `/u/:userId`, `/search?q=`, `/tag/:tag`, `/category/:name`.
 
 Docs: `docs/TRUST_AND_SAFETY.md` (what is simulated, what a real build needs, open legal questions).

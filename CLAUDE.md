@@ -20,6 +20,10 @@ Social platform prototype: people discover ideas, projects, AI tools and communi
 
 React 18 + Vite, plain CSS (no UI libs), hash router, client-side state with `useReducer`, persisted to `localStorage` (`nomi_state_v1`). All data is mock, all money is simulated.
 
+## Deploy (GitHub Pages)
+
+The repo root `index.html` is Vite source and cannot run in a browser, so Pages must serve the build. `.github/workflows/deploy.yml` builds and deploys `dist` on every push to main. One-time setup: repo Settings → Pages → Build and deployment → Source: GitHub Actions. Vite `base` is `./` and routing is hash based, so it works under `https://<user>.github.io/<repo>/`.
+
 ## Commands (PowerShell)
 
 ```powershell
